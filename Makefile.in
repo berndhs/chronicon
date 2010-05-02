@@ -13,8 +13,10 @@
 #// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 #//
 
-PRO_FILE = drss.pro
-MAKEFILE = MakeMagnum
+PRO_FILE = chrontop.pro
+DEBUG_SUBS = chronicon
+NODEBUG_SUBS = qoauth
+MAKEFILE = MakeChron
 TOP_MAKEFILE = Makefile
 
 all: $(MAKEFILE)
@@ -29,10 +31,21 @@ distclean: $(MAKEFILE) FORCE
 	rm -f $(TOP_MAKEFILE)
 	
 debug: $(MAKEFILE) FORCE
-	make -f $(MAKEFILE) debug
+	for D in $(NODEBUG_SUBS) ; do \
+	   cd $$D; make -f $(MAKEFILE); \
+	   done
+	for D in $(DEBUG_SUBS) ; do \
+	   cd $$D; make -f $(MAKEFILE) debug ; \
+	   done
+
 
 release: $(MAKEFILE) FORCE
-	make -f $(MAKEFILE) release
+	for D in $(NODEBUG_SUBS) ; do \
+	   cd $$D; make -f $(MAKEFILE); \
+	   done
+	for D in $(DEBUG_SUBS) ; do \
+	   cd $$D; make -f $(MAKEFILE) release ; \
+	   done
 
 install: all FORCE
 	sh install.sh $(DESTDIR)

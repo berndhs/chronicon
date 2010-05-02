@@ -1,6 +1,8 @@
+TEMPLATE = subdirs
+
+SUBDIRS = qoauth chronicon
 
 
-MAKEFILE = MakeChron
+CONFIG += debug_and_release
 
-QT += core gui network
 
