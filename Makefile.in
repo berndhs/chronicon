@@ -1,0 +1,50 @@
+
+# Makefile for magnumopus
+#
+
+#//
+#//  Copyright (C) 2010 - Bernd H Stramm 
+#//
+#// This program is distributed under the terms of 
+#// the GNU General Public License version 3 
+#//
+#// This software is distributed in the hope that it will be useful, 
+#// but WITHOUT ANY WARRANTY; without even the implied warranty 
+#// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+#//
+
+PRO_FILE = drss.pro
+MAKEFILE = MakeMagnum
+TOP_MAKEFILE = Makefile
+
+all: $(MAKEFILE)
+	make -f $(MAKEFILE) all
+
+clean: $(MAKEFILE) FORCE
+	make -f $(MAKEFILE) clean
+
+distclean: $(MAKEFILE) FORCE
+	make -f $(MAKEFILE) distclean
+	rm -f $(MAKEFILE)
+	rm -f $(TOP_MAKEFILE)
+	
+debug: $(MAKEFILE) FORCE
+	make -f $(MAKEFILE) debug
+
+release: $(MAKEFILE) FORCE
+	make -f $(MAKEFILE) release
+
+install: all FORCE
+	sh install.sh $(DESTDIR)
+
+userinstall:
+	sh install.sh $(HOME)/bin
+
+qmake: 
+	$(QMAKE) $(PRO_FILE)
+
+$(MAKEFILE): $(PRO_FILE)
+	$(QMAKE) $(PRO_FILE)
+
+FORCE:
+
