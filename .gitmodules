@@ -1,0 +1,3 @@
+[submodule "qoauth"]
+	path = qoauth
+	url = git@github.com:berndhs/qoauth.git
