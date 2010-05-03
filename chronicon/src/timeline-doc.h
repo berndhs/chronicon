@@ -1,3 +1,6 @@
+#ifndef TIMELINE_DOC_H
+#define TIMELINE_DOC_H
+
 /****************************************************************
  * This file is distributed under the following license:
  *
@@ -19,71 +22,33 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#ifndef CHRONICON_H
-#define CHRONICON_H
-
-#include <QMainWindow>
-#include <QApplication>
-#include <QtOAuth>
-#include <QTimer>
-
-#include "ui_chronicon.h"
-
-#include "network-if.h"
-#include "timeline-view.h"
+#include <QDomDocument>
+#include <QDomElement>
+#include <QObject>
+#include <QDateTime>
+#include "status-block.h"
+#include <map>
 
 namespace chronicon {
 
+typedef std::pair <QString, StatusBlock>      StatusPair;
+typedef std::multimap <QString, StatusBlock>  StatusBlockList;
 
-class Chronicon : public QMainWindow, public Ui_ChroniconWindow {
-Q_OBJECT
+class TimelineDoc {
 
 public:
 
-Chronicon (QWidget * parent=0);
+  TimelineDoc ();
 
-void SetApp (QApplication *a) {pApp = a;}
-
-public slots:
-
-  void quit ();
-  void PollComplete ();
-
-private slots:
-
-  void startMessage ();
-  void finishMessage ();
-  void discardMessage ();
-
-  void firstKey (int key);
-  void returnKey ();
-
-  void Poll ();
-
-  void DebugCheck ();
+  void AddStatus (StatusBlock & block);
+  
+  StatusBlockList & BlockList ();
 
 private:
 
-  void BigEdit ();
-  void SmallEdit ();
-  void Connect ();
-  void SetupTimers ();
-  
-  int  normalEditVertical;
-  QTimer  pollTimer;
-  int     pollPeriod;
-
-  QTimer  debugTimer;
-
-  NetworkIF   network;
-
-  TimelineView  theView;
-
-  QApplication * pApp;
-
+  StatusBlockList    statusList;
 };
 
 } // namespace
-
 
 #endif

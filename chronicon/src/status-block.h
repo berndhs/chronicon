@@ -1,3 +1,6 @@
+#ifndef STATUS_BLOCK_H
+#define STATUS_BLOCK_H
+
 /****************************************************************
  * This file is distributed under the following license:
  *
@@ -19,71 +22,27 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#ifndef CHRONICON_H
-#define CHRONICON_H
-
-#include <QMainWindow>
-#include <QApplication>
-#include <QtOAuth>
-#include <QTimer>
-
-#include "ui_chronicon.h"
-
-#include "network-if.h"
-#include "timeline-view.h"
+#include <QDomElement>
+#include <QString>
 
 namespace chronicon {
 
-
-class Chronicon : public QMainWindow, public Ui_ChroniconWindow {
-Q_OBJECT
-
+class StatusBlock {
 public:
 
-Chronicon (QWidget * parent=0);
+  StatusBlock (QString & id,
+               QDomElement & dom);
 
-void SetApp (QApplication *a) {pApp = a;}
-
-public slots:
-
-  void quit ();
-  void PollComplete ();
-
-private slots:
-
-  void startMessage ();
-  void finishMessage ();
-  void discardMessage ();
-
-  void firstKey (int key);
-  void returnKey ();
-
-  void Poll ();
-
-  void DebugCheck ();
+  QString & Id () { return ident; }
+  QDomElement & DomData () { return domdata; }
 
 private:
 
-  void BigEdit ();
-  void SmallEdit ();
-  void Connect ();
-  void SetupTimers ();
+  QString   ident;
+  QDomElement domdata;
   
-  int  normalEditVertical;
-  QTimer  pollTimer;
-  int     pollPeriod;
-
-  QTimer  debugTimer;
-
-  NetworkIF   network;
-
-  TimelineView  theView;
-
-  QApplication * pApp;
-
 };
 
 } // namespace
-
 
 #endif

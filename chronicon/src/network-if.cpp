@@ -38,7 +38,7 @@ NetworkIF::PullPublicTimeline ()
   QNetworkReply *reply = network.get (request);
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
-                                                  ChronNetworkReply::R_Public);
+                                                  chronicon::R_Public);
   replies[reply] = chReply;
   connect (reply, SIGNAL (finished()), chReply, SLOT (handleReturn()));
   connect (chReply, SIGNAL (Finished(ChronNetworkReply*)),
@@ -52,12 +52,12 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
 {
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
-    if (netReply && reply->Kind() == ChronNetworkReply::R_Public) {
+    TimelineKind kind (reply->Kind());
+    if (kind == chronicon::R_Public) {
       QDomDocument doc;
-      bool ok =doc.setContent (netReply);   
-      qDebug () << " doc text " << doc.toString();
-      qDebug () << " reply contains doc "   << doc.doctype ().name();
-      qDebug () << " reply doc ok " << ok;
+      bool ok = doc.setContent (netReply);   
+      ParseDom (doc, kind);
+      emit ReplyComplete ();
     }
     ReplyMapType::iterator index;
     index = replies.find (netReply);
@@ -75,6 +75,38 @@ void
 NetworkIF::networkError (QNetworkReply::NetworkError err)
 {
   qDebug () << "network error " << err;
+}
+
+void
+NetworkIF::ParseDom (QDomDocument & doc, TimelineKind kind)
+{
+  QDomElement root = doc.documentElement();
+  QDomElement child;
+  qDebug () << " root tag is " << root.tagName ();
+  for (child = root.firstChildElement(); !child.isNull(); 
+       child = child.nextSiblingElement()) {
+    if (child.tagName() == "status") {
+       ParseStatus (child, kind);
+    }
+  }
+}
+
+void
+NetworkIF::ParseStatus (QDomElement & elt, TimelineKind kind)
+{
+  QDomElement  sub;
+  QString      id ("0");
+  for (sub = elt.firstChildElement(); !sub.isNull();
+       sub = sub.nextSiblingElement()) {
+    if (sub.tagName() == "id") {
+      id = sub.text();
+      break;
+    }
+  }
+  if (id != "0") {
+    StatusBlock block (id,elt);
+    emit NewStatusItem (block, kind);
+  }
 }
 
 } // namespace

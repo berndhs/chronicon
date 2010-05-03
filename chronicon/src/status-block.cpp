@@ -19,71 +19,17 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#ifndef CHRONICON_H
-#define CHRONICON_H
+#include "status-block.h"
 
-#include <QMainWindow>
-#include <QApplication>
-#include <QtOAuth>
-#include <QTimer>
-
-#include "ui_chronicon.h"
-
-#include "network-if.h"
-#include "timeline-view.h"
 
 namespace chronicon {
 
+StatusBlock::StatusBlock (QString & id, QDomElement & dom)
+:ident (id),
+ domdata (dom)
+{}
 
-class Chronicon : public QMainWindow, public Ui_ChroniconWindow {
-Q_OBJECT
 
-public:
 
-Chronicon (QWidget * parent=0);
-
-void SetApp (QApplication *a) {pApp = a;}
-
-public slots:
-
-  void quit ();
-  void PollComplete ();
-
-private slots:
-
-  void startMessage ();
-  void finishMessage ();
-  void discardMessage ();
-
-  void firstKey (int key);
-  void returnKey ();
-
-  void Poll ();
-
-  void DebugCheck ();
-
-private:
-
-  void BigEdit ();
-  void SmallEdit ();
-  void Connect ();
-  void SetupTimers ();
-  
-  int  normalEditVertical;
-  QTimer  pollTimer;
-  int     pollPeriod;
-
-  QTimer  debugTimer;
-
-  NetworkIF   network;
-
-  TimelineView  theView;
-
-  QApplication * pApp;
-
-};
 
 } // namespace
-
-
-#endif

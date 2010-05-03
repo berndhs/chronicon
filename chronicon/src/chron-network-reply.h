@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QNetworkReply>
 #include <QUrl>
+#include "chronicon-types.h"
 
 namespace chronicon {
 
@@ -35,17 +36,11 @@ Q_OBJECT
 
 public:
 
-  enum RequestKind {
-         R_None,
-         R_Public,
-         R_Private
-         };
 
-
-  ChronNetworkReply (QUrl &theUrl, QNetworkReply * qnr, RequestKind req);
+  ChronNetworkReply (QUrl &theUrl, QNetworkReply * qnr, TimelineKind req);
 
   QNetworkReply * NetReply() { return reply; }
-  RequestKind     Kind () { return kind; }
+  TimelineKind     Kind () { return kind; }
   QUrl            Url () { return url; }
   
 public slots:
@@ -61,7 +56,7 @@ private:
 
   QUrl           url;
   QNetworkReply  *reply;  
-  RequestKind    kind;
+  TimelineKind    kind;
 
 
 };

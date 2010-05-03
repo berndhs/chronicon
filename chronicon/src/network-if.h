@@ -25,7 +25,9 @@
 #include <QNetworkAccessManager>
 #include "delib-debug.h"
 #include <map>
-#include <chron-network-reply.h>
+#include "chronicon-types.h"
+#include "chron-network-reply.h"
+#include "status-block.h"
 
 namespace chronicon {
 
@@ -45,7 +47,16 @@ public slots:
   void handleReply (ChronNetworkReply *reply);
   void networkError (QNetworkReply::NetworkError err);
 
+signals:
+
+  void NewStatusItem (StatusBlock item, TimelineKind kind);
+  void ReplyComplete ();
+
 private:
+
+  void ParseDom (QDomDocument &doc, TimelineKind kind);
+  void ParseStatus (QDomElement &elt, TimelineKind kind);
+  
 
   QNetworkAccessManager   network;
 

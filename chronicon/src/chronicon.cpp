@@ -34,24 +34,43 @@ Chronicon::Chronicon (QWidget *parent)
  pollPeriod (60*1000),
  debugTimer (this),
  network (this),
+ theView (this),
  pApp(0)
 {
   setupUi (this);
+  theView.SetView (messageView);
+  normalEditVertical = ownMessage->sizePolicy().verticalStretch();
+
+  Connect ();
+  SetupTimers ();
+
+  QTimer::singleShot (2000, this, SLOT (Poll()));
+}
+
+void
+Chronicon::Connect ()
+{
   connect (actionQuit, SIGNAL (triggered()), this, SLOT (quit()));
   connect (typeButton, SIGNAL (clicked()), this, SLOT (startMessage()));
   connect (updateButton, SIGNAL (clicked()), this, SLOT (Poll()));
   connect (sendButton, SIGNAL (clicked()), this, SLOT (finishMessage()));
   connect (cancelButton, SIGNAL (clicked()), this, SLOT (discardMessage()));
-  normalEditVertical = ownMessage->sizePolicy().verticalStretch();
-
   connect (ownMessage, SIGNAL (KeyPressed (int)),
            this, SLOT (firstKey(int)));
   connect (ownMessage, SIGNAL (ReturnPressed ()),
            this, SLOT (returnKey()));
 
+  connect (&network, SIGNAL (NewStatusItem (StatusBlock, TimelineKind)),
+           &theView, SLOT (CatchStatusItem (StatusBlock, TimelineKind)));
+  connect (&network, SIGNAL (ReplyComplete()),
+           this, SLOT (PollComplete()));
+}
+
+void
+Chronicon::SetupTimers ()
+{
   connect (&pollTimer, SIGNAL (timeout()), this, SLOT (Poll()));
   pollTimer.start (pollPeriod);
-  QTimer::singleShot (2000, this, SLOT (Poll()));
 
   connect (&debugTimer, SIGNAL (timeout()), this, SLOT (DebugCheck()));
   debugTimer.start (15*1000);
@@ -102,8 +121,14 @@ Chronicon::returnKey ()
 void
 Chronicon::Poll ()
 {
-  qDebug () << " polling ...";
   network.PullPublicTimeline ();
+}
+
+void
+Chronicon::PollComplete ()
+{
+  theView.Display (R_Public);
+  theView.Show ();
 }
 
 void

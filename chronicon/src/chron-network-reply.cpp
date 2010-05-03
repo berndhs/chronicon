@@ -24,7 +24,9 @@
 
 namespace chronicon {
 
-ChronNetworkReply::ChronNetworkReply (QUrl & theUrl, QNetworkReply * qnr, RequestKind req)
+ChronNetworkReply::ChronNetworkReply (QUrl & theUrl, 
+                                      QNetworkReply * qnr, 
+                                      TimelineKind req)
 :url(theUrl),
  reply(qnr),
  kind (req)

@@ -2,5 +2,5 @@
 *.o
 moc_*
 ui_*
-chronicon/temp/*
+chronicon/tmp/*
 

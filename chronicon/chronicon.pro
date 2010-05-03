@@ -25,8 +25,10 @@
 
 TEMPLATE = app
 
+TARGET = chronicon
 
-CONFIG += qt app 
+
+CONFIG += qt
 
 DEFINES += DELIBERATE_DEBUG=1
 
@@ -34,7 +36,9 @@ QT += core gui xml network qoauth crypto webkit
 
 MAKEFILE = MakeChron
 
-UI_DIR = temp/ui
+UI_DIR = tmp/ui
+OBJECTS_DIR = tmp/obj
+MOC_DIR = tmp/moc
 
 RESOURCES +=
 
@@ -50,7 +54,10 @@ HEADERS = src/chronicon.h \
           src/delib-debug.h \
           src/cmdoptions.h \
           src/chron-network-reply.h \
-          src/network-if.h
+          src/network-if.h \
+          src/timeline-view.h \
+          src/timeline-doc.h \
+          src/status-block.h \
 
 
 SOURCES = src/main.cpp \
@@ -59,7 +66,11 @@ SOURCES = src/main.cpp \
           src/delib-debug.cpp \
           src/cmdoptions.cpp \
           src/chron-network-reply.cpp \
-          src/network-if.cpp
+          src/network-if.cpp \
+          src/timeline-view.cpp \
+          src/timeline-doc.cpp \
+          src/status-block.cpp
+
 
 FORMS = ui/chronicon.ui \
         ui/DebugLog.ui
