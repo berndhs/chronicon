@@ -19,64 +19,21 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#ifndef CHRONICON_H
-#define CHRONICON_H
+#include "chron-network-reply.h"
 
-#include <QMainWindow>
-#include <QApplication>
-#include <QtOAuth>
-#include <QTimer>
-
-#include "ui_chronicon.h"
-
-#include "network-if.h"
 
 namespace chronicon {
 
+ChronNetworkReply::ChronNetworkReply (QUrl & theUrl, QNetworkReply * qnr, RequestKind req)
+:url(theUrl),
+ reply(qnr),
+ kind (req)
+{}
 
-class Chronicon : public QMainWindow, public Ui_ChroniconWindow {
-Q_OBJECT
-
-public:
-
-Chronicon (QWidget * parent=0);
-
-void SetApp (QApplication *a) {pApp = a;}
-
-public slots:
-
-  void quit ();
-
-private slots:
-
-  void startMessage ();
-  void finishMessage ();
-  void discardMessage ();
-
-  void firstKey (int key);
-  void returnKey ();
-
-  void Poll ();
-
-  void DebugCheck ();
-
-private:
-
-  void BigEdit ();
-  void SmallEdit ();
-  int  normalEditVertical;
-  QTimer  pollTimer;
-  int     pollPeriod;
-
-  QTimer  debugTimer;
-
-  NetworkIF   network;
-
-  QApplication * pApp;
-
-};
+void
+ChronNetworkReply::handleReturn ()
+{
+  emit Finished (this);
+}
 
 } // namespace
-
-
-#endif

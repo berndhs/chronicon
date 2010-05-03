@@ -19,60 +19,50 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#ifndef CHRONICON_H
-#define CHRONICON_H
+#ifndef CHRON_NETWORK_REPLY_H
+#define CHRON_NETWORK_REPLY_H
 
-#include <QMainWindow>
-#include <QApplication>
-#include <QtOAuth>
-#include <QTimer>
-
-#include "ui_chronicon.h"
-
-#include "network-if.h"
+#include <QObject>
+#include <QNetworkReply>
+#include <QUrl>
 
 namespace chronicon {
 
 
-class Chronicon : public QMainWindow, public Ui_ChroniconWindow {
+class ChronNetworkReply : public QObject {
+
 Q_OBJECT
 
 public:
 
-Chronicon (QWidget * parent=0);
+  enum RequestKind {
+         R_None,
+         R_Public,
+         R_Private
+         };
 
-void SetApp (QApplication *a) {pApp = a;}
 
+  ChronNetworkReply (QUrl &theUrl, QNetworkReply * qnr, RequestKind req);
+
+  QNetworkReply * NetReply() { return reply; }
+  RequestKind     Kind () { return kind; }
+  QUrl            Url () { return url; }
+  
 public slots:
 
-  void quit ();
+  void handleReturn ();
 
-private slots:
+signals:
 
-  void startMessage ();
-  void finishMessage ();
-  void discardMessage ();
-
-  void firstKey (int key);
-  void returnKey ();
-
-  void Poll ();
-
-  void DebugCheck ();
+  void Finished (ChronNetworkReply *);
 
 private:
 
-  void BigEdit ();
-  void SmallEdit ();
-  int  normalEditVertical;
-  QTimer  pollTimer;
-  int     pollPeriod;
 
-  QTimer  debugTimer;
+  QUrl           url;
+  QNetworkReply  *reply;  
+  RequestKind    kind;
 
-  NetworkIF   network;
-
-  QApplication * pApp;
 
 };
 

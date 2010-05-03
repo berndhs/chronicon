@@ -33,6 +33,7 @@ Chronicon::Chronicon (QWidget *parent)
  pollTimer (this),
  pollPeriod (60*1000),
  debugTimer (this),
+ network (this),
  pApp(0)
 {
   setupUi (this);
@@ -102,13 +103,14 @@ void
 Chronicon::Poll ()
 {
   qDebug () << " polling ...";
+  network.PullPublicTimeline ();
 }
 
 void
 Chronicon::DebugCheck ()
 {
   qDebug() << " debug check " << 
-        QDateTime::currentDateTime().toString ("ddd hh:mm:ss");
+      QDateTime::currentDateTime().toString ("ddd hh:mm:ss");
 }
 
 void
