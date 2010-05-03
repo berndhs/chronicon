@@ -1,2 +1,6 @@
 *~
 *.o
+moc_*
+ui_*
+chronicon/temp/*
+

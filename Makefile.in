@@ -1,5 +1,5 @@
 
-# Makefile for magnumopus
+# Makefile for chronicon
 #
 
 #//
@@ -57,7 +57,7 @@ qmake:
 	$(QMAKE) $(PRO_FILE)
 
 $(MAKEFILE): $(PRO_FILE)
-	$(QMAKE) $(PRO_FILE)
+	$(QMAKE) $(PRO_FILE) -o $(MAKEFILE)
 
 FORCE:
 
