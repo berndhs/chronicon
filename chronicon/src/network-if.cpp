@@ -20,6 +20,7 @@
  ****************************************************************/
 
 #include "network-if.h"
+#include <QDomDocument>
 
 namespace chronicon {
 
@@ -32,7 +33,7 @@ void
 NetworkIF::PullPublicTimeline ()
 {
   QNetworkRequest request;
-  QUrl url  ("http://api.twitter.com/1/statuses/public_timeline.rss");
+  QUrl url  ("http://api.twitter.com/1/statuses/public_timeline.xml");
   request.setUrl(url);
   QNetworkReply *reply = network.get (request);
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
@@ -52,9 +53,11 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
     if (netReply && reply->Kind() == ChronNetworkReply::R_Public) {
-      QByteArray data = netReply->readAll ();
-      qDebug () << "network reply from " << reply->Url();
-      qDebug () << "network reply data" << data;
+      QDomDocument doc;
+      bool ok =doc.setContent (netReply);   
+      qDebug () << " doc text " << doc.toString();
+      qDebug () << " reply contains doc "   << doc.doctype ().name();
+      qDebug () << " reply doc ok " << ok;
     }
     ReplyMapType::iterator index;
     index = replies.find (netReply);
