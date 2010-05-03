@@ -3,4 +3,5 @@
 moc_*
 ui_*
 chronicon/tmp/*
+doc/html
 
