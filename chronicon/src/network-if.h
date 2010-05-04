@@ -23,6 +23,8 @@
 #define NETWORK_IF_H
 
 #include <QNetworkAccessManager>
+#include <QtCrypto>
+#include <QAuthenticator>
 #include "delib-debug.h"
 #include <map>
 #include "chronicon-types.h"
@@ -41,11 +43,19 @@ public:
   NetworkIF (QObject *parent);
 
   void PullPublicTimeline ();
+  void PushUserStatus (QString status);
+
+  void SetTimeline (TimelineKind k);
+  void SetBasicAuth (QString user, QString pass);
 
 public slots:
+  
+  void login (int * reply = 0);
 
   void handleReply (ChronNetworkReply *reply);
   void networkError (QNetworkReply::NetworkError err);
+  void authProvide (QNetworkReply * reply,
+                     QAuthenticator * authenticator);
 
 signals:
 
@@ -56,9 +66,15 @@ private:
 
   void ParseDom (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);
+  void SwitchTimeline ();
   
 
   QNetworkAccessManager   network;
+
+  TimelineKind            serviceKind;
+  QString                 timelineName;
+  QString                 user;
+  QString                 pass;
 
   typedef std::map <QNetworkReply *, ChronNetworkReply*>  ReplyMapType;
 

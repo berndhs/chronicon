@@ -24,6 +24,7 @@
 
 #include <QWebView>
 #include <QWebElement>
+#include <QUrl>
 #include <QObject>
 #include "chronicon-types.h"
 #include "timeline-doc.h"
@@ -35,20 +36,22 @@ namespace chronicon {
 class Paragraph {
 public:
   Paragraph (){}
-  Paragraph (QString tx, QString au, QString url, QDateTime dt, bool tr)
-           : text(tx),author(au),auth_url(url),date(dt),truncated(tr)
+  Paragraph (QString tx, QString au, QString url, QDateTime dt, QString iu, bool tr)
+           : text(tx),author(au),authUrl(url),date(dt),imgUrl(iu),truncated(tr)
              {}
   Paragraph (const Paragraph &other)
            : text(other.text),
              author(other.author),
-             auth_url(other.auth_url),
+             authUrl(other.authUrl),
              date(other.date),
+             imgUrl(other.imgUrl),
              truncated(other.truncated)
              {}
   QString text;
   QString author;
-  QString auth_url;
+  QString authUrl;
   QDateTime date;
+  QString imgUrl;
   bool    truncated;
 };
 
@@ -60,7 +63,7 @@ public:
 
   TimelineView (QObject *parent=0);
 
-  void SetView (QWebView * pv) { view = pv; }
+  void SetView (QWebView * pv);
 
   TimelineDoc & CurrentDoc () { return doc[currentKind]; }
   TimelineDoc & Doc (TimelineKind k);
@@ -72,6 +75,7 @@ public:
 public slots:
 
   void CatchStatusItem (StatusBlock block, TimelineKind kind);
+  void LinkClicked (const QUrl & url);
 
 private:
 
@@ -79,12 +83,14 @@ private:
   bool ParseBlock (      StatusBlock & block,
                          QString     & text,
                          QString     & author,
-                         QString     & auth_url,
+                         QString     & authUrl,
                          QDateTime   & date,
+                         QString     & imgUrl,
                          bool        & truncated);
   bool ParseUser (const QDomElement & elt,
                         QString     & author,
-                        QString     & auth_url);
+                        QString     & authUrl,
+                        QString     & imgUrl);
   void FormatParagraph (QString & html, const Paragraph & para);
 
   QString Ago (int secs);

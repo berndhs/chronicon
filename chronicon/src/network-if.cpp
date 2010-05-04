@@ -20,25 +20,47 @@
  ****************************************************************/
 
 #include "network-if.h"
+#include "ui_enterpass.h"
 #include <QDomDocument>
 
 namespace chronicon {
 
 NetworkIF::NetworkIF (QObject *parent)
-:network(parent)
+:network(parent),
+ serviceKind (R_Public),
+ user (QString()),
+ pass (QString())
 {
+  SwitchTimeline();
+  connect (&network, SIGNAL (authenticationRequired(QNetworkReply*, QAuthenticator*)),
+           this, SLOT (authProvide (QNetworkReply*, QAuthenticator*)));
+}
+
+void
+NetworkIF::SwitchTimeline ()
+{
+  switch (serviceKind) {
+    case R_Private:
+      timelineName = "user_timeline";
+      break;
+    case R_Public:
+    default:
+      timelineName = "public_timeline";
+      break;
+  }
 }
 
 void
 NetworkIF::PullPublicTimeline ()
 {
   QNetworkRequest request;
-  QUrl url  ("http://api.twitter.com/1/statuses/public_timeline.xml");
+  QUrl url  (QString("http://api.twitter.com/1/statuses/%1.xml")
+                    .arg(timelineName));
   request.setUrl(url);
   QNetworkReply *reply = network.get (request);
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
-                                                  chronicon::R_Public);
+                                                  serviceKind);
   replies[reply] = chReply;
   connect (reply, SIGNAL (finished()), chReply, SLOT (handleReturn()));
   connect (chReply, SIGNAL (Finished(ChronNetworkReply*)),
@@ -53,7 +75,7 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
     TimelineKind kind (reply->Kind());
-    if (kind == chronicon::R_Public) {
+    if (kind == chronicon::R_Public || kind == chronicon::R_Private) {
       QDomDocument doc;
       bool ok = doc.setContent (netReply);   
       ParseDom (doc, kind);
@@ -67,6 +89,40 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
     delete reply;
     if (netReply) {
       netReply->deleteLater();
+    }
+  }
+}
+
+void
+NetworkIF::login (int * reply)
+{
+  Ui_TextEnter textenter;
+  QDialog  textDialog;
+  textenter.setupUi (&textDialog);
+  textenter.passEdit->setEchoMode (QLineEdit::Password);
+  int ok = textDialog.exec ();
+  if (ok) {
+    user = textenter.userEdit->text();
+    pass = textenter.passEdit->text();
+    serviceKind = R_Private;
+    SwitchTimeline ();
+  } else {
+    serviceKind = R_Public;
+    SwitchTimeline ();
+  }
+  if (reply) {
+    *reply = ok;
+  }
+}
+
+void
+NetworkIF::authProvide (QNetworkReply *reply, QAuthenticator *authenticator)
+{
+  if (reply && authenticator) {
+    int tryAgain (0);
+    login (&tryAgain);
+    if (tryAgain == 0) {
+      reply->close();
     }
   }
 }
@@ -106,6 +162,22 @@ NetworkIF::ParseStatus (QDomElement & elt, TimelineKind kind)
     StatusBlock block (id,elt);
     emit NewStatusItem (block, kind);
   }
+}
+
+void
+NetworkIF::PushUserStatus (QString status)
+{
+  QByteArray encoded = QUrl::toPercentEncoding (status);
+  QUrl url ("http://api.twitter.com/1/statuses/update.xml");
+  url.addEncodedQueryItem (QString("status").toLocal8Bit(),
+                           encoded);
+  QNetworkRequest  req(url);
+  QByteArray nada;
+  QNetworkReply * reply = network.post (req,nada);
+
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  chronicon::R_Update);
 }
 
 } // namespace

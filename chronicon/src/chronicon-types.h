@@ -28,6 +28,7 @@ namespace chronicon {
          R_None = 0,
          R_Public,
          R_Private,
+         R_Update,
          R_Top
          };
 

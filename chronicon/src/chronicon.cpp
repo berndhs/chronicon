@@ -23,10 +23,14 @@
 #include "chronicon.h"
 #include <QDebug>
 #include <QDateTime>
+#include <QMessageBox>
+#include <QLineEdit>
+#include <QByteArray>
 
 
 
 namespace chronicon {
+
 
 Chronicon::Chronicon (QWidget *parent)
 :QMainWindow(parent),
@@ -42,15 +46,15 @@ Chronicon::Chronicon (QWidget *parent)
   normalEditVertical = ownMessage->sizePolicy().verticalStretch();
 
   Connect ();
-  SetupTimers (false);
+  SetupTimers (true);
 
-  QTimer::singleShot (2000, this, SLOT (Poll()));
 }
 
 void
 Chronicon::Connect ()
 {
   connect (actionQuit, SIGNAL (triggered()), this, SLOT (quit()));
+  connect (actionLogin, SIGNAL (triggered()), &network, SLOT (login()));
   connect (typeButton, SIGNAL (clicked()), this, SLOT (startMessage()));
   connect (updateButton, SIGNAL (clicked()), this, SLOT (Poll()));
   connect (sendButton, SIGNAL (clicked()), this, SLOT (finishMessage()));
@@ -79,6 +83,20 @@ Chronicon::SetupTimers (bool debug)
 }
 
 void
+Chronicon::Start ()
+{
+  show ();
+  QTimer::singleShot (1000, this, SLOT (Poll()));
+}
+
+void
+Chronicon::ReadRSA (QCA::SecureArray & secure)
+{
+  
+}
+
+
+void
 Chronicon::quit ()
 {
   if (pApp) {
@@ -98,6 +116,7 @@ Chronicon::finishMessage ()
   QString msg;
   ownMessage->extractPlain (msg);
   qDebug () << " message is " << msg;
+  network.PushUserStatus (msg);
   SmallEdit ();
 }
 
@@ -124,11 +143,13 @@ void
 Chronicon::Poll ()
 {
   network.PullPublicTimeline ();
+  loadLabel->setText ("load...");
 }
 
 void
 Chronicon::PollComplete ()
 {
+  loadLabel->setText ("");
   theView.Display (R_Public);
   theView.Show ();
 }

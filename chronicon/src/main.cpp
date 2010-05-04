@@ -56,7 +56,7 @@ main (int argc, char * argv[])
   chronicon::Chronicon chron;
  
   chron.SetApp (&App);
-  chron.show ();
+  chron.Start ();
 
   int status = App.exec ();
   

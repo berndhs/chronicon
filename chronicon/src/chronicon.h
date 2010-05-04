@@ -25,6 +25,7 @@
 #include <QMainWindow>
 #include <QApplication>
 #include <QtOAuth>
+#include <QtCrypto>
 #include <QTimer>
 
 #include "ui_chronicon.h"
@@ -43,6 +44,8 @@ public:
 Chronicon (QWidget * parent=0);
 
 void SetApp (QApplication *a) {pApp = a;}
+
+void Start ();
 
 public slots:
 
@@ -68,6 +71,7 @@ private:
   void SmallEdit ();
   void Connect ();
   void SetupTimers (bool debug=false);
+  void ReadRSA (QCA::SecureArray & secure);
   
   int  normalEditVertical;
   QTimer  pollTimer;
@@ -80,6 +84,8 @@ private:
   TimelineView  theView;
 
   QApplication * pApp;
+
+  QOAuth::Interface    auth;
 
 };
 

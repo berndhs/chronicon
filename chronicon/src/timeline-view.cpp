@@ -23,7 +23,7 @@
 #include "timeline-view.h"
 #include <QWebPage>
 #include <QWebFrame>
-#include <QWebElementCollection>
+#include <QDesktopServices>
 
 namespace chronicon {
 
@@ -42,6 +42,17 @@ TimelineView::TimelineView (QObject *parent)
                     " padding:2px; margin:2x; "
                     " font-family:Times New Roman; } </style>");
   head = headPattern.arg (style);
+}
+
+void
+TimelineView::SetView (QWebView *pv)
+{
+  view = pv;
+  if (view) {
+    connect (view, SIGNAL (linkClicked (const QUrl&)),
+             this, SLOT (LinkClicked (const QUrl&)));
+    view->page ()->setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
+  }
 }
 
 TimelineDoc &
@@ -63,6 +74,14 @@ TimelineView::Display (TimelineKind k)
 }
 
 void
+TimelineView::LinkClicked (const QUrl & url)
+{
+  if (url.isValid()) {
+    QDesktopServices::openUrl (url);
+  }
+}
+
+void
 TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
 {
   if (kind > R_None && kind < R_Top) {
@@ -81,12 +100,13 @@ TimelineView::AddCurrent (StatusBlock block)
   QString id = block.Id();
   QString text ("");
   QString author("anonymous");
-  QString auth_url;
+  QString authUrl;
+  QString imgUrl;
   bool    truncated ("false");
   QDateTime date;
-  bool good = ParseBlock (block, text, author, auth_url, date, truncated);
+  bool good = ParseBlock (block, text, author, authUrl, date, imgUrl, truncated);
   if (good) {
-    paragraphs[id] = Paragraph (text,author,auth_url, date,truncated);
+    paragraphs[id] = Paragraph (text,author,authUrl, date, imgUrl, truncated);
   }
 }
 
@@ -94,8 +114,9 @@ bool
 TimelineView::ParseBlock (StatusBlock & block,
                          QString     & text,
                          QString     & author,
-                         QString     & auth_url,
+                         QString     & authUrl,
                          QDateTime   & date,
+                         QString     & imgUrl,
                          bool        & truncated)
 {
   QDomElement top = block.DomData ();
@@ -111,7 +132,7 @@ TimelineView::ParseBlock (StatusBlock & block,
       truncated = (child.text() == "true");
       expectMore --;
     } else if (tag == "user") {
-      if (ParseUser (child, author, auth_url)) {
+      if (ParseUser (child, author, authUrl, imgUrl)) {
         expectMore --;
       }
     } else if (tag == "created_at") {
@@ -126,10 +147,11 @@ TimelineView::ParseBlock (StatusBlock & block,
 bool
 TimelineView::ParseUser (const QDomElement & elt,
                                QString     & author,
-                               QString     & auth_url)
+                               QString     & authUrl,
+                               QString     & imgUrl)
 {
   QDomElement child;
-  int expectMore = 2;
+  int expectMore = 3;
   for (child = elt.firstChildElement(); !child.isNull();
        child = child.nextSiblingElement()) {
     QString tag = child.tagName();
@@ -137,7 +159,10 @@ TimelineView::ParseUser (const QDomElement & elt,
       author = child.text();
       expectMore --;
     } else if (tag == "url") {
-      auth_url = child.text();
+      authUrl = child.text();
+      expectMore --;
+    } else if (tag == "profile_image_url") {
+      imgUrl = child.text ();
       expectMore --;
     }
   }
@@ -148,9 +173,11 @@ void
 TimelineView::FormatParagraph (QString & html, const Paragraph & para)
 {
   html = "<p>";
+  QString imgPattern ("<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" />");
+  html.append (imgPattern.arg(para.imgUrl));
   html.append (para.text);
   QString urlPattern ("&nbsp;<a href=\"%1\">%2</a>");
-  html.append (urlPattern.arg(para.auth_url).arg(para.author));
+  html.append (urlPattern.arg(para.authUrl).arg(para.author));
   QDateTime now = QDateTime::currentDateTime().toUTC();
   int ago = para.date.secsTo (now);
   html.append ("&nbsp;" + Ago(ago));
