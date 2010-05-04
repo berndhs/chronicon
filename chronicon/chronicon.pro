@@ -42,7 +42,7 @@ UI_DIR = tmp/ui
 OBJECTS_DIR = tmp/obj
 MOC_DIR = tmp/moc
 
-RESOURCES +=
+RESOURCES += chronicon.qrc
 
 INCLUDEPATH += src 
 #INCLUDEPATH += ../qoauth/include

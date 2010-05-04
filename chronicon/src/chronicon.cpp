@@ -119,7 +119,24 @@ Chronicon::finishMessage ()
 {
   QString msg;
   ownMessage->extractPlain (msg);
-  network.PushUserStatus (msg);
+  msg = msg.trimmed();
+  int len = msg.length();
+  bool sendit(true);
+  if (len > 0) {
+    QByteArray data = msg.toUtf8();
+    int datalen = data.size();
+    if (datalen > 140) {
+       QMessageBox toolong;
+       toolong.setText (tr("Message too long for Twitter, send anyway?"));
+       QAbstractButton * yesBut = toolong.addButton (QMessageBox::Ok);
+       QAbstractButton * noBut = toolong.addButton (QMessageBox::Cancel);
+       toolong.exec ();
+       sendit = (toolong.clickedButton() == yesBut);
+    }
+    if (sendit) {
+      network.PushUserStatus (msg);
+    }
+  }
   SmallEdit ();
 }
 
@@ -146,7 +163,7 @@ void
 Chronicon::Poll ()
 {
   network.PullTimeline ();
-  loadLabel->setText ("load...");
+  loadLabel->setText (tr("load..."));
 }
 
 void
@@ -159,7 +176,7 @@ Chronicon::RePoll (TimelineKind kind)
   pollTimer.start (pollPeriod);
   theView.Display (currentView);
   network.PullTimeline ();
-  loadLabel->setText ("reload...");
+  loadLabel->setText (tr("reload..."));
 }
 
 void

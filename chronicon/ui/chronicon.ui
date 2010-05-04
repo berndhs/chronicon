@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Chronicon</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../chronicon.qrc">
+    <normaloff>:/ch.png</normaloff>:/ch.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -188,6 +192,8 @@
    <header location="global">../src/chron-textedit.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../chronicon.qrc"/>
+ </resources>
  <connections/>
 </ui>
