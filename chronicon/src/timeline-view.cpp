@@ -35,8 +35,13 @@ TimelineView::TimelineView (QObject *parent)
   dtd = QString 
 ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\""
  " \"http://www.w3.org/TR/html4/loose.dtd\">");
-  head = QString ("<head><title>Tweet List</title><meta http-equiv="
-             "\"Content-Type\" content=\"text/html;charset=utf-8\" ></head>");
+  QString headPattern = QString ("<head><title>Tweet List</title><meta http-equiv="
+             "\"Content-Type\" content=\"text/html;charset=utf-8\" >%1</head>");
+  QString style ("<style type=\"text/css\"> body { background-color:#e0e0e0;} "
+                 "p { font-size:11pt; background-color:#e0e0ff; "
+                    " padding:2px; margin:2x; "
+                    " font-family:Times New Roman; } </style>");
+  head = headPattern.arg (style);
 }
 
 TimelineDoc &
@@ -60,7 +65,6 @@ TimelineView::Display (TimelineKind k)
 void
 TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
 {
-  qDebug () << " caught new block " << block.Id() << " kind " << kind;
   if (kind > R_None && kind < R_Top) {
     doc[kind].AddStatus (block);
     if (kind == currentKind) {
@@ -112,6 +116,7 @@ TimelineView::ParseBlock (StatusBlock & block,
       }
     } else if (tag == "created_at") {
       date = QDateTime::fromString (child.text(),"ddd MMM dd HH:mm:ss +0000 yyyy");
+      date.setTimeSpec (Qt::UTC);
       expectMore --;
     }
   }
@@ -142,23 +147,43 @@ TimelineView::ParseUser (const QDomElement & elt,
 void
 TimelineView::FormatParagraph (QString & html, const Paragraph & para)
 {
-  html = "<br><p>";
+  html = "<p>";
   html.append (para.text);
-  html.append ("<br>&nbsp;");
-  QString urlPattern ("<a href=\"%1\">%2</a>");
+  QString urlPattern ("&nbsp;<a href=\"%1\">%2</a>");
   html.append (urlPattern.arg(para.auth_url).arg(para.author));
-  QDateTime now = QDateTime::currentDateTime();
+  QDateTime now = QDateTime::currentDateTime().toUTC();
   int ago = para.date.secsTo (now);
-  QString durationPattern (" %1 seconds ago");
-  html.append (durationPattern.arg(ago));
-  html.append ("</p><br>");
+  html.append ("&nbsp;" + Ago(ago));
+  html.append ("</p>");
+}
+
+QString
+TimelineView::Ago (int secs)
+{
+  if (secs < 0) {
+    return QString ("%1 seconds in the future").arg( - secs);
+  }
+  if (secs < 91) {
+    return QString ("%1 seconds ago").arg (secs);
+  }
+  int days = secs / (24*60*60);
+  int hours = secs / (60*60);
+  int mins = secs / 60;
+  if (hours < 1) {
+    return QString ("%1 minutes ago").arg(secs/60);
+  }
+  if (days < 1) {
+    mins = mins - (hours*60);
+    return QString ("%1 hours %2 minutes ago").arg(hours).arg(mins);
+  }
+  hours -= (days*24);
+  return QString ("%1 days %2 hours ago").arg(days).arg(hours);
 }
 
 
 void
 TimelineView::Show ()
 {
-  qDebug () << " timeline show";
   if (view == 0) {
     return;
   }
@@ -169,7 +194,6 @@ TimelineView::Show ()
   html.append ("\n<body>\n");
 
   QString parHtml;
-  qDebug () << " have " << paragraphs.size() << " paragraphs";
   PagePartMap::reverse_iterator para;
   for (para = paragraphs.rbegin(); para != paragraphs.rend(); para++) {
      FormatParagraph (parHtml, para->second);

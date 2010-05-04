@@ -87,6 +87,8 @@ private:
                         QString     & auth_url);
   void FormatParagraph (QString & html, const Paragraph & para);
 
+  QString Ago (int secs);
+
   int            currentKind;
   TimelineDoc    doc[R_Top];
   QWebView      *view;

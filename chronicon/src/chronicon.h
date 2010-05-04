@@ -67,7 +67,7 @@ private:
   void BigEdit ();
   void SmallEdit ();
   void Connect ();
-  void SetupTimers ();
+  void SetupTimers (bool debug=false);
   
   int  normalEditVertical;
   QTimer  pollTimer;

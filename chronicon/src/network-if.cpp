@@ -82,7 +82,6 @@ NetworkIF::ParseDom (QDomDocument & doc, TimelineKind kind)
 {
   QDomElement root = doc.documentElement();
   QDomElement child;
-  qDebug () << " root tag is " << root.tagName ();
   for (child = root.firstChildElement(); !child.isNull(); 
        child = child.nextSiblingElement()) {
     if (child.tagName() == "status") {

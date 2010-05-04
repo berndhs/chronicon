@@ -31,7 +31,7 @@ namespace chronicon {
 Chronicon::Chronicon (QWidget *parent)
 :QMainWindow(parent),
  pollTimer (this),
- pollPeriod (60*1000),
+ pollPeriod (5*60*1000),
  debugTimer (this),
  network (this),
  theView (this),
@@ -42,7 +42,7 @@ Chronicon::Chronicon (QWidget *parent)
   normalEditVertical = ownMessage->sizePolicy().verticalStretch();
 
   Connect ();
-  SetupTimers ();
+  SetupTimers (false);
 
   QTimer::singleShot (2000, this, SLOT (Poll()));
 }
@@ -67,13 +67,15 @@ Chronicon::Connect ()
 }
 
 void
-Chronicon::SetupTimers ()
+Chronicon::SetupTimers (bool debug)
 {
   connect (&pollTimer, SIGNAL (timeout()), this, SLOT (Poll()));
   pollTimer.start (pollPeriod);
 
   connect (&debugTimer, SIGNAL (timeout()), this, SLOT (DebugCheck()));
-  debugTimer.start (15*1000);
+  if (debug) {
+    debugTimer.start (15*1000);
+  }
 }
 
 void
