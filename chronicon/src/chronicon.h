@@ -24,8 +24,10 @@
 
 #include <QMainWindow>
 #include <QApplication>
-#include <QtOAuth>
-#include <QtCrypto>
+#if USE_OAUTH
+  #include <QtOAuth>
+  #include <QtCrypto>
+#endif
 #include <QTimer>
 
 #include "ui_chronicon.h"
@@ -62,6 +64,7 @@ private slots:
   void returnKey ();
 
   void Poll ();
+  void RePoll (TimelineKind kind=R_None);
 
   void DebugCheck ();
 
@@ -71,8 +74,9 @@ private:
   void SmallEdit ();
   void Connect ();
   void SetupTimers (bool debug=false);
+#if USE_OAUTH
   void ReadRSA (QCA::SecureArray & secure);
-  
+#endif  
   int  normalEditVertical;
   QTimer  pollTimer;
   int     pollPeriod;
@@ -82,10 +86,13 @@ private:
   NetworkIF   network;
 
   TimelineView  theView;
+  TimelineKind  currentView;
 
   QApplication * pApp;
 
+#if USE_OAUTH
   QOAuth::Interface    auth;
+#endif
 
 };
 

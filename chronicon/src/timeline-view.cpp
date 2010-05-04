@@ -107,6 +107,8 @@ TimelineView::AddCurrent (StatusBlock block)
   bool good = ParseBlock (block, text, author, authUrl, date, imgUrl, truncated);
   if (good) {
     paragraphs[id] = Paragraph (text,author,authUrl, date, imgUrl, truncated);
+  } else {
+    qDebug () << " bad block ";
   }
 }
 

@@ -31,6 +31,7 @@ NetworkIF::NetworkIF (QObject *parent)
  user (QString()),
  pass (QString())
 {
+  serviceKind = R_Private;
   SwitchTimeline();
   connect (&network, SIGNAL (authenticationRequired(QNetworkReply*, QAuthenticator*)),
            this, SLOT (authProvide (QNetworkReply*, QAuthenticator*)));
@@ -41,7 +42,7 @@ NetworkIF::SwitchTimeline ()
 {
   switch (serviceKind) {
     case R_Private:
-      timelineName = "user_timeline";
+      timelineName = "home_timeline";
       break;
     case R_Public:
     default:
@@ -51,7 +52,7 @@ NetworkIF::SwitchTimeline ()
 }
 
 void
-NetworkIF::PullPublicTimeline ()
+NetworkIF::PullTimeline ()
 {
   QNetworkRequest request;
   QUrl url  (QString("http://api.twitter.com/1/statuses/%1.xml")
@@ -77,7 +78,7 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
     TimelineKind kind (reply->Kind());
     if (kind == chronicon::R_Public || kind == chronicon::R_Private) {
       QDomDocument doc;
-      bool ok = doc.setContent (netReply);   
+      doc.setContent (netReply);   
       ParseDom (doc, kind);
       emit ReplyComplete ();
     }
@@ -100,12 +101,14 @@ NetworkIF::login (int * reply)
   QDialog  textDialog;
   textenter.setupUi (&textDialog);
   textenter.passEdit->setEchoMode (QLineEdit::Password);
+  textenter.userEdit->setText (user);
   int ok = textDialog.exec ();
   if (ok) {
     user = textenter.userEdit->text();
     pass = textenter.passEdit->text();
     serviceKind = R_Private;
     SwitchTimeline ();
+    emit RePoll (serviceKind);
   } else {
     serviceKind = R_Public;
     SwitchTimeline ();
@@ -116,12 +119,15 @@ NetworkIF::login (int * reply)
 }
 
 void
-NetworkIF::authProvide (QNetworkReply *reply, QAuthenticator *authenticator)
+NetworkIF::authProvide (QNetworkReply *reply, QAuthenticator *au)
 {
-  if (reply && authenticator) {
+  if (reply && au) {
     int tryAgain (0);
     login (&tryAgain);
-    if (tryAgain == 0) {
+    if (tryAgain == 1) {
+      au->setPassword (pass);
+      au->setUser (user);
+    } else {
       reply->close();
     }
   }
@@ -178,6 +184,8 @@ NetworkIF::PushUserStatus (QString status)
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
                                                   chronicon::R_Update);
+  
+  replies[reply] = chReply;
 }
 
 } // namespace

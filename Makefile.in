@@ -24,13 +24,14 @@
 # ****************************************************************/
 #
 
+TARGETS = chronicon/chronicon
 PRO_FILE = chrontop.pro
 DEBUG_SUBS = chronicon
 NODEBUG_SUBS = qoauth
 MAKEFILE = MakeChron
 TOP_MAKEFILE = Makefile
 
-all: $(MAKEFILE)
+all: $(MAKEFILE) 
 	make -f $(MAKEFILE) all
 
 clean: $(MAKEFILE) FORCE
@@ -40,6 +41,9 @@ distclean: $(MAKEFILE) FORCE
 	make -f $(MAKEFILE) distclean
 	rm -f $(MAKEFILE)
 	rm -f $(TOP_MAKEFILE)
+	@echo
+	@echo "Run ./configure to re-create the Makefile"
+	@echo
 	
 debug: $(MAKEFILE) FORCE
 	for D in $(NODEBUG_SUBS) ; do \
@@ -59,10 +63,7 @@ release: $(MAKEFILE) FORCE
 	   done
 
 install: all FORCE
-	sh install.sh $(DESTDIR)
-
-userinstall:
-	sh install.sh $(HOME)/bin
+	install -m 0755 -p $(TARGETS) $(DESTDIR)
 
 qmake: 
 	$(QMAKE) $(PRO_FILE)

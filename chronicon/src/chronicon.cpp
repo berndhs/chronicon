@@ -39,6 +39,7 @@ Chronicon::Chronicon (QWidget *parent)
  debugTimer (this),
  network (this),
  theView (this),
+ currentView (R_Private),
  pApp(0)
 {
   setupUi (this);
@@ -56,7 +57,7 @@ Chronicon::Connect ()
   connect (actionQuit, SIGNAL (triggered()), this, SLOT (quit()));
   connect (actionLogin, SIGNAL (triggered()), &network, SLOT (login()));
   connect (typeButton, SIGNAL (clicked()), this, SLOT (startMessage()));
-  connect (updateButton, SIGNAL (clicked()), this, SLOT (Poll()));
+  connect (updateButton, SIGNAL (clicked()), this, SLOT (RePoll()));
   connect (sendButton, SIGNAL (clicked()), this, SLOT (finishMessage()));
   connect (cancelButton, SIGNAL (clicked()), this, SLOT (discardMessage()));
   connect (ownMessage, SIGNAL (KeyPressed (int)),
@@ -68,6 +69,8 @@ Chronicon::Connect ()
            &theView, SLOT (CatchStatusItem (StatusBlock, TimelineKind)));
   connect (&network, SIGNAL (ReplyComplete()),
            this, SLOT (PollComplete()));
+  connect (&network, SIGNAL (RePoll(TimelineKind)),
+           this, SLOT (RePoll(TimelineKind)));
 }
 
 void
@@ -89,12 +92,13 @@ Chronicon::Start ()
   QTimer::singleShot (1000, this, SLOT (Poll()));
 }
 
+#if USE_OAUTH
 void
 Chronicon::ReadRSA (QCA::SecureArray & secure)
 {
   
 }
-
+#endif
 
 void
 Chronicon::quit ()
@@ -115,7 +119,6 @@ Chronicon::finishMessage ()
 {
   QString msg;
   ownMessage->extractPlain (msg);
-  qDebug () << " message is " << msg;
   network.PushUserStatus (msg);
   SmallEdit ();
 }
@@ -142,8 +145,21 @@ Chronicon::returnKey ()
 void
 Chronicon::Poll ()
 {
-  network.PullPublicTimeline ();
+  network.PullTimeline ();
   loadLabel->setText ("load...");
+}
+
+void
+Chronicon::RePoll (TimelineKind kind)
+{
+  if (kind != R_None) {
+    currentView = kind; 
+  }
+  pollTimer.stop();
+  pollTimer.start (pollPeriod);
+  theView.Display (currentView);
+  network.PullTimeline ();
+  loadLabel->setText ("reload...");
 }
 
 void

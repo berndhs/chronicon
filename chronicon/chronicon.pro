@@ -31,8 +31,10 @@ TARGET = chronicon
 CONFIG += qt
 
 DEFINES += DELIBERATE_DEBUG=1
+DEFINES += USE_OAUTH=0
 
-QT += core gui xml network qoauth crypto webkit
+#QT += core gui xml network webkit qoautch crypto
+QT += core gui xml network webkit
 
 MAKEFILE = MakeChron
 
@@ -43,11 +45,12 @@ MOC_DIR = tmp/moc
 RESOURCES +=
 
 INCLUDEPATH += src 
-INCLUDEPATH += ../qoauth/include
-INCLUDEPATH += /usr/include/QtCrypto
+#INCLUDEPATH += ../qoauth/include
+#INCLUDEPATH += /usr/include/QtCrypto
 INCLUDEPATH += temp/ui
 
-LIBS += -L../qoauth/lib -lqoauth
+#LIBS += -L../qoauth/lib -lqoauth
+LIBS += 
 
 HEADERS = src/chronicon.h \
           src/chron-textedit.h \

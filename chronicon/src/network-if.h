@@ -23,7 +23,9 @@
 #define NETWORK_IF_H
 
 #include <QNetworkAccessManager>
-#include <QtCrypto>
+#if USE_OAUTH
+  #include <QtCrypto>
+#endif
 #include <QAuthenticator>
 #include "delib-debug.h"
 #include <map>
@@ -42,7 +44,7 @@ public:
 
   NetworkIF (QObject *parent);
 
-  void PullPublicTimeline ();
+  void PullTimeline ();
   void PushUserStatus (QString status);
 
   void SetTimeline (TimelineKind k);
@@ -61,6 +63,7 @@ signals:
 
   void NewStatusItem (StatusBlock item, TimelineKind kind);
   void ReplyComplete ();
+  void RePoll (TimelineKind kind);
 
 private:
 
