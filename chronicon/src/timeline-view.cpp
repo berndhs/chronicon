@@ -190,7 +190,7 @@ TimelineView::FormatParagraph (QString & html, const Paragraph & para)
   html = "<p>";
   QString imgPattern ("<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" />");
   html.append (imgPattern.arg(para.imgUrl));
-  html.append (MakeCustomLink (para.text, "text-decoration:none;color:inherit;",
+  html.append (MakeCustomLink (para.text, "text-decoration:none;color:black;",
                                "text"));
   QString urlPattern ("&nbsp;<a href=\"%1\">%2</a>");
   html.append (urlPattern.arg(para.authUrl).arg(para.author));
@@ -208,7 +208,6 @@ TimelineView::MakeCustomLink (const QString & body,
   QString pat ("<a style=\"%1\" href=\"chronicon://%2/%4\">%3</a>");
   QString link = pat.arg(style).arg(auth).arg(body).
                      arg(QString(QUrl::toPercentEncoding(body)));
-  qDebug () << " made link " << link;
   return link;
 }
 

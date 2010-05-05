@@ -68,18 +68,26 @@ private slots:
 
   void DebugCheck ();
 
+protected:
+
+  void closeEvent (QCloseEvent * event);
+  void resizeEvent ( QResizeEvent * event )  ;
+
 private:
 
   void BigEdit ();
   void SmallEdit ();
   void Connect ();
   void SetupTimers (bool debug=false);
+  void LabelSecs (int secs);
 #if USE_OAUTH
   void ReadRSA (QCA::SecureArray & secure);
 #endif  
   int  normalEditVertical;
   QTimer  pollTimer;
   int     pollPeriod;
+  int     pollRemain;
+  int     pollTick;
 
   QTimer  debugTimer;
 

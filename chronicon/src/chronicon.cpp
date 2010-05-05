@@ -21,6 +21,7 @@
 
 
 #include "chronicon.h"
+#include "deliberate.h"
 #include <QDebug>
 #include <QDateTime>
 #include <QMessageBox>
@@ -28,6 +29,7 @@
 #include <QByteArray>
 
 
+using namespace deliberate;
 
 namespace chronicon {
 
@@ -36,6 +38,8 @@ Chronicon::Chronicon (QWidget *parent)
 :QMainWindow(parent),
  pollTimer (this),
  pollPeriod (5*60*1000),
+ pollRemain (0),
+ pollTick  (5*1000),
  debugTimer (this),
  network (this),
  theView (this),
@@ -77,7 +81,8 @@ void
 Chronicon::SetupTimers (bool debug)
 {
   connect (&pollTimer, SIGNAL (timeout()), this, SLOT (Poll()));
-  pollTimer.start (pollPeriod);
+  pollRemain = pollPeriod;
+  pollTimer.start (pollTick);
 
   connect (&debugTimer, SIGNAL (timeout()), this, SLOT (DebugCheck()));
   if (debug) {
@@ -88,8 +93,21 @@ Chronicon::SetupTimers (bool debug)
 void
 Chronicon::Start ()
 {
+  if (Settings().contains("size")) {
+    QSize defaultSize = size();
+    QSize newsize = Settings().value ("size", defaultSize).toSize();
+    resize (newsize);
+  }
+  if (Settings().contains("lastuser")) {
+    QString lastuser = Settings().value("lastuser",QString("")).toString();
+    network.SetBasicAuth (lastuser);
+  }
   show ();
+  pollRemain = 0;
   QTimer::singleShot (1000, this, SLOT (Poll()));
+ 
+  qDebug () << Settings().organizationName();
+  qDebug () << Settings().fileName();
 }
 
 #if USE_OAUTH
@@ -104,6 +122,7 @@ void
 Chronicon::quit ()
 {
   if (pApp) {
+    Settings().sync();
     pApp->quit();
   }
 }
@@ -129,7 +148,7 @@ Chronicon::finishMessage ()
        QMessageBox toolong;
        toolong.setText (tr("Message too long for Twitter, send anyway?"));
        QAbstractButton * yesBut = toolong.addButton (QMessageBox::Ok);
-       QAbstractButton * noBut = toolong.addButton (QMessageBox::Cancel);
+       toolong.addButton (QMessageBox::Cancel);
        toolong.exec ();
        sendit = (toolong.clickedButton() == yesBut);
     }
@@ -162,8 +181,24 @@ Chronicon::returnKey ()
 void
 Chronicon::Poll ()
 {
-  network.PullTimeline ();
-  loadLabel->setText (tr("load..."));
+  pollRemain -= pollTick;
+  if (pollRemain <= 0) {
+    network.PullTimeline ();
+    loadLabel->setText (tr("load..."));
+    pollRemain = pollPeriod;
+  } else {
+    LabelSecs (pollRemain/1000);
+  }
+}
+
+void
+Chronicon::LabelSecs (int secs)
+{
+  int mins = secs/60;
+  secs = secs - (mins*60);
+  QString pattern ("%1:%2");
+  QChar zero ('0');
+  loadLabel->setText (pattern.arg(mins,2,10,zero).arg(secs,2,10,zero));
 }
 
 void
@@ -173,7 +208,8 @@ Chronicon::RePoll (TimelineKind kind)
     currentView = kind; 
   }
   pollTimer.stop();
-  pollTimer.start (pollPeriod);
+  pollRemain = pollPeriod;
+  pollTimer.start (pollTick);
   theView.Display (currentView);
   network.PullTimeline ();
   loadLabel->setText (tr("reload..."));
@@ -182,7 +218,7 @@ Chronicon::RePoll (TimelineKind kind)
 void
 Chronicon::PollComplete ()
 {
-  loadLabel->setText ("");
+  LabelSecs (pollRemain/1000);
   theView.Display (R_Public);
   theView.Show ();
 }
@@ -209,6 +245,20 @@ Chronicon::SmallEdit ()
   QSizePolicy editPoli = ownMessage->sizePolicy();
   editPoli.setVerticalStretch (normalEditVertical);
   ownMessage->setSizePolicy (editPoli);
+}
+
+void
+Chronicon::resizeEvent (QResizeEvent * event)
+{
+  QSize newsize = event->size();
+  Settings().setValue ("size",newsize);
+}
+
+
+void
+Chronicon::closeEvent (QCloseEvent *event)
+{
+  Settings().sync();
 }
 
 } // namespace

@@ -48,7 +48,7 @@ public:
   void PushUserStatus (QString status);
 
   void SetTimeline (TimelineKind k);
-  void SetBasicAuth (QString user, QString pass);
+  void SetBasicAuth (QString us, QString pa=QString());
 
 public slots:
   

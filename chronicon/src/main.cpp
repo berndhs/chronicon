@@ -44,6 +44,7 @@ main (int argc, char * argv[])
   deliberate::CmdOptions  opts ("Chronicon");
   opts.AddSoloOption ("debug","D","show Debug log window");
 
+
   deliberate::UseMyOwnMessageHandler ();
 
   bool optsOk = opts.Parse (argc, argv);

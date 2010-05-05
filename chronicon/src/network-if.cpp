@@ -19,6 +19,7 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
+#include "deliberate.h"
 #include "network-if.h"
 #include "ui_enterpass.h"
 #include <QDomDocument>
@@ -94,6 +95,14 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
   }
 }
 
+
+void
+NetworkIF::SetBasicAuth (QString us, QString pa)
+{
+  user = us;
+  pass = pa;
+}
+
 void
 NetworkIF::login (int * reply)
 {
@@ -109,6 +118,7 @@ NetworkIF::login (int * reply)
     serviceKind = R_Private;
     SwitchTimeline ();
     emit RePoll (serviceKind);
+    deliberate::Settings().setValue ("lastuser",user);
   } else {
     serviceKind = R_Public;
     SwitchTimeline ();
@@ -183,10 +193,10 @@ NetworkIF::PushUserStatus (QString status)
 
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
-                                                  chronicon::R_Update);
-  
+                                                  chronicon::R_Update); 
   replies[reply] = chReply;
 }
+
 
 } // namespace
 
