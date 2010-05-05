@@ -77,8 +77,21 @@ void
 TimelineView::LinkClicked (const QUrl & url)
 {
   if (url.isValid()) {
-    QDesktopServices::openUrl (url);
+    QString scheme = url.scheme();
+    if (scheme == "http" || scheme == "https" || scheme == "mailto") {
+      QDesktopServices::openUrl (url);
+    } else if (scheme == "chronicon") {
+      CustomLink (url);
+    } else {
+      qDebug () << "bad URL? " << url;
+    }
   }
+}
+
+void
+TimelineView::CustomLink (const QUrl & url)
+{
+  qDebug () << " deal with special url " << url;
 }
 
 void
@@ -177,7 +190,8 @@ TimelineView::FormatParagraph (QString & html, const Paragraph & para)
   html = "<p>";
   QString imgPattern ("<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" />");
   html.append (imgPattern.arg(para.imgUrl));
-  html.append (para.text);
+  html.append (MakeCustomLink (para.text, "text-decoration:none;color:inherit;",
+                               "text"));
   QString urlPattern ("&nbsp;<a href=\"%1\">%2</a>");
   html.append (urlPattern.arg(para.authUrl).arg(para.author));
   QDateTime now = QDateTime::currentDateTime().toUTC();
@@ -186,27 +200,39 @@ TimelineView::FormatParagraph (QString & html, const Paragraph & para)
   html.append ("</p>");
 }
 
+QString 
+TimelineView::MakeCustomLink (const QString & body, 
+                              const QString & style, 
+                              const QString & auth)
+{
+  QString pat ("<a style=\"%1\" href=\"chronicon://%2/%4\">%3</a>");
+  QString link = pat.arg(style).arg(auth).arg(body).
+                     arg(QString(QUrl::toPercentEncoding(body)));
+  qDebug () << " made link " << link;
+  return link;
+}
+
 QString
 TimelineView::Ago (int secs)
 {
   if (secs < 0) {
-    return QString ("%1 seconds in the future").arg( - secs);
+    return QString (tr("%1 seconds in the future")).arg( - secs);
   }
   if (secs < 91) {
-    return QString ("%1 seconds ago").arg (secs);
+    return QString (tr("%1 seconds ago")).arg (secs);
   }
   int days = secs / (24*60*60);
   int hours = secs / (60*60);
   int mins = secs / 60;
   if (hours < 1) {
-    return QString ("%1 minutes ago").arg(secs/60);
+    return QString (tr("%1 minutes ago")).arg(secs/60);
   }
   if (days < 1) {
     mins = mins - (hours*60);
-    return QString ("%1 hours %2 minutes ago").arg(hours).arg(mins);
+    return QString (tr("%1 hours %2 minutes ago")).arg(hours).arg(mins);
   }
   hours -= (days*24);
-  return QString ("%1 days %2 hours ago").arg(days).arg(hours);
+  return QString (tr("%1 days %2 hours ago")).arg(days).arg(hours);
 }
 
 

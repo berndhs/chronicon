@@ -61,6 +61,8 @@ HEADERS = src/chronicon.h \
           src/timeline-view.h \
           src/timeline-doc.h \
           src/status-block.h \
+          src/delibeate.h \
+          src/version.h \
 
 
 SOURCES = src/main.cpp \
@@ -72,7 +74,9 @@ SOURCES = src/main.cpp \
           src/network-if.cpp \
           src/timeline-view.cpp \
           src/timeline-doc.cpp \
-          src/status-block.cpp
+          src/status-block.cpp \
+          src/deliberate.cpp \
+          src/version.cpp \
 
 
 FORMS = ui/chronicon.ui \

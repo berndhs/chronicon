@@ -23,10 +23,21 @@
 #include <QApplication>
 #include "delib-debug.h"
 #include "cmdoptions.h"
+#include <QSettings>
+#include "deliberate.h"
+#include "version.h"
 
 int
 main (int argc, char * argv[])
 {
+  
+  QCoreApplication::setApplicationName ("chronicon");
+  QCoreApplication::setOrganizationName ("BerndStramm");
+  QCoreApplication::setOrganizationDomain ("bernd-stramm.com");
+  deliberate::ProgramVersion pv ("Chronicon");
+  QCoreApplication::setApplicationVersion (pv.Version());
+  QSettings  settings;
+  deliberate::SetSettings (settings);
 
   QApplication App (argc, argv);
 
@@ -44,8 +55,8 @@ main (int argc, char * argv[])
     opts.Usage ();
     exit (0);
   }
+  pv.CLIVersion ();
   if (opts.WantVersion ()) {
-    qDebug () << " don't know version number";
     exit (0);
   }
   bool showDebug = opts.SeenOpt ("debug");

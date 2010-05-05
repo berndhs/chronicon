@@ -79,6 +79,11 @@ public slots:
 
 private:
 
+  void CustomLink (const QUrl & url);
+  QString MakeCustomLink (const QString & body, 
+                          const QString & style, 
+                          const QString & auth);
+
   void AddCurrent (StatusBlock block);
   bool ParseBlock (      StatusBlock & block,
                          QString     & text,
