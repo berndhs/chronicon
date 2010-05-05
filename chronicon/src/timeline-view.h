@@ -26,6 +26,7 @@
 #include <QWebElement>
 #include <QUrl>
 #include <QObject>
+#include <QRegExp>
 #include "chronicon-types.h"
 #include "timeline-doc.h"
 #include "status-block.h"
@@ -33,27 +34,10 @@
 
 namespace chronicon {
 
-class Paragraph {
-public:
-  Paragraph (){}
-  Paragraph (QString tx, QString au, QString url, QDateTime dt, QString iu, bool tr)
-           : text(tx),author(au),authUrl(url),date(dt),imgUrl(iu),truncated(tr)
-             {}
-  Paragraph (const Paragraph &other)
-           : text(other.text),
-             author(other.author),
-             authUrl(other.authUrl),
-             date(other.date),
-             imgUrl(other.imgUrl),
-             truncated(other.truncated)
-             {}
-  QString text;
-  QString author;
-  QString authUrl;
-  QDateTime date;
-  QString imgUrl;
-  bool    truncated;
-};
+
+void HttpAnchor (QString & anchor, QString  ref);
+void TwitAtAnchor (QString & anchor , QString  ref);
+void TwitHashAnchor (QString & anchor, QString ref);
 
 class TimelineView : public QObject {
 
@@ -80,9 +64,9 @@ public slots:
 private:
 
   void CustomLink (const QUrl & url);
-  QString MakeCustomLink (const QString & body, 
-                          const QString & style, 
-                          const QString & auth);
+  QString FormatTextBlock (const QString & text);
+  QString Anchorize (const QString & text, QRegExp regular, 
+                           void (*anchorFunc)(QString&, QString));
 
   void AddCurrent (StatusBlock block);
   void AddOwn     (StatusBlock block);
@@ -97,7 +81,7 @@ private:
                         QString     & author,
                         QString     & authUrl,
                         QString     & imgUrl);
-  void FormatParagraph (QString & html, const Paragraph & para);
+  void FormatParagraph (QString & html, const StatusBlock & para);
 
   QString Ago (int secs);
 
@@ -105,7 +89,7 @@ private:
   TimelineDoc    doc[R_Top];
   QWebView      *view;
 
-  typedef  std::map <QString, Paragraph>   PagePartMap;
+  typedef  std::map <QString, StatusBlock>   PagePartMap;
 
   PagePartMap   paragraphs;
   QString       dtd;

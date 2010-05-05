@@ -24,12 +24,104 @@
 
 namespace chronicon {
 
-StatusBlock::StatusBlock (QString & id, QDomElement & dom)
-:ident (id),
- domdata (dom)
+QString
+StringBlock::Value (const QString & key) const
+{
+  std::map<QString,QString>::const_iterator index = values.find(key);
+  if (index == values.end()) {
+    return QString();
+  } else {
+    return index->second;
+  }
+}
+
+StatusBlock::StatusBlock (const QDomElement & dom)
+{
+  ParseContent (statusValues, dom);
+  ident = statusValues.Value("id");
+}
+
+StatusBlock::StatusBlock ()
 {}
 
+void
+StatusBlock::SetContent (const QDomElement & dom)
+{
+  statusValues.Clear ();
+  userValues.Clear ();
+  ParseContent (statusValues, dom);
+  ident = statusValues.Value ("id");
+}
 
+void
+StatusBlock::SetValue (const QString & key, const QString & value)
+{
+  statusValues.SetValue (key, value);
+}
 
+void
+StatusBlock::SetUserValue (const QString & key, const QString & value)
+{
+  userValues.SetValue (key, value);
+}
+
+QString
+StatusBlock::Value (const QString & key) const
+{
+  if (!statusValues.HasValue(key)) {
+    return QString ();
+  } else {
+    return statusValues.Value (key);
+  }
+}
+
+QString
+StatusBlock::UserValue (const QString & key) const
+{
+  if (!userValues.HasValue(key)) {
+    return QString ();
+  } else {
+    return userValues.Value (key);
+  }
+}
+
+void
+StatusBlock::ParseContent (StringBlock & block, const QDomElement & dom)
+{
+  QDomElement child;
+  for (child = dom.firstChildElement (); !child.isNull();
+       child = child.nextSiblingElement())
+  {
+    QString tag = child.tagName();
+    if (tag == "user") {
+      ParseContent (userValues, child);
+    } else {
+      block.SetValue (tag,child.text());
+    }
+  }
+}
+
+QDebug & 
+operator << (QDebug & out, const StringBlock & data)
+{
+  std::map<QString,QString>::const_iterator index;
+  out << " StringBlock (";
+  for (index = data.values.begin(); index != data.values.end(); index++) {
+     out << "( " << index->first << " , " 
+         << index->second << " )";
+  }
+  out << " ) ";
+  return out;
+}
+
+QDebug &
+operator << (QDebug & out, const StatusBlock & data)
+{
+  out << " StatusBlock (";
+  out << " statusValues ( " << data.statusValues << " ) "; 
+  out << " userValues ( " << data.userValues << " ) ";
+  out << " ) ";
+  return out;
+}
 
 } // namespace

@@ -24,24 +24,72 @@
 
 #include <QDomElement>
 #include <QString>
+#include <map>
+#include <QDebug>
 
 namespace chronicon {
+
+class StringBlock {
+
+public:
+
+  StringBlock () {}
+
+  void SetValue (const QString & key, const QString & value)
+                { values[key] = value; }
+  QString Value (const QString & key) const ;
+  bool HasValue (const QString & key) const
+                { return values.find(key) != values.end(); }
+  void Clear () { values.clear(); }
+
+  
+  friend QDebug & operator << (QDebug & out, const StringBlock & data);
+
+private:
+
+  std::map <QString, QString>   values;
+
+};
 
 class StatusBlock {
 public:
 
-  StatusBlock (QString & id,
-               QDomElement & dom);
+  StatusBlock  ();
+  StatusBlock (const QDomElement & dom);
+
+  void SetContent (const QDomElement & dom);
 
   QString & Id () { return ident; }
-  QDomElement & DomData () { return domdata; }
+  QString   Value (const QString & key) const;
+  QString   UserValue (const QString & key) const;
+
+  bool  HasValue (const QString & key) const { return statusValues.HasValue (key); }
+  bool  HasUserValue (const QString & key) const { return userValues.HasValue (key); }
+
+  void  SetValue (const QString & key, const QString & value);
+  void  SetUserValue (const QString & key, const QString & value);
+
+  StringBlock &   Status () { return statusValues; }
+  StringBlock &   User   () { return userValues; }
+
+  void SetStatus (const StringBlock & status) { statusValues = status; }
+  void SetUser   (const StringBlock & user)   { userValues = user; }
 
 private:
 
+  void ParseContent (StringBlock & block, const QDomElement & dom);
+
   QString   ident;
-  QDomElement domdata;
+
+  StringBlock   statusValues;
+  StringBlock   userValues;
+ 
+  friend QDebug & operator << (QDebug & out, const StatusBlock & data);
   
 };
+
+QDebug & operator << (QDebug & out, const StringBlock & data);
+QDebug & operator << (QDebug & out, const StatusBlock & data);
 
 } // namespace
 

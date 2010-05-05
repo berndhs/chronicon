@@ -171,17 +171,8 @@ NetworkIF::ParseUpdate (QDomDocument & doc, TimelineKind kind)
 void
 NetworkIF::ParseStatus (QDomElement & elt, TimelineKind kind)
 {
-  QDomElement  sub;
-  QString      id ("0");
-  for (sub = elt.firstChildElement(); !sub.isNull();
-       sub = sub.nextSiblingElement()) {
-    if (sub.tagName() == "id") {
-      id = sub.text();
-      break;
-    }
-  }
-  if (id != "0") {
-    StatusBlock block (id,elt);
+  StatusBlock  block (elt);
+  if (block.HasValue ("id")) {
     emit NewStatusItem (block, kind);
   }
 }

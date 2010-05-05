@@ -114,123 +114,123 @@ void
 TimelineView::AddCurrent (StatusBlock block)
 {
   QString id = block.Id();
-  QString text ("");
-  QString author("anonymous");
-  QString authUrl;
-  QString imgUrl;
-  bool    truncated ("false");
-  QDateTime date;
-  bool good = ParseBlock (block, text, author, authUrl, date, imgUrl, truncated);
-  if (good) {
-    paragraphs[id] = Paragraph (text,author,authUrl, date, imgUrl, truncated);
-  } else {
-    qDebug () << " bad block ";
+  if (!block.HasUserValue("screen_name")) {
+     block.SetUserValue ("screen_name","anonymous");
   }
+  paragraphs[id] = block;
 }
 
 void
 TimelineView::AddOwn (StatusBlock block)
 {
   QString id = block.Id();
-  QString text ("");
-  QString author("myself");
-  QString authUrl;
-  QString imgUrl;
-  bool    truncated ("false");
-  QDateTime date;
-  bool good = ParseBlock (block, text, author, authUrl, date, imgUrl, truncated);
-  if (good) {
-    text.prepend (" POST : ");
-    paragraphs[id] = Paragraph (text,author,authUrl, date, imgUrl, truncated);
-  } else {
-    qDebug () << " bad block ";
+  if (!block.HasUserValue("screen_name")) {
+     block.SetUserValue ("screen_name","me");
   }
+  QString text = block.Value("text");
+  text.prepend ("POST: ");
+  block.SetValue ("text", text);
+  paragraphs[id] = block;
 }
 
-bool
-TimelineView::ParseBlock (StatusBlock & block,
-                         QString     & text,
-                         QString     & author,
-                         QString     & authUrl,
-                         QDateTime   & date,
-                         QString     & imgUrl,
-                         bool        & truncated)
-{
-  QDomElement top = block.DomData ();
-  QDomElement child;
-  int expectMore = 4; 
-  for (child = top.firstChildElement(); !child.isNull();
-       child = child.nextSiblingElement ()) {
-    QString tag = child.tagName();
-    if (tag == "text") {
-      text = child.text ();
-      expectMore --;
-    } else if (tag == "truncated") {
-      truncated = (child.text() == "true");
-      expectMore --;
-    } else if (tag == "user") {
-      if (ParseUser (child, author, authUrl, imgUrl)) {
-        expectMore --;
-      }
-    } else if (tag == "created_at") {
-      date = QDateTime::fromString (child.text(),"ddd MMM dd HH:mm:ss +0000 yyyy");
-      date.setTimeSpec (Qt::UTC);
-      expectMore --;
-    }
-  }
-  return true; //expectMore == 0;
-}
-
-bool
-TimelineView::ParseUser (const QDomElement & elt,
-                               QString     & author,
-                               QString     & authUrl,
-                               QString     & imgUrl)
-{
-  QDomElement child;
-  int expectMore = 3;
-  for (child = elt.firstChildElement(); !child.isNull();
-       child = child.nextSiblingElement()) {
-    QString tag = child.tagName();
-    if (tag == "screen_name") {
-      author = child.text();
-      expectMore --;
-    } else if (tag == "url") {
-      authUrl = child.text();
-      expectMore --;
-    } else if (tag == "profile_image_url") {
-      imgUrl = child.text ();
-      expectMore --;
-    }
-  }
-  return expectMore == 0;
-}
 
 void
-TimelineView::FormatParagraph (QString & html, const Paragraph & para)
+TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
 {
-  html = "<p>";
-  QString imgPattern ("<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" />");
-  html.append (imgPattern.arg(para.imgUrl));
-  html.append (MakeCustomLink (para.text, "text-decoration:none;color:black;",
-                               "text"));
-  QString urlPattern ("&nbsp;<a href=\"%1\">%2</a>");
-  html.append (urlPattern.arg(para.authUrl).arg(para.author));
+  QString bckCol = "f0f0f0"; // para.UserValue ("profile_background_color");
+  QString txtCol = "000000"; // para.UserValue ("profile_text_color");
+  QString paraHeadPat ( "<div style=\"width:100%;"
+                        "font-size:90%;background-color:#%1;"
+                         "color:%2\">");
+  html = paraHeadPat.arg (bckCol).arg(txtCol);
+  QString imgPattern ("<div style=\"float:left;margin:3px;\">"
+                    "<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" "
+                      " style=\"vertical-align:text-top;\" />"
+                     "</div>");
+  html.append (imgPattern.arg(para.UserValue("profile_image_url")));
+  html.append (FormatTextBlock (para.Value("text")));
+  QString urlPattern ("&nbsp;<a style=\"font-weight:bold;font-size:90%;\" "
+                       "href=\"http://twitter.com/%1\">%1</a>");
+  html.append (urlPattern.arg(para.UserValue("screen_name")));
   QDateTime now = QDateTime::currentDateTime().toUTC();
-  int ago = para.date.secsTo (now);
-  html.append ("&nbsp;" + Ago(ago));
-  html.append ("</p>");
+  QDateTime date = QDateTime::fromString 
+                              (para.Value("created_at"),
+                               "ddd MMM dd HH:mm:ss +0000 yyyy");
+  date.setTimeSpec (Qt::UTC);
+  int ago = date.secsTo (now);
+  html.append (QString("&nbsp;<span style=\"font-size:90%;font-style:italic;\">%1</span>")
+                      .arg( Ago(ago)));
+  html.append ("</div><br>");
 }
 
 QString 
-TimelineView::MakeCustomLink (const QString & body, 
-                              const QString & style, 
-                              const QString & auth)
+TimelineView::FormatTextBlock (const QString & text)
 {
-  QString pat ("<a style=\"%1\" href=\"chronicon://%2/%4\">%3</a>");
-  QString link = pat.arg(style).arg(auth).arg(body).
-                     arg(QString(QUrl::toPercentEncoding(body)));
-  return link;
+  void (*anchorFunc) (QString&, QString);
+  anchorFunc = &chronicon::HttpAnchor;
+  QString subHttp = Anchorize (text + QString(" "), 
+                             QRegExp ("(https?://)(\\S*)"), 
+                             anchorFunc);
+  anchorFunc = &chronicon::TwitAtAnchor;
+  QString subAt = Anchorize (subHttp, 
+                             QRegExp ("@(\\S*)"),
+                             anchorFunc);
+  anchorFunc = &chronicon::TwitHashAnchor;
+  QString subHash = Anchorize (subAt, 
+                             QRegExp ("#(\\S*)"),
+                             anchorFunc);
+  QString span ("<span style=\"font-size:90%;\">%1</span>");
+  return span.arg(subHash);
+}
+
+QString
+TimelineView::Anchorize (const QString &text, QRegExp regular, 
+                         void (*anchorFunc)(QString&, QString))
+{
+  int where;
+  int offset(0);
+  int lenSub;
+  QString newtext;
+  QString chunk;
+  while ((where  = regular.indexIn (text,offset)) >= 0) {
+    lenSub = regular.matchedLength();
+    chunk = text.mid (offset, where - offset);
+    newtext.append (chunk);
+    QString anchor;
+    (*anchorFunc) (anchor, regular.cap(0));
+    newtext.append (anchor);
+    offset = where + lenSub;
+  }
+  chunk = text.mid (offset,-1);
+  newtext.append (chunk);
+  return newtext;
+}
+
+void
+HttpAnchor (QString & anchor, QString ref)
+{
+  anchor =  QString("<a href=\"%1\">%1</a>").arg(ref);
+}
+
+void
+TwitAtAnchor (QString & anchor, QString ref)
+{
+  if (ref.length() == 1) {
+    anchor = ref;
+    return;
+  }
+  anchor = QString ("@<a href=\"http://twitter.com/%1\">%1</a>")
+                 .arg(ref.mid(1));
+}
+
+void
+TwitHashAnchor (QString & anchor, QString ref)
+{
+  if (ref.length() == 1) {
+    anchor = ref;
+  }
+  anchor = QString ("#<a href=\"http://twitter.com/#search?q=%1\">%1</a>")
+                   .arg(ref);
 }
 
 QString
@@ -269,7 +269,7 @@ TimelineView::Show ()
   html.append (head);
   html.append ("\n<body>\n");
 
-  QString headlinePattern ("<h2>%1</h2>");
+  QString headlinePattern ("<h3>%1</h3>");
   QString date = QDateTime::currentDateTime().toString("ddd hh:mm:ss");
   html.append (headlinePattern.arg(date));
   QString parHtml;
