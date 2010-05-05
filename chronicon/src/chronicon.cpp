@@ -52,7 +52,7 @@ Chronicon::Chronicon (QWidget *parent)
 
   Connect ();
   SetupTimers (true);
-
+  network.SetUserAgent (Settings().value("program").toString());
 }
 
 void

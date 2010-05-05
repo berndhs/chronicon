@@ -49,6 +49,7 @@ public:
 
   void SetTimeline (TimelineKind k);
   void SetBasicAuth (QString us, QString pa=QString());
+  void SetUserAgent (QString ua) { userAgent = ua; }
 
 public slots:
   
@@ -68,6 +69,7 @@ signals:
 private:
 
   void ParseDom (QDomDocument &doc, TimelineKind kind);
+  void ParseUpdate (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);
   void SwitchTimeline ();
   void ExpectReply (QNetworkReply *reply, 
@@ -81,6 +83,7 @@ private:
   QString                 timelineName;
   QString                 user;
   QString                 pass;
+  QString                 userAgent;
 
   typedef std::map <QNetworkReply *, ChronNetworkReply*>  ReplyMapType;
 

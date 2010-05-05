@@ -38,6 +38,7 @@ main (int argc, char * argv[])
   QCoreApplication::setApplicationVersion (pv.Version());
   QSettings  settings;
   deliberate::SetSettings (settings);
+  settings.setValue ("program",pv.MyName());
 
   QApplication App (argc, argv);
 

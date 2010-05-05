@@ -72,17 +72,16 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
     TimelineKind kind (reply->Kind());
-qDebug () << " reply kind " << kind << " stored " << replies.size();
-    if (kind == chronicon::R_Public || kind == chronicon::R_Private) {
+    if (kind == R_Public || kind == R_Private) {
       QDomDocument doc;
-      QByteArray data = netReply->readAll();
-      QString errmsg;
-      bool ok = doc.setContent (data, true, &errmsg);
+      doc.setContent (netReply);
       ParseDom (doc, kind);
       emit ReplyComplete ();
     } else if (kind == R_Update) {
-      QByteArray data = netReply->readAll();
-      qDebug () << " update resply " << QString(data);
+      QDomDocument update;
+      update.setContent (netReply);
+      ParseUpdate (update, kind);
+      emit ReplyComplete ();
     }
     ReplyMapType::iterator index;
     index = replies.find (netReply);
@@ -161,6 +160,15 @@ NetworkIF::ParseDom (QDomDocument & doc, TimelineKind kind)
 }
 
 void
+NetworkIF::ParseUpdate (QDomDocument & doc, TimelineKind kind)
+{
+  QDomElement root = doc.documentElement();
+  if (root.tagName() == "status") {  // should be
+     ParseStatus (root, kind);
+  }
+}
+
+void
 NetworkIF::ParseStatus (QDomElement & elt, TimelineKind kind)
 {
   QDomElement  sub;
@@ -187,6 +195,7 @@ NetworkIF::PushUserStatus (QString status)
                            encoded);
   QNetworkRequest  req(url);
   QByteArray nada;
+
   QNetworkReply * reply = network.post (req,nada);
 
   ChronNetworkReply *chReply = new ChronNetworkReply (url,

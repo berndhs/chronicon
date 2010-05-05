@@ -102,6 +102,9 @@ TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
     if (kind == currentKind) {
        AddCurrent (block);
     }
+    if (kind == R_Update) {
+       AddOwn (block);
+    }
   } else {
     qDebug () << __FILE__ << __LINE__ << " bad timeline kind " << kind;
   }
@@ -119,6 +122,25 @@ TimelineView::AddCurrent (StatusBlock block)
   QDateTime date;
   bool good = ParseBlock (block, text, author, authUrl, date, imgUrl, truncated);
   if (good) {
+    paragraphs[id] = Paragraph (text,author,authUrl, date, imgUrl, truncated);
+  } else {
+    qDebug () << " bad block ";
+  }
+}
+
+void
+TimelineView::AddOwn (StatusBlock block)
+{
+  QString id = block.Id();
+  QString text ("");
+  QString author("myself");
+  QString authUrl;
+  QString imgUrl;
+  bool    truncated ("false");
+  QDateTime date;
+  bool good = ParseBlock (block, text, author, authUrl, date, imgUrl, truncated);
+  if (good) {
+    text.prepend (" POST : ");
     paragraphs[id] = Paragraph (text,author,authUrl, date, imgUrl, truncated);
   } else {
     qDebug () << " bad block ";
@@ -156,7 +178,7 @@ TimelineView::ParseBlock (StatusBlock & block,
       expectMore --;
     }
   }
-  return expectMore == 0;
+  return true; //expectMore == 0;
 }
 
 bool
@@ -247,6 +269,9 @@ TimelineView::Show ()
   html.append (head);
   html.append ("\n<body>\n");
 
+  QString headlinePattern ("<h2>%1</h2>");
+  QString date = QDateTime::currentDateTime().toString("ddd hh:mm:ss");
+  html.append (headlinePattern.arg(date));
   QString parHtml;
   PagePartMap::reverse_iterator para;
   for (para = paragraphs.rbegin(); para != paragraphs.rend(); para++) {

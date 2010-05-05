@@ -85,6 +85,7 @@ private:
                           const QString & auth);
 
   void AddCurrent (StatusBlock block);
+  void AddOwn     (StatusBlock block);
   bool ParseBlock (      StatusBlock & block,
                          QString     & text,
                          QString     & author,
