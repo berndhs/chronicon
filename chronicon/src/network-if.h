@@ -70,6 +70,9 @@ private:
   void ParseDom (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);
   void SwitchTimeline ();
+  void ExpectReply (QNetworkReply *reply, 
+                    ChronNetworkReply *chReply);
+  void CleanupReply (QNetworkReply * reply, ChronNetworkReply *chReply);
   
 
   QNetworkAccessManager   network;

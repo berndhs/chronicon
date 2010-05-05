@@ -63,12 +63,7 @@ NetworkIF::PullTimeline ()
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
                                                   serviceKind);
-  replies[reply] = chReply;
-  connect (reply, SIGNAL (finished()), chReply, SLOT (handleReturn()));
-  connect (chReply, SIGNAL (Finished(ChronNetworkReply*)),
-           this, SLOT (handleReply (ChronNetworkReply*)));
-  connect (reply, SIGNAL(error(QNetworkReply::NetworkError)),
-         this, SLOT(networkError(QNetworkReply::NetworkError)));
+  ExpectReply (reply, chReply);
 }
 
 void
@@ -77,21 +72,24 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
     TimelineKind kind (reply->Kind());
+qDebug () << " reply kind " << kind << " stored " << replies.size();
     if (kind == chronicon::R_Public || kind == chronicon::R_Private) {
       QDomDocument doc;
-      doc.setContent (netReply);   
+      QByteArray data = netReply->readAll();
+      QString errmsg;
+      bool ok = doc.setContent (data, true, &errmsg);
       ParseDom (doc, kind);
       emit ReplyComplete ();
+    } else if (kind == R_Update) {
+      QByteArray data = netReply->readAll();
+      qDebug () << " update resply " << QString(data);
     }
     ReplyMapType::iterator index;
     index = replies.find (netReply);
     if (index != replies.end()) {
       replies.erase(index);
     }
-    delete reply;
-    if (netReply) {
-      netReply->deleteLater();
-    }
+    CleanupReply (netReply, reply);    
   }
 }
 
@@ -194,7 +192,33 @@ NetworkIF::PushUserStatus (QString status)
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
                                                   chronicon::R_Update); 
+  ExpectReply (reply, chReply);
+}
+
+void
+NetworkIF::ExpectReply (QNetworkReply *reply, ChronNetworkReply * chReply)
+{
   replies[reply] = chReply;
+  connect (reply, SIGNAL (finished()), chReply, SLOT (handleReturn()));
+  connect (chReply, SIGNAL (Finished(ChronNetworkReply*)),
+           this, SLOT (handleReply (ChronNetworkReply*)));
+  connect (reply, SIGNAL(error(QNetworkReply::NetworkError)),
+         this, SLOT(networkError(QNetworkReply::NetworkError)));
+}
+
+void
+NetworkIF::CleanupReply (QNetworkReply * reply, ChronNetworkReply *chReply)
+{
+  if (reply && chReply) {
+    replies.erase (reply);
+    disconnect (reply, SIGNAL (finished()), chReply, SLOT (handleReturn()));
+    disconnect (chReply, SIGNAL (Finished(ChronNetworkReply*)),
+           this, SLOT (handleReply (ChronNetworkReply*)));
+    disconnect (reply, SIGNAL(error(QNetworkReply::NetworkError)),
+           this, SLOT(networkError(QNetworkReply::NetworkError)));
+    delete chReply;
+    reply->deleteLater ();
+  }
 }
 
 
