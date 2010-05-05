@@ -24,6 +24,7 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QDesktopServices>
+#include <QDateTime>
 
 namespace chronicon {
 
@@ -55,14 +56,6 @@ TimelineView::SetView (QWebView *pv)
   }
 }
 
-TimelineDoc &
-TimelineView::Doc (TimelineKind k)
-{
-  if (k < R_None || k >= R_Top) {
-    k = R_None;
-  }
-  return doc[k];
-}
 
 void
 TimelineView::Display (TimelineKind k)
@@ -98,7 +91,6 @@ void
 TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
 {
   if (kind > R_None && kind < R_Top) {
-    doc[kind].AddStatus (block);
     if (kind == currentKind) {
        AddCurrent (block);
     }
@@ -140,6 +132,7 @@ TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
   QString bckCol = "f0f0f0"; // para.UserValue ("profile_background_color");
   QString txtCol = "000000"; // para.UserValue ("profile_text_color");
   QString paraHeadPat ( "<div style=\"width:100%;"
+                        "float:left;"
                         "font-size:90%;background-color:#%1;"
                          "color:%2\">");
   html = paraHeadPat.arg (bckCol).arg(txtCol);

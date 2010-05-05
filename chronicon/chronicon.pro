@@ -59,7 +59,6 @@ HEADERS = src/chronicon.h \
           src/chron-network-reply.h \
           src/network-if.h \
           src/timeline-view.h \
-          src/timeline-doc.h \
           src/status-block.h \
           src/delibeate.h \
           src/version.h \
@@ -73,7 +72,6 @@ SOURCES = src/main.cpp \
           src/chron-network-reply.cpp \
           src/network-if.cpp \
           src/timeline-view.cpp \
-          src/timeline-doc.cpp \
           src/status-block.cpp \
           src/deliberate.cpp \
           src/version.cpp \

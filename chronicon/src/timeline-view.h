@@ -28,7 +28,6 @@
 #include <QObject>
 #include <QRegExp>
 #include "chronicon-types.h"
-#include "timeline-doc.h"
 #include "status-block.h"
 #include <map>
 
@@ -48,9 +47,6 @@ public:
   TimelineView (QObject *parent=0);
 
   void SetView (QWebView * pv);
-
-  TimelineDoc & CurrentDoc () { return doc[currentKind]; }
-  TimelineDoc & Doc (TimelineKind k);
 
   int DisplayKind () { return currentKind; }
   void         Display (TimelineKind k);
@@ -86,7 +82,6 @@ private:
   QString Ago (int secs);
 
   int            currentKind;
-  TimelineDoc    doc[R_Top];
   QWebView      *view;
 
   typedef  std::map <QString, StatusBlock>   PagePartMap;
