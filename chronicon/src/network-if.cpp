@@ -23,6 +23,7 @@
 #include "network-if.h"
 #include "ui_enterpass.h"
 #include <QDomDocument>
+#include <QDateTime>
 
 namespace chronicon {
 

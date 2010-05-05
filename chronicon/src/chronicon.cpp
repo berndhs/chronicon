@@ -86,7 +86,7 @@ Chronicon::SetupTimers (bool debug)
 
   connect (&debugTimer, SIGNAL (timeout()), this, SLOT (DebugCheck()));
   if (debug) {
-    debugTimer.start (15*1000);
+    //debugTimer.start (15*1000);
   }
 }
 
@@ -219,7 +219,7 @@ void
 Chronicon::PollComplete ()
 {
   LabelSecs (pollRemain/1000);
-  theView.Display (R_Public);
+  theView.Display (R_Private);
   theView.Show ();
 }
 
