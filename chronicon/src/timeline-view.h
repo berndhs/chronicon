@@ -104,6 +104,7 @@ private:
   QString nickStyle;
   QString headPattern;
   QString headStyle;
+  QString paraHeadPat;
 };
 
 } // namespace

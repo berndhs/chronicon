@@ -72,7 +72,11 @@ TimelineView::Start ()
   textColor = Settings().value("textcolor", textColor).toString();
   fontSize = Settings().value("fontsize",fontSize).toString();
   nickStyle = Settings().value("nickstyle",nickStyle).toString();
-
+  paraHeadPat = QString ( "<div style=\"width:100%;"
+                        "float:left;"
+                        "font-size:%1;background-color:#%2;"
+                         "color:%3\">");
+  paraHeadPat = Settings().value ("status_head",paraHeadPat).toString();
   Settings().setValue ("DTD",dtd);
   Settings().setValue ("headpattern",headPattern);
   Settings().setValue ("status_background_color",statusBackgroundColor);
@@ -80,6 +84,7 @@ TimelineView::Start ()
   Settings().setValue ("fontsize",fontSize);
   Settings().setValue ("nickstyle",nickStyle);
   Settings().setValue ("headstyle",headStyle);
+  Settings().setValue ("status_head",paraHeadPat);
 }
 
 void
@@ -168,10 +173,6 @@ TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
 {
   QString bckCol = statusBackgroundColor;
   QString txtCol = textColor;
-  QString paraHeadPat ( "<div style=\"width:100%;"
-                        "float:left;"
-                        "font-size:%1;background-color:#%2;"
-                         "color:%3\">");
   html = paraHeadPat.arg(fontSize).arg (bckCol).arg(txtCol);
   QString imgPattern ("<div style=\"float:left;margin:3px;\">"
                     "<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" "
