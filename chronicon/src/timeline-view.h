@@ -105,6 +105,9 @@ private:
   QString headPattern;
   QString headStyle;
   QString paraHeadPat;
+  QString titleStyle;
+  QString titleDateForm;
+  QString imgPattern;
 };
 
 } // namespace

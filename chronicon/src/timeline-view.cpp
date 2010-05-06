@@ -57,6 +57,12 @@ TimelineView::HtmlStyles ()
   textColor = "000000";
   fontSize = "90%";
   nickStyle = "font-weight:bold;text-decoration:none;";
+  titleStyle = "font-size:smaller; color:0f2f0f;";
+  titleDateForm = tr("ddd hh:mm:hh");
+  imgPattern = QString ("<div style=\"float:left;margin:3px;\">"
+                    "<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" "
+                      " style=\"vertical-align:text-top;\" />"
+                     "</div>");
 }
 
 void
@@ -76,7 +82,12 @@ TimelineView::Start ()
                         "float:left;"
                         "font-size:%1;background-color:#%2;"
                          "color:%3\">");
-  paraHeadPat = Settings().value ("status_head",paraHeadPat).toString();
+  paraHeadPat = Settings().value ("view/status_head",paraHeadPat).toString();
+  titleStyle = Settings().value ("view/titlestyle",titleStyle).toString();
+  titleDateForm = Settings().value ("view/titledateform",titleDateForm)
+                            .toString();
+  imgPattern = Settings().value ("view/imgpattern",imgPattern).toString();
+  maxParagraphs = Settings().value ("view/maxitems",maxParagraphs).toInt();
   Settings().setValue ("view/DTD",dtd);
   Settings().setValue ("view/headpattern",headPattern);
   Settings().setValue ("view/status_background_color",statusBackgroundColor);
@@ -85,6 +96,10 @@ TimelineView::Start ()
   Settings().setValue ("view/nickstyle",nickStyle);
   Settings().setValue ("view/headstyle",headStyle);
   Settings().setValue ("view/status_head",paraHeadPat);
+  Settings().setValue ("view/titlestyle",titleStyle);
+  Settings().setValue ("view/titleDateForm",titleDateForm);
+  Settings().setValue ("view/imgpattern",imgPattern);
+  Settings().setValue ("view/maxitems",maxParagraphs);
 }
 
 void
@@ -174,10 +189,6 @@ TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
   QString bckCol = statusBackgroundColor;
   QString txtCol = textColor;
   html = paraHeadPat.arg(fontSize).arg (bckCol).arg(txtCol);
-  QString imgPattern ("<div style=\"float:left;margin:3px;\">"
-                    "<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" "
-                      " style=\"vertical-align:text-top;\" />"
-                     "</div>");
   html.append (imgPattern.arg(para.UserValue("profile_image_url")));
   QString urlPattern ("&nbsp;<a style=\"font-weight:bold;font-size:%1;\" "
                        "href=\"http://twitter.com/%2\">%2</a> ");
@@ -303,12 +314,15 @@ TimelineView::FlushParagraphs ()
   }
   PagePartMap::iterator  index;
   int toomany = paragraphs.size() - maxParagraphs;
-  for (index = paragraphs.begin(); index != paragraphs.end(); index++) {
-     paragraphs.erase (index);
-     toomany--;
-     if (toomany <= 0) {
-       break;
-     }
+  QStringList oldEntries;
+  for (index = paragraphs.begin(); 
+       toomany > 0 && index != paragraphs.end(); 
+       toomany--, index++) {
+    oldEntries << index->first;
+  }
+  QStringList::iterator sindex;
+  for (sindex = oldEntries.begin(); sindex != oldEntries.end(); sindex++) {
+    paragraphs.erase (*sindex);
   }
 }
 
@@ -325,9 +339,9 @@ TimelineView::Show ()
   html.append (head);
   html.append ("\n<body>\n");
 
-  QString headlinePattern ("<h3>%1</h3>");
-  QString date = QDateTime::currentDateTime().toString("ddd hh:mm:ss");
-  html.append (headlinePattern.arg(date));
+  QString headlinePattern = tr(("<h3 style=\"%2\">As of %1:</h3>"));
+  QString date = QDateTime::currentDateTime().toString(titleDateForm);
+  html.append (headlinePattern.arg(date).arg(titleStyle));
   QString parHtml;
   PagePartMap::reverse_iterator para;
   for (para = paragraphs.rbegin(); para != paragraphs.rend(); para++) {
