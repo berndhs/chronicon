@@ -80,6 +80,8 @@ Chronicon::Connect ()
 void
 Chronicon::SetupTimers (bool debug)
 {
+  pollPeriod = Settings().value("timers/pollperiod",pollPeriod).toInt();
+  Settings().setValue ("timers/pollperiod",pollPeriod);
   connect (&pollTimer, SIGNAL (timeout()), this, SLOT (Poll()));
   pollRemain = pollPeriod;
   pollTimer.start (pollTick);

@@ -62,29 +62,29 @@ TimelineView::HtmlStyles ()
 void
 TimelineView::Start ()
 {
-  dtd = Settings().value ("DTD", dtd).toString();
+  dtd = Settings().value ("view/DTD", dtd).toString();
   statusBackgroundColor = Settings()
-                  .value ("status_background_color",statusBackgroundColor)
+                  .value ("view/status_background_color",statusBackgroundColor)
                    .toString();
-  headPattern = Settings().value ("headpattern",headPattern).toString();
-  headStyle = Settings().value ("headstyle", headStyle).toString();
+  headPattern = Settings().value ("view/headpattern",headPattern).toString();
+  headStyle = Settings().value ("view/headstyle", headStyle).toString();
   head = headPattern.arg (headStyle.arg(statusBackgroundColor));
-  textColor = Settings().value("textcolor", textColor).toString();
-  fontSize = Settings().value("fontsize",fontSize).toString();
-  nickStyle = Settings().value("nickstyle",nickStyle).toString();
+  textColor = Settings().value("view/textcolor", textColor).toString();
+  fontSize = Settings().value("view/fontsize",fontSize).toString();
+  nickStyle = Settings().value("view/nickstyle",nickStyle).toString();
   paraHeadPat = QString ( "<div style=\"width:100%;"
                         "float:left;"
                         "font-size:%1;background-color:#%2;"
                          "color:%3\">");
   paraHeadPat = Settings().value ("status_head",paraHeadPat).toString();
-  Settings().setValue ("DTD",dtd);
-  Settings().setValue ("headpattern",headPattern);
-  Settings().setValue ("status_background_color",statusBackgroundColor);
-  Settings().setValue ("textcolor",textColor);
-  Settings().setValue ("fontsize",fontSize);
-  Settings().setValue ("nickstyle",nickStyle);
-  Settings().setValue ("headstyle",headStyle);
-  Settings().setValue ("status_head",paraHeadPat);
+  Settings().setValue ("view/DTD",dtd);
+  Settings().setValue ("view/headpattern",headPattern);
+  Settings().setValue ("view/status_background_color",statusBackgroundColor);
+  Settings().setValue ("view/textcolor",textColor);
+  Settings().setValue ("view/fontsize",fontSize);
+  Settings().setValue ("view/nickstyle",nickStyle);
+  Settings().setValue ("view/headstyle",headStyle);
+  Settings().setValue ("view/status_head",paraHeadPat);
 }
 
 void
@@ -297,7 +297,7 @@ TimelineView::Ago (int secs)
 void
 TimelineView::FlushParagraphs ()
 {
-  maxParagraphs = Settings().value ("maxitems",maxParagraphs).toInt();
+  maxParagraphs = Settings().value ("view/maxitems",maxParagraphs).toInt();
   if (maxParagraphs > paragraphs.size()) {
     return;
   }
