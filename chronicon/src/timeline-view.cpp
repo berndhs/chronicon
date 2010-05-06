@@ -22,6 +22,7 @@
 #include "delib-debug.h"
 #include "deliberate.h"
 #include "timeline-view.h"
+#include "ui_itemdetail.h"
 #include <QWebPage>
 #include <QWebFrame>
 #include <QDesktopServices>
@@ -31,8 +32,9 @@ using namespace deliberate;
 
 namespace chronicon {
 
-TimelineView::TimelineView (QObject *parent)
+TimelineView::TimelineView (QWidget *parent)
 :QObject (parent),
+ parentWidget (parent),
  currentKind (R_Public),
  view(0),
  maxParagraphs (100)
@@ -60,9 +62,11 @@ TimelineView::HtmlStyles ()
   titleStyle = "font-size:smaller; color:0f2f0f;";
   titleDateForm = tr("ddd hh:mm:hh");
   imgPattern = QString ("<div style=\"float:left;margin:3px;\">"
+                    "<a href=\"chronicon://status/item#%2\" style=\"%3\">"
                     "<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" "
                       " style=\"vertical-align:text-top;\" />"
-                     "</div>");
+                     "</a></div>");
+  iconLinkStyle = "text-decoration:none;";
 }
 
 void
@@ -87,6 +91,7 @@ TimelineView::Start ()
   titleDateForm = Settings().value ("view/titledateform",titleDateForm)
                             .toString();
   imgPattern = Settings().value ("view/imgpattern",imgPattern).toString();
+  iconLinkStyle = Settings().value ("view/iconlinkstyle", iconLinkStyle).toString();
   maxParagraphs = Settings().value ("view/maxitems",maxParagraphs).toInt();
   Settings().setValue ("view/DTD",dtd);
   Settings().setValue ("view/headpattern",headPattern);
@@ -100,6 +105,7 @@ TimelineView::Start ()
   Settings().setValue ("view/titleDateForm",titleDateForm);
   Settings().setValue ("view/imgpattern",imgPattern);
   Settings().setValue ("view/maxitems",maxParagraphs);
+  Settings().setValue ("view/iconlinkstyle",iconLinkStyle);
 }
 
 void
@@ -142,6 +148,35 @@ void
 TimelineView::CustomLink (const QUrl & url)
 {
   qDebug () << " deal with special url " << url;
+  QString frag = url.fragment();
+  QString path = url.path();
+  QString host = url.host();
+  qDebug () << " host " << host
+            << " path " << path
+            << " frag " << frag;
+  if (host == "status" && path == "/item") {
+     ItemDialog (frag);
+  }
+}
+
+void
+TimelineView::ItemDialog (const QString & id)
+{
+  Ui_ItemDialog  ui;
+  QDialog  itemDialog (parentWidget);
+  ui.setupUi (&itemDialog);
+  QString html (dtd);
+  html.append ("<html>");
+  html.append (itemHead);
+  html.append ("<body>");
+  QString itemPara;
+  StatusBlock  itemBlock = paragraphs[id];
+  FormatParagraph (itemPara, itemBlock);
+  html.append (itemPara);
+  html.append ("</body>");
+  html.append ("</html>");
+  ui.itemView->setHtml (html);
+  itemDialog.exec ();
 }
 
 void
@@ -189,7 +224,9 @@ TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
   QString bckCol = statusBackgroundColor;
   QString txtCol = textColor;
   html = paraHeadPat.arg(fontSize).arg (bckCol).arg(txtCol);
-  html.append (imgPattern.arg(para.UserValue("profile_image_url")));
+  html.append (imgPattern.arg(para.UserValue("profile_image_url"))
+                         .arg(para.Id())
+                         .arg(iconLinkStyle));
   QString urlPattern ("&nbsp;<a style=\"font-weight:bold;font-size:%1;\" "
                        "href=\"http://twitter.com/%2\">%2</a> ");
   html.append (urlPattern.arg(fontSize).arg(para.UserValue("screen_name")));

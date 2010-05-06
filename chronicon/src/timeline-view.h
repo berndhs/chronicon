@@ -44,7 +44,7 @@ Q_OBJECT
 
 public:
 
-  TimelineView (QObject *parent=0);
+  TimelineView (QWidget *parent=0);
 
   void SetView (QWebView * pv);
 
@@ -62,6 +62,7 @@ public slots:
 private:
 
   void CustomLink (const QUrl & url);
+  void ItemDialog (const QString & id);
   QString FormatTextBlock (const QString & text);
   QString Anchorize (const QString & text, QRegExp regular, 
                            void (*anchorFunc)(QString&, QString));
@@ -86,6 +87,8 @@ private:
 
   QString Ago (int secs);
 
+  QWidget       *parentWidget;
+
   int            currentKind;
   QWebView      *view;
 
@@ -108,6 +111,8 @@ private:
   QString titleStyle;
   QString titleDateForm;
   QString imgPattern;
+  QString iconLinkStyle;
+  QString itemHead;
 };
 
 } // namespace

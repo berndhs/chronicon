@@ -80,5 +80,7 @@ SOURCES = src/main.cpp \
 FORMS = ui/chronicon.ui \
         ui/DebugLog.ui \
         ui/enterpass.ui \
+        ui/itemdetail.ui \
+
 
 

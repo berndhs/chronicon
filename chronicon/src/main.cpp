@@ -70,9 +70,9 @@ main (int argc, char * argv[])
   chronicon::Chronicon chron;
 
   int maxitems (100);
-  maxitems = settings.value("maxitems",maxitems).toInt();
-  opts.SetIntOpt ("maxitems",maxitems);
-  settings.setValue ("maxitems",maxitems);
+  maxitems = settings.value("view/maxitems",maxitems).toInt();
+  opts.SetIntOpt ("view/maxitems",maxitems);
+  settings.setValue ("view/maxitems",maxitems);
  
   chron.SetApp (&App);
   chron.Start ();

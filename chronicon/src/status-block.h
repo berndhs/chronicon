@@ -59,7 +59,7 @@ public:
 
   void SetContent (const QDomElement & dom);
 
-  QString & Id () { return ident; }
+  QString   Id () const { return ident; } 
   QString   Value (const QString & key) const;
   QString   UserValue (const QString & key) const;
 
