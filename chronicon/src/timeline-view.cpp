@@ -20,18 +20,22 @@
  ****************************************************************/
 
 #include "delib-debug.h"
+#include "deliberate.h"
 #include "timeline-view.h"
 #include <QWebPage>
 #include <QWebFrame>
 #include <QDesktopServices>
 #include <QDateTime>
 
+using namespace deliberate;
+
 namespace chronicon {
 
 TimelineView::TimelineView (QObject *parent)
 :QObject (parent),
  currentKind (R_Public),
- view(0)
+ view(0),
+ maxParagraphs (100)
 {
   dtd = QString 
 ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\""
@@ -249,6 +253,23 @@ TimelineView::Ago (int secs)
   return QString (tr("%1 days %2 hours ago")).arg(days).arg(hours);
 }
 
+void
+TimelineView::FlushParagraphs ()
+{
+  maxParagraphs = Settings().value ("maxitems",maxParagraphs).toInt();
+  if (maxParagraphs > paragraphs.size()) {
+    return;
+  }
+  PagePartMap::iterator  index;
+  int toomany = paragraphs.size() - maxParagraphs;
+  for (index = paragraphs.begin(); index != paragraphs.end(); index++) {
+     paragraphs.erase (index);
+     toomany--;
+     if (toomany <= 0) {
+       break;
+     }
+  }
+}
 
 void
 TimelineView::Show ()
@@ -257,6 +278,7 @@ TimelineView::Show ()
     return;
   }
 
+  FlushParagraphs ();
   QString html (dtd);
   html.append ("\n<html>\n");
   html.append (head);

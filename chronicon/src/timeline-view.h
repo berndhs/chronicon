@@ -64,6 +64,8 @@ private:
   QString Anchorize (const QString & text, QRegExp regular, 
                            void (*anchorFunc)(QString&, QString));
 
+  void FlushParagraphs ();
+
   void AddCurrent (StatusBlock block);
   void AddOwn     (StatusBlock block);
   bool ParseBlock (      StatusBlock & block,
@@ -89,8 +91,8 @@ private:
   PagePartMap   paragraphs;
   QString       dtd;
   QString       head;
-  
-
+ 
+  int           maxParagraphs;
 };
 
 } // namespace

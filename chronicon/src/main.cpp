@@ -44,6 +44,7 @@ main (int argc, char * argv[])
 
   deliberate::CmdOptions  opts ("Chronicon");
   opts.AddSoloOption ("debug","D","show Debug log window");
+  opts.AddIntOption ("maxitems","M","maximum length of timeline shown");
 
 
   deliberate::UseMyOwnMessageHandler ();
@@ -67,6 +68,11 @@ main (int argc, char * argv[])
   deliberate::StartDebugLog (showDebug);
 
   chronicon::Chronicon chron;
+
+  int maxitems (100);
+  maxitems = settings.value("maxitems",maxitems).toInt();
+  opts.SetIntOpt ("maxitems",maxitems);
+  settings.setValue ("maxitems",maxitems);
  
   chron.SetApp (&App);
   chron.Start ();
