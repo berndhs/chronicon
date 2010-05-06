@@ -178,7 +178,7 @@
       <property name="minimumSize">
        <size>
         <width>100</width>
-        <height>30</height>
+        <height>18</height>
        </size>
       </property>
       <property name="frameShape">
@@ -194,7 +194,7 @@
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>5</horstretch>
-        <verstretch>24</verstretch>
+        <verstretch>30</verstretch>
        </sizepolicy>
       </property>
       <property name="url">

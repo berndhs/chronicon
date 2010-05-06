@@ -145,19 +145,25 @@ TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
                       " style=\"vertical-align:text-top;\" />"
                      "</div>");
   html.append (imgPattern.arg(para.UserValue("profile_image_url")));
-  html.append (FormatTextBlock (para.Value("text")));
   QString urlPattern ("&nbsp;<a style=\"font-weight:bold;font-size:90%;\" "
-                       "href=\"http://twitter.com/%1\">%1</a>");
+                       "href=\"http://twitter.com/%1\">%1</a> ");
   html.append (urlPattern.arg(para.UserValue("screen_name")));
+  html.append (tr(" "));
+  html.append (FormatTextBlock (para.Value("text")));
   QDateTime now = QDateTime::currentDateTime().toUTC();
   QDateTime date = QDateTime::fromString 
                               (para.Value("created_at"),
                                "ddd MMM dd HH:mm:ss +0000 yyyy");
   date.setTimeSpec (Qt::UTC);
   int ago = date.secsTo (now);
-  html.append (QString("&nbsp;<span style=\"font-size:90%;font-style:italic;\">%1</span>")
-                      .arg( Ago(ago)));
-  html.append ("</div><br>");
+  QString from = para.Value("source");
+  if (from.length() < 1) {
+    from = tr("unknown");
+  }
+  html.append (QString("&nbsp;<span style=\"font-size:90%;font-style:italic;\">"
+                          "%1 from %2</span>")
+                      .arg( Ago(ago)).arg(from));
+  html.append ("</div><hr width=\"70%\">");
 }
 
 QString 
@@ -225,8 +231,9 @@ TwitHashAnchor (QString & anchor, QString ref)
 {
   if (ref.length() == 1) {
     anchor = ref;
+    return;
   }
-  anchor = QString ("#<a href=\"http://twitter.com/#search?q=%1\">%1</a>")
+  anchor = QString ("<a href=\"http://twitter.com/#search?q=%1\">%1</a>")
                    .arg(ref);
 }
 
