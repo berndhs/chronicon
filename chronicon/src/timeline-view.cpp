@@ -37,16 +37,49 @@ TimelineView::TimelineView (QObject *parent)
  view(0),
  maxParagraphs (100)
 {
+  HtmlStyles ();
+}
+
+void
+TimelineView::HtmlStyles ()
+{
   dtd = QString 
 ("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\""
  " \"http://www.w3.org/TR/html4/loose.dtd\">");
-  QString headPattern = QString ("<head><title>Tweet List</title><meta http-equiv="
+  statusBackgroundColor = "f0f0f0";
+  headPattern = QString ("<head><title>Tweet List</title><meta http-equiv="
              "\"Content-Type\" content=\"text/html;charset=utf-8\" >%1</head>");
-  QString style ("<style type=\"text/css\"> body { background-color:#e0e0e0;} "
-                 "p { font-size:11pt; background-color:#e0e0ff; "
+  headStyle = QString ("<style type=\"text/css\"> body { background-color:#e0e0e0;} "
+                 "p { font-size:10pt; background-color:%1; "
                     " padding:2px; margin:2x; "
                     " font-family:Times New Roman; } </style>");
-  head = headPattern.arg (style);
+  head = headPattern.arg (headStyle.arg(statusBackgroundColor));
+  textColor = "000000";
+  fontSize = "90%";
+  nickStyle = "font-weight:bold;text-decoration:none;";
+}
+
+void
+TimelineView::Start ()
+{
+  dtd = Settings().value ("DTD", dtd).toString();
+  statusBackgroundColor = Settings()
+                  .value ("status_background_color",statusBackgroundColor)
+                   .toString();
+  headPattern = Settings().value ("headpattern",headPattern).toString();
+  headStyle = Settings().value ("headstyle", headStyle).toString();
+  head = headPattern.arg (headStyle.arg(statusBackgroundColor));
+  textColor = Settings().value("textcolor", textColor).toString();
+  fontSize = Settings().value("fontsize",fontSize).toString();
+  nickStyle = Settings().value("nickstyle",nickStyle).toString();
+
+  Settings().setValue ("DTD",dtd);
+  Settings().setValue ("headpattern",headPattern);
+  Settings().setValue ("status_background_color",statusBackgroundColor);
+  Settings().setValue ("textcolor",textColor);
+  Settings().setValue ("fontsize",fontSize);
+  Settings().setValue ("nickstyle",nickStyle);
+  Settings().setValue ("headstyle",headStyle);
 }
 
 void
@@ -133,21 +166,21 @@ TimelineView::AddOwn (StatusBlock block)
 void
 TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
 {
-  QString bckCol = "f0f0f0"; // para.UserValue ("profile_background_color");
-  QString txtCol = "000000"; // para.UserValue ("profile_text_color");
+  QString bckCol = statusBackgroundColor;
+  QString txtCol = textColor;
   QString paraHeadPat ( "<div style=\"width:100%;"
                         "float:left;"
-                        "font-size:90%;background-color:#%1;"
-                         "color:%2\">");
-  html = paraHeadPat.arg (bckCol).arg(txtCol);
+                        "font-size:%1;background-color:#%2;"
+                         "color:%3\">");
+  html = paraHeadPat.arg(fontSize).arg (bckCol).arg(txtCol);
   QString imgPattern ("<div style=\"float:left;margin:3px;\">"
                     "<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" "
                       " style=\"vertical-align:text-top;\" />"
                      "</div>");
   html.append (imgPattern.arg(para.UserValue("profile_image_url")));
-  QString urlPattern ("&nbsp;<a style=\"font-weight:bold;font-size:90%;\" "
-                       "href=\"http://twitter.com/%1\">%1</a> ");
-  html.append (urlPattern.arg(para.UserValue("screen_name")));
+  QString urlPattern ("&nbsp;<a style=\"font-weight:bold;font-size:%1;\" "
+                       "href=\"http://twitter.com/%2\">%2</a> ");
+  html.append (urlPattern.arg(fontSize).arg(para.UserValue("screen_name")));
   html.append (tr(" "));
   html.append (FormatTextBlock (para.Value("text")));
   QDateTime now = QDateTime::currentDateTime().toUTC();
@@ -160,9 +193,9 @@ TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
   if (from.length() < 1) {
     from = tr("unknown");
   }
-  html.append (QString("&nbsp;<span style=\"font-size:90%;font-style:italic;\">"
+  html.append (QString("&nbsp;<span style=\"font-size:%3;font-style:italic;\">"
                           "%1 from %2</span>")
-                      .arg( Ago(ago)).arg(from));
+                      .arg( Ago(ago)).arg(from).arg(fontSize));
   html.append ("</div><hr width=\"70%\">");
 }
 
@@ -182,8 +215,8 @@ TimelineView::FormatTextBlock (const QString & text)
   QString subHash = Anchorize (subAt, 
                              QRegExp ("#(\\S*)"),
                              anchorFunc);
-  QString span ("<span style=\"font-size:90%;\">%1</span>");
-  return span.arg(subHash);
+  QString span  ("<span style=\"font-size:%2;\">%1</span>");
+  return span.arg(subHash).arg(fontSize);
 }
 
 QString

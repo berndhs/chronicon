@@ -108,6 +108,7 @@ Chronicon::Start ()
  
   qDebug () << Settings().organizationName();
   qDebug () << Settings().fileName();
+  theView.Start ();
 }
 
 #if USE_OAUTH

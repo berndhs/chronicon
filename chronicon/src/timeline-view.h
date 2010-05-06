@@ -52,6 +52,8 @@ public:
   void         Display (TimelineKind k);
   void         Show ();
 
+  void  Start ();
+
 public slots:
 
   void CatchStatusItem (StatusBlock block, TimelineKind kind);
@@ -65,6 +67,7 @@ private:
                            void (*anchorFunc)(QString&, QString));
 
   void FlushParagraphs ();
+  void HtmlStyles ();
 
   void AddCurrent (StatusBlock block);
   void AddOwn     (StatusBlock block);
@@ -93,6 +96,14 @@ private:
   QString       head;
  
   int           maxParagraphs;
+
+  QString viewBackgroundColor;
+  QString statusBackgroundColor;
+  QString textColor;
+  QString fontSize;
+  QString nickStyle;
+  QString headPattern;
+  QString headStyle;
 };
 
 } // namespace
