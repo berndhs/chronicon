@@ -19,6 +19,8 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
+#include <libnotify/notify.h>
+#include "chronicon-global.h"
 #include "chronicon.h"
 #include <QApplication>
 #include "delib-debug.h"
@@ -27,18 +29,22 @@
 #include "deliberate.h"
 #include "version.h"
 
+
+const char chronicon::ChroniconName[] = "Chronicon";
+
 int
 main (int argc, char * argv[])
 {
-  
   QCoreApplication::setApplicationName ("chronicon");
   QCoreApplication::setOrganizationName ("BerndStramm");
   QCoreApplication::setOrganizationDomain ("bernd-stramm.com");
-  deliberate::ProgramVersion pv ("Chronicon");
+  deliberate::ProgramVersion pv (chronicon::ChroniconName);
   QCoreApplication::setApplicationVersion (pv.Version());
   QSettings  settings;
   deliberate::SetSettings (settings);
   settings.setValue ("program",pv.MyName());
+
+  notify_init (chronicon::ChroniconName);
 
   QApplication App (argc, argv);
 

@@ -45,6 +45,8 @@ public:
   
   friend QDebug & operator << (QDebug & out, const StringBlock & data);
 
+  friend class StatusBlock;
+
 private:
 
   std::map <QString, QString>   values;
@@ -58,6 +60,8 @@ public:
   StatusBlock (const QDomElement & dom);
 
   void SetContent (const QDomElement & dom);
+
+  void Domify (QDomElement & dom);
 
   QString   Id () const { return ident; } 
   QString   Value (const QString & key) const;

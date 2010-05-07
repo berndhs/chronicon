@@ -34,6 +34,8 @@
 
 #include "network-if.h"
 #include "timeline-view.h"
+#include "item-dialog.h"
+#include "status-block.h"
 
 namespace chronicon {
 
@@ -72,6 +74,8 @@ protected:
 
   void closeEvent (QCloseEvent * event);
   void resizeEvent ( QResizeEvent * event )  ;
+  void hideEvent (QHideEvent * event);
+  void showEvent (QShowEvent * event);
 
 private:
 
@@ -95,6 +99,7 @@ private:
 
   TimelineView  theView;
   TimelineKind  currentView;
+  ItemDialog    itemDialog;
 
   QApplication * pApp;
 

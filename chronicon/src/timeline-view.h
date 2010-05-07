@@ -51,18 +51,23 @@ public:
   int DisplayKind () { return currentKind; }
   void         Display (TimelineKind k);
   void         Show ();
-
-  void  Start ();
+  void  SetNotify (bool note ) { doNotify = note; }
+  void  LoadSettings ();
+ 
 
 public slots:
 
   void CatchStatusItem (StatusBlock block, TimelineKind kind);
   void LinkClicked (const QUrl & url);
 
+signals:
+
+  void ItemDialog (QString id, StatusBlock block, QString itemHtml);
+
 private:
 
+  void PopupNotify (QString id, StatusBlock & block);
   void CustomLink (const QUrl & url);
-  void ItemDialog (const QString & id);
   QString FormatTextBlock (const QString & text);
   QString Anchorize (const QString & text, QRegExp regular, 
                            void (*anchorFunc)(QString&, QString));
@@ -90,16 +95,18 @@ private:
   QWidget       *parentWidget;
 
   int            currentKind;
+  bool           doNotify;
+  int            notifyDelay;
   QWebView      *view;
 
   typedef  std::map <QString, StatusBlock>   PagePartMap;
 
-  PagePartMap   paragraphs;
-  QString       dtd;
-  QString       head;
- 
   int           maxParagraphs;
+  PagePartMap   paragraphs;
 
+
+  QString dtd;
+  QString head;
   QString viewBackgroundColor;
   QString statusBackgroundColor;
   QString textColor;

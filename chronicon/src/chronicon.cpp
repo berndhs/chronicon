@@ -27,6 +27,7 @@
 #include <QMessageBox>
 #include <QLineEdit>
 #include <QByteArray>
+#include <QDesktopServices>
 
 
 using namespace deliberate;
@@ -44,6 +45,7 @@ Chronicon::Chronicon (QWidget *parent)
  network (this),
  theView (this),
  currentView (R_Private),
+ itemDialog (this),
  pApp(0)
 {
   setupUi (this);
@@ -53,6 +55,8 @@ Chronicon::Chronicon (QWidget *parent)
   Connect ();
   SetupTimers (true);
   network.SetUserAgent (Settings().value("program").toString());
+
+  itemDialog.SetNetwork (&network);
 }
 
 void
@@ -75,6 +79,9 @@ Chronicon::Connect ()
            this, SLOT (PollComplete()));
   connect (&network, SIGNAL (RePoll(TimelineKind)),
            this, SLOT (RePoll(TimelineKind)));
+
+  connect (&theView, SIGNAL (ItemDialog (QString, StatusBlock, QString)),
+           &itemDialog, SLOT (Exec(QString , StatusBlock, QString)));
 }
 
 void
@@ -107,10 +114,15 @@ Chronicon::Start ()
   show ();
   pollRemain = 0;
   QTimer::singleShot (1000, this, SLOT (Poll()));
- 
-  qDebug () << Settings().organizationName();
-  qDebug () << Settings().fileName();
-  theView.Start ();
+
+  QString defaultDir = QDesktopServices::storageLocation 
+                        (QDesktopServices::DocumentsLocation);
+  defaultDir = Settings ().value ("defaultdir",defaultDir).toString();
+  Settings().setValue ("defaultdir",defaultDir);
+
+  theView.LoadSettings ();
+  itemDialog.LoadSettings ();
+  network.Init ();
 }
 
 #if USE_OAUTH
@@ -255,6 +267,7 @@ Chronicon::resizeEvent (QResizeEvent * event)
 {
   QSize newsize = event->size();
   Settings().setValue ("size",newsize);
+  QMainWindow::resizeEvent (event);
 }
 
 
@@ -262,6 +275,21 @@ void
 Chronicon::closeEvent (QCloseEvent *event)
 {
   Settings().sync();
+  QMainWindow::closeEvent (event);
+}
+
+void
+Chronicon::hideEvent (QHideEvent *event)
+{
+  theView.SetNotify (true);
+  QMainWindow::hideEvent (event);
+}
+
+void
+Chronicon::showEvent (QShowEvent *event)
+{
+  theView.SetNotify (false);
+  QMainWindow::showEvent (event);
 }
 
 } // namespace

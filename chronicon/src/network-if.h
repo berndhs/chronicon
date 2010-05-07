@@ -44,8 +44,11 @@ public:
 
   NetworkIF (QObject *parent);
 
+  void Init ();
+
   void PullTimeline ();
   void PushUserStatus (QString status);
+  void ReTweet (QString id);
 
   void SetTimeline (TimelineKind k);
   void SetBasicAuth (QString us, QString pa=QString());
@@ -84,6 +87,8 @@ private:
   QString                 user;
   QString                 pass;
   QString                 userAgent;
+
+  int                     numItems;
 
   typedef std::map <QNetworkReply *, ChronNetworkReply*>  ReplyMapType;
 

@@ -25,18 +25,28 @@
 #include <QDomDocument>
 #include <QDateTime>
 
+using namespace deliberate;
+
 namespace chronicon {
 
 NetworkIF::NetworkIF (QObject *parent)
 :network(parent),
  serviceKind (R_Public),
  user (QString()),
- pass (QString())
+ pass (QString()),
+ numItems (25)
 {
   serviceKind = R_Private;
   SwitchTimeline();
   connect (&network, SIGNAL (authenticationRequired(QNetworkReply*, QAuthenticator*)),
            this, SLOT (authProvide (QNetworkReply*, QAuthenticator*)));
+}
+
+void
+NetworkIF::Init ()
+{
+  numItems = Settings().value ("network/numitems",numItems).toInt();
+  Settings ().setValue ("network/numitems",numItems);
 }
 
 void
@@ -57,8 +67,8 @@ void
 NetworkIF::PullTimeline ()
 {
   QNetworkRequest request;
-  QUrl url  (QString("http://api.twitter.com/1/statuses/%1.xml")
-                    .arg(timelineName));
+  QUrl url  (QString("http://api.twitter.com/1/statuses/%1.xml?count=%2")
+                    .arg(timelineName).arg(numItems));
   request.setUrl(url);
   QNetworkReply *reply = network.get (request);
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
@@ -194,6 +204,21 @@ NetworkIF::PushUserStatus (QString status)
                                                   reply, 
                                                   chronicon::R_Update); 
   ExpectReply (reply, chReply);
+}
+
+void
+NetworkIF::ReTweet (QString id)
+{
+  QString urlString ("http://api.twitter.com/1/statuses/retweet/%1.xml");
+  QUrl url (urlString.arg(id));
+  QNetworkRequest  req(url);
+  QByteArray nada;
+  QNetworkReply * reply = network.post (req, nada);
+  ChronNetworkReply * chReply = new ChronNetworkReply (url,
+                                        reply,
+                                        chronicon::R_Update);
+  ExpectReply (reply, chReply);
+qDebug () << " sent retweet " << reply->url ();
 }
 
 void

@@ -19,6 +19,8 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
+#include <libnotify/notify.h>
+#include "chronicon-global.h"
 #include "delib-debug.h"
 #include "deliberate.h"
 #include "timeline-view.h"
@@ -36,6 +38,8 @@ TimelineView::TimelineView (QWidget *parent)
 :QObject (parent),
  parentWidget (parent),
  currentKind (R_Public),
+ doNotify (false),
+ notifyDelay (10*1000),
  view(0),
  maxParagraphs (100)
 {
@@ -52,7 +56,7 @@ TimelineView::HtmlStyles ()
   headPattern = QString ("<head><title>Tweet List</title><meta http-equiv="
              "\"Content-Type\" content=\"text/html;charset=utf-8\" >%1</head>");
   headStyle = QString ("<style type=\"text/css\"> body { background-color:#e0e0e0;} "
-                 "p { font-size:10pt; background-color:%1; "
+                 "p { font-size:10pt; background-color:#%1; "
                     " padding:2px; margin:2x; "
                     " font-family:Times New Roman; } </style>");
   head = headPattern.arg (headStyle.arg(statusBackgroundColor));
@@ -70,7 +74,7 @@ TimelineView::HtmlStyles ()
 }
 
 void
-TimelineView::Start ()
+TimelineView::LoadSettings ()
 {
   dtd = Settings().value ("view/DTD", dtd).toString();
   statusBackgroundColor = Settings()
@@ -93,6 +97,7 @@ TimelineView::Start ()
   imgPattern = Settings().value ("view/imgpattern",imgPattern).toString();
   iconLinkStyle = Settings().value ("view/iconlinkstyle", iconLinkStyle).toString();
   maxParagraphs = Settings().value ("view/maxitems",maxParagraphs).toInt();
+  notifyDelay = Settings().value ("notifydelay",notifyDelay).toInt ();
   Settings().setValue ("view/DTD",dtd);
   Settings().setValue ("view/headpattern",headPattern);
   Settings().setValue ("view/status_background_color",statusBackgroundColor);
@@ -106,6 +111,7 @@ TimelineView::Start ()
   Settings().setValue ("view/imgpattern",imgPattern);
   Settings().setValue ("view/maxitems",maxParagraphs);
   Settings().setValue ("view/iconlinkstyle",iconLinkStyle);
+  Settings().setValue ("notifydelay",notifyDelay);
 }
 
 void
@@ -147,37 +153,19 @@ TimelineView::LinkClicked (const QUrl & url)
 void
 TimelineView::CustomLink (const QUrl & url)
 {
-  qDebug () << " deal with special url " << url;
   QString frag = url.fragment();
   QString path = url.path();
   QString host = url.host();
-  qDebug () << " host " << host
-            << " path " << path
-            << " frag " << frag;
   if (host == "status" && path == "/item") {
-     ItemDialog (frag);
+     PagePartMap::iterator index = paragraphs.find (frag);
+     if (index != paragraphs.end()) {
+       QString html;
+       FormatParagraph (html, index->second);
+       emit ItemDialog (frag, index->second, html);
+     }
   }
 }
 
-void
-TimelineView::ItemDialog (const QString & id)
-{
-  Ui_ItemDialog  ui;
-  QDialog  itemDialog (parentWidget);
-  ui.setupUi (&itemDialog);
-  QString html (dtd);
-  html.append ("<html>");
-  html.append (itemHead);
-  html.append ("<body>");
-  QString itemPara;
-  StatusBlock  itemBlock = paragraphs[id];
-  FormatParagraph (itemPara, itemBlock);
-  html.append (itemPara);
-  html.append ("</body>");
-  html.append ("</html>");
-  ui.itemView->setHtml (html);
-  itemDialog.exec ();
-}
 
 void
 TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
@@ -201,6 +189,9 @@ TimelineView::AddCurrent (StatusBlock block)
   if (!block.HasUserValue("screen_name")) {
      block.SetUserValue ("screen_name","anonymous");
   }
+  if (doNotify && notifyDelay > 0) {
+     PopupNotify (id,block);
+  }
   paragraphs[id] = block;
 }
 
@@ -214,7 +205,38 @@ TimelineView::AddOwn (StatusBlock block)
   QString text = block.Value("text");
   text.prepend ("POST: ");
   block.SetValue ("text", text);
+  if (doNotify && notifyDelay > 0) {
+     PopupNotify (id,block);
+  }
   paragraphs[id] = block;
+}
+
+void
+TimelineView::PopupNotify (QString id, StatusBlock & block)
+{
+  if (paragraphs.find(id) != paragraphs.end()) {
+    return;
+  }
+  QString msg (tr("From: "));
+  msg.append (block.UserValue ("screen_name"));
+  msg.append (" at ");
+  msg.append (block.Value ("created_at"));
+  msg.append ("\n");
+  msg.append (block.Value ("text"));
+  NotifyNotification * note 
+           = notify_notification_new (chronicon::ChroniconName,
+               msg.toLocal8Bit(),
+               NULL, NULL);
+  if (note)  {
+    notify_notification_set_timeout (note, notifyDelay);
+    if (!notify_notification_show (note, NULL)) {
+      qDebug () << "cannot send notification";
+    }
+    g_object_unref (note);
+  } else {
+    qDebug () << " cannot allocate notification";
+  }
+  
 }
 
 

@@ -101,6 +101,33 @@ StatusBlock::ParseContent (StringBlock & block, const QDomElement & dom)
   }
 }
 
+void
+StatusBlock::Domify (QDomElement & dom)
+{
+  QDomDocument doc("chronicon_doc");
+  QDomElement top = doc.createElement (QString("status"));
+  std::map <QString,QString>::iterator index;
+  for (index = statusValues.values.begin();
+       index != statusValues.values.end();
+       index++) {
+    QDomElement child = doc.createElement (index->first);
+    QDomText    text = doc.createTextNode (index->second);
+    child.appendChild (text);
+    top.appendChild (child);
+  }
+  QDomElement userPart = doc.createElement (QString("user"));
+  for (index = userValues.values.begin();
+       index != userValues.values.end();
+       index++ ) {
+    QDomElement userChild = doc.createElement (index->first);
+    QDomText   text = doc.createTextNode (index->second);
+    userChild.appendChild (text);
+    userPart.appendChild (userChild);
+  }
+  top.appendChild (userPart);
+  dom = top;
+}
+
 QDebug & 
 operator << (QDebug & out, const StringBlock & data)
 {
