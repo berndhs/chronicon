@@ -1,6 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
   <file alias="ch.png">images/ch.png</file>
+  <file alias="LICENSE.txt">LICENSE</file>
+  <file alias="helpman.html">helpman.html</file>
 </qresource>
 </RCC>
 

@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QMessageBox>
+#include <QWidget>
 #include <QLineEdit>
 #include <QByteArray>
 #include <QDesktopServices>
@@ -46,6 +47,7 @@ Chronicon::Chronicon (QWidget *parent)
  theView (this),
  currentView (R_Private),
  itemDialog (this),
+ helpView (this),
  pApp(0)
 {
   setupUi (this);
@@ -65,6 +67,11 @@ Chronicon::Connect ()
 {
   connect (actionQuit, SIGNAL (triggered()), this, SLOT (quit()));
   connect (actionLogin, SIGNAL (triggered()), &network, SLOT (login()));
+  connect (actionConfigure, SIGNAL (triggered()), this, SLOT (NotYet()));
+  connect (actionAbout, SIGNAL (triggered()), this, SLOT (About()));
+  connect (actionManual, SIGNAL (triggered()), this, SLOT (Manual()));
+  connect (actionLicense, SIGNAL (triggered()), this, SLOT (License()));
+
   connect (typeButton, SIGNAL (clicked()), this, SLOT (startMessage()));
   connect (updateButton, SIGNAL (clicked()), this, SLOT (RePoll()));
   connect (sendButton, SIGNAL (clicked()), this, SLOT (finishMessage()));
@@ -133,6 +140,34 @@ Chronicon::ReadRSA (QCA::SecureArray & secure)
   
 }
 #endif
+
+void
+Chronicon::License ()
+{
+  helpView.Show ("qrc:/LICENSE.txt");
+}
+
+void
+Chronicon::Manual ()
+{
+  helpView.Show ("qrc:/helpman.html");
+}
+void
+Chronicon::NotYet ()
+{
+  QMessageBox dontHaveIt (this);
+  Qt::WindowFlags flags = dontHaveIt.windowFlags ();
+  flags |= Qt::FramelessWindowHint;
+  dontHaveIt.setWindowFlags (flags);
+  dontHaveIt.setText ("Function not yet available");
+  dontHaveIt.exec (); 
+}
+
+void
+Chronicon::About ()
+{
+  deliberate::ProgramVersion::ShowVersionWindow ();
+}
 
 void
 Chronicon::quit ()

@@ -68,6 +68,7 @@ HEADERS = src/chronicon.h \
           src/deliberate.h \
           src/item-dialog.h \
           src/login-dialog.h \
+          src/helpview.h \
           src/version.h \
 
 
@@ -83,6 +84,7 @@ SOURCES = src/main.cpp \
           src/deliberate.cpp \
           src/item-dialog.cpp \
           src/login-dialog.cpp \
+          src/helpview.cpp \
           src/version.cpp \
 
 
@@ -90,6 +92,7 @@ FORMS = ui/chronicon.ui \
         ui/DebugLog.ui \
         ui/enterpass.ui \
         ui/itemdetail.ui \
+        ui/helpwin.ui \
 
 
 

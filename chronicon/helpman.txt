@@ -1,0 +1,6 @@
+Chronicon Help Manual
+=====================
+Bernd Stramm <bernd.stramm@gmail.com>
+Version 0.1.0,  7 May 2010
+
+Be careful.

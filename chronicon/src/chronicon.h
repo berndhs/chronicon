@@ -36,6 +36,10 @@
 #include "timeline-view.h"
 #include "item-dialog.h"
 #include "status-block.h"
+#include "version.h"
+#include "helpview.h"
+
+using namespace deliberate;
 
 namespace chronicon {
 
@@ -61,6 +65,12 @@ private slots:
   void startMessage ();
   void finishMessage ();
   void discardMessage ();
+
+  void NotYet ();
+  void About ();
+  void License ();
+  void Manual ();
+  
 
   void firstKey (int key);
   void returnKey ();
@@ -100,6 +110,7 @@ private:
   TimelineView  theView;
   TimelineKind  currentView;
   ItemDialog    itemDialog;
+  HelpView      helpView;
 
   QApplication * pApp;
 
