@@ -1,5 +1,5 @@
-#ifndef CHRONICON_TYPES_H
-#define CHRONICON_TYPES_H
+
+#include "login-dialog.h"
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -24,15 +24,66 @@
 
 namespace chronicon {
 
-  enum TimelineKind {
-         R_None = 0,
-         R_Public,
-         R_Private,
-         R_Update,
-         R_Destroy,
-         R_Top
-         };
+LoginDialog::LoginDialog (QWidget *parent)
+:QDialog (parent)
+{ 
+  textenter.setupUi (this);
+  
+  connect (textenter.loginButton, SIGNAL (clicked()),
+           this, SLOT (Login()));
+  connect (textenter.logoutButton, SIGNAL (clicked()),
+           this, SLOT (Logout()));
+  connect (textenter.cancelButton, SIGNAL (clicked()),
+           this, SLOT (Cancel()));
+}
+
+int
+LoginDialog::Exec (QString oldUser)
+{
+  user = oldUser;
+  pass = "";
+  return exec ();
+}
+
+void
+LoginDialog::Login ()
+{
+  SaveText ();
+  done (1);
+}
+
+void
+LoginDialog::Logout ()
+{
+  user = "";
+  pass = "";
+  done (-1);
+}
+
+void
+LoginDialog::Cancel ()
+{
+  done (0);
+}
+
+void
+LoginDialog::SaveText ()
+{
+  user = textenter.userEdit->text();
+  pass = textenter.passEdit->text();
+}
+
+QString
+LoginDialog::User ()
+{
+  return user;
+}
+
+QString
+LoginDialog::Pass ()
+{
+  return pass;
+}
 
 } // namespace
 
-#endif

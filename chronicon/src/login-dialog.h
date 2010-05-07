@@ -1,5 +1,5 @@
-#ifndef ITEM_DIALOG_H
-#define ITEM_DIALOG_H
+#ifndef LOGIN_DIALOG_H
+#define LOGIN_DIALOG_H
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -23,65 +23,39 @@
  ****************************************************************/
 
 #include <QDialog>
-#include <QWebView>
 #include <QString>
-#include "ui_itemdetail.h"
-
-#include "network-if.h"
-#include "timeline-view.h"
+#include "ui_enterpass.h"
 
 namespace chronicon {
 
-class ItemDialog : public QDialog, public Ui_ItemDialog {
+class LoginDialog : public QDialog {
 Q_OBJECT
 
 public:
 
-  ItemDialog (QWidget * parent=0);
+  LoginDialog (QWidget *parent);
 
-  void HtmlStyles ();
-  void LoadSettings ();
-  void SetNetwork (NetworkIF * net) { network = net; }
-
-public slots:
-
-  void Exec (QString id, StatusBlock block, QString itemHtml);
+  /** Exec() - return 1 for log in, 0 for nothing done, -1 for log out
+  */
+  int Exec (QString oldUser);
+  
+  QString User ();
+  QString Pass ();
 
 private slots:
 
-  void Mailto   ();
-  void Save     ();
-  void Log      ();
-  void ReTweet  ();
-  void Delete   ();
+  void Login ();
+  void Logout ();
+  void Cancel ();
 
 private:
 
-  void PlainText (QString & plain, const StatusBlock & block);
+  void SaveText ();
 
-  NetworkIF   *network;
+  QString    user;
+  QString    pass;
 
-  QString       itemId;
-  StatusBlock   itemBlock;
-
-
-  QString dtd;
-  QString head;
-  QString viewBackgroundColor;
-  QString statusBackgroundColor;
-  QString textColor;
-  QString fontSize;
-  QString nickStyle;
-  QString headPattern;
-  QString headStyle;
-  QString paraHeadPat;
-  QString titleStyle;
-  QString titleDateForm;
-  QString imgPattern;
-  QString iconLinkStyle;
-  QString itemHead;
-
-
+  Ui_EnterPass  textenter;
 
 };
 

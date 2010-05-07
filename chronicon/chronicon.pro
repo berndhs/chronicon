@@ -29,8 +29,11 @@ TARGET = chronicon
 
 
 CONFIG += qt
-CONFIG += link_pkgconfig
-PKGCONFIG += libnotify
+
+unix:{
+  CONFIG += link_pkgconfig
+  PKGCONFIG += libnotify
+}
 
 DEFINES += DELIBERATE_DEBUG=1
 DEFINES += USE_OAUTH=0
@@ -64,6 +67,7 @@ HEADERS = src/chronicon.h \
           src/status-block.h \
           src/deliberate.h \
           src/item-dialog.h \
+          src/login-dialog.h \
           src/version.h \
 
 
@@ -78,6 +82,7 @@ SOURCES = src/main.cpp \
           src/status-block.cpp \
           src/deliberate.cpp \
           src/item-dialog.cpp \
+          src/login-dialog.cpp \
           src/version.cpp \
 
 

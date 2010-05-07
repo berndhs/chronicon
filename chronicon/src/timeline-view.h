@@ -27,8 +27,10 @@
 #include <QUrl>
 #include <QObject>
 #include <QRegExp>
+#include <QLineEdit>
 #include "chronicon-types.h"
 #include "status-block.h"
+#include "network-if.h"
 #include <map>
 
 namespace chronicon {
@@ -47,6 +49,7 @@ public:
   TimelineView (QWidget *parent=0);
 
   void SetView (QWebView * pv);
+  void SetNetwork (NetworkIF * net) { network = net; }
 
   int DisplayKind () { return currentKind; }
   void         Display (TimelineKind k);
@@ -98,6 +101,8 @@ private:
   bool           doNotify;
   int            notifyDelay;
   QWebView      *view;
+  NetworkIF     *network;
+  QLineEdit     *detailTip;
 
   typedef  std::map <QString, StatusBlock>   PagePartMap;
 

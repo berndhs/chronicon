@@ -24,11 +24,15 @@
 #include "delib-debug.h"
 #include "deliberate.h"
 #include "timeline-view.h"
+#include "network-if.h"
 #include "ui_itemdetail.h"
 #include <QWebPage>
 #include <QWebFrame>
 #include <QDesktopServices>
 #include <QDateTime>
+#include <QCursor>
+#include <QFontMetrics>
+#include <QSize>
 
 using namespace deliberate;
 
@@ -41,6 +45,8 @@ TimelineView::TimelineView (QWidget *parent)
  doNotify (false),
  notifyDelay (10*1000),
  view(0),
+ network (0),
+ detailTip (0),
  maxParagraphs (100)
 {
   HtmlStyles ();
@@ -121,7 +127,8 @@ TimelineView::SetView (QWebView *pv)
   if (view) {
     connect (view, SIGNAL (linkClicked (const QUrl&)),
              this, SLOT (LinkClicked (const QUrl&)));
-    view->page ()->setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
+    QWebPage *page = view->page();
+    page->setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
   }
 }
 
@@ -135,6 +142,54 @@ TimelineView::Display (TimelineKind k)
   currentKind = k;
 }
 
+#if 0
+void
+TimelineView::LinkHover ( const QString & link, 
+                   const QString & title, 
+                   const QString & textContent )
+{
+  QUrl url (link);
+  if (url.isValid()) {
+    QString scheme = url.scheme();
+    if (scheme == "chronicon" && url.host() == "status") {
+      ToolTipItemDetail();
+    }
+  }
+}
+
+
+void
+TimelineView::ToolTipItemDetail ()
+{
+  static bool isOff (true);
+qDebug () << " tool tip " << isOff;
+  if (isOff) {
+    QString helpText (tr("Click for Item Actions"));
+    helpText.prepend (' ');
+    helpText.append (' ');
+    if (detailTip == 0) {
+      detailTip = new QLineEdit (helpText,parentWidget);
+      detailTip->setReadOnly (true);
+      detailTip->setFrame (false);
+    } else {
+      detailTip->setText (helpText);
+    }
+    QFontMetrics fm = detailTip->fontMetrics();
+    QSize sz = fm.size (0,helpText);
+    detailTip->resize (sz);
+    QPoint local (parentWidget->mapFromGlobal (QCursor::pos()));
+    detailTip->move (local);
+    detailTip->show ();
+    isOff = false;
+  } else {
+    if (detailTip) {
+      detailTip->hide();
+    }
+    isOff = true;
+  }
+}
+#endif
+
 void
 TimelineView::LinkClicked (const QUrl & url)
 {
@@ -145,7 +200,7 @@ TimelineView::LinkClicked (const QUrl & url)
     } else if (scheme == "chronicon") {
       CustomLink (url);
     } else {
-      qDebug () << "bad URL? " << url;
+      qDebug () << "bad URL " << url;
     }
   }
 }
@@ -163,6 +218,10 @@ TimelineView::CustomLink (const QUrl & url)
        FormatParagraph (html, index->second);
        emit ItemDialog (frag, index->second, html);
      }
+  } else if (host == "search" && path == "/q") {
+    QString urlString ("http://search.twitter.com/search.xml?q=%1");
+    QUrl url (urlString.arg(frag.mid(1,-1)));
+    QDesktopServices::openUrl (url);
   }
 }
 
@@ -337,7 +396,7 @@ TwitHashAnchor (QString & anchor, QString ref)
     anchor = ref;
     return;
   }
-  anchor = QString ("<a href=\"http://twitter.com/#search?q=%1\">%1</a>")
+  anchor = QString ("<a href=\"chronicon://search/q#%1\">%1</a>")
                    .arg(ref);
 }
 

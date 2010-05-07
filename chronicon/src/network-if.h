@@ -27,6 +27,7 @@
   #include <QtCrypto>
 #endif
 #include <QAuthenticator>
+#include <QTimer>
 #include "delib-debug.h"
 #include <map>
 #include "chronicon-types.h"
@@ -42,13 +43,16 @@ Q_OBJECT
 
 public:
 
-  NetworkIF (QObject *parent);
+  NetworkIF (QWidget *parent);
+
+  void ResetNetwork ();
 
   void Init ();
 
   void PullTimeline ();
   void PushUserStatus (QString status);
   void ReTweet (QString id);
+  void PushDelete (QString id);
 
   void SetTimeline (TimelineKind k);
   void SetBasicAuth (QString us, QString pa=QString());
@@ -71,6 +75,11 @@ signals:
 
 private:
 
+  QWidget   *parentWidget;
+  QNetworkAccessManager *Network ();
+
+  void ConnectNetwork ();
+
   void ParseDom (QDomDocument &doc, TimelineKind kind);
   void ParseUpdate (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);
@@ -80,7 +89,7 @@ private:
   void CleanupReply (QNetworkReply * reply, ChronNetworkReply *chReply);
   
 
-  QNetworkAccessManager   network;
+  QNetworkAccessManager   *nam;
 
   TimelineKind            serviceKind;
   QString                 timelineName;

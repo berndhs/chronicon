@@ -41,7 +41,6 @@ ItemDialog::ItemDialog (QWidget *parent)
 
   connect (cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
   connect (emailButton,  SIGNAL (clicked()), this, SLOT (Mailto()));
-  connect (logButton ,   SIGNAL (clicked()), this, SLOT (Log()));
   connect (retweetButton,SIGNAL (clicked()), this, SLOT (ReTweet()));
   connect (saveButton,   SIGNAL (clicked()), this, SLOT (Save()));
 }
@@ -210,7 +209,6 @@ ItemDialog::Save ()
 void
 ItemDialog::ReTweet ()
 {
-  qDebug () << "re-tweet item" << itemId;
   if (network) {
     network->ReTweet (itemId);
     accept ();
@@ -218,7 +216,17 @@ ItemDialog::ReTweet ()
     qDebug () << __FILE__ << __LINE__ << " no network for ReTweet!";
     reject ();
   }
-  
+}
+
+void
+ItemDialog::Delete ()
+{
+  if (network) {
+    network->PushDelete (itemId);
+    accept ();
+  } else {
+    qDebug () << __FILE__ << __LINE__ << " not network for Delete!";
+  }
 }
 
 

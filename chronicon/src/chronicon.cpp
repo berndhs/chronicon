@@ -50,6 +50,7 @@ Chronicon::Chronicon (QWidget *parent)
 {
   setupUi (this);
   theView.SetView (messageView);
+  theView.SetNetwork (&network);
   normalEditVertical = ownMessage->sizePolicy().verticalStretch();
 
   Connect ();

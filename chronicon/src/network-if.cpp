@@ -21,7 +21,7 @@
 
 #include "deliberate.h"
 #include "network-if.h"
-#include "ui_enterpass.h"
+#include "login-dialog.h"
 #include <QDomDocument>
 #include <QDateTime>
 
@@ -29,8 +29,10 @@ using namespace deliberate;
 
 namespace chronicon {
 
-NetworkIF::NetworkIF (QObject *parent)
-:network(parent),
+NetworkIF::NetworkIF (QWidget *parent)
+:QObject(parent),
+ parentWidget (parent),
+ nam(0),
  serviceKind (R_Public),
  user (QString()),
  pass (QString()),
@@ -38,8 +40,42 @@ NetworkIF::NetworkIF (QObject *parent)
 {
   serviceKind = R_Private;
   SwitchTimeline();
-  connect (&network, SIGNAL (authenticationRequired(QNetworkReply*, QAuthenticator*)),
+}
+
+QNetworkAccessManager *
+NetworkIF::Network ()
+{
+  if (nam != 0) {
+    return nam;
+  }
+  nam = new QNetworkAccessManager (this);
+  ConnectNetwork ();
+  return nam;
+}
+
+void
+NetworkIF::ConnectNetwork ()
+{
+  connect (nam, SIGNAL (authenticationRequired(QNetworkReply*, QAuthenticator*)),
            this, SLOT (authProvide (QNetworkReply*, QAuthenticator*)));
+}
+
+void
+NetworkIF::ResetNetwork ()
+{
+  if (nam) {
+    ReplyMapType::iterator rit;
+    for (rit = replies.begin(); rit != replies.end(); rit++) {
+      disconnect (rit->first, 0,0,0);
+      disconnect (rit->second, 0,0,0);
+      rit->first->close();
+      rit->first->deleteLater();
+      delete rit->second;
+    }
+    replies.clear ();
+    delete nam;
+    nam = 0;
+  }
 }
 
 void
@@ -70,7 +106,7 @@ NetworkIF::PullTimeline ()
   QUrl url  (QString("http://api.twitter.com/1/statuses/%1.xml?count=%2")
                     .arg(timelineName).arg(numItems));
   request.setUrl(url);
-  QNetworkReply *reply = network.get (request);
+  QNetworkReply *reply = Network()->get (request);
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
                                                   serviceKind);
@@ -114,25 +150,32 @@ NetworkIF::SetBasicAuth (QString us, QString pa)
 void
 NetworkIF::login (int * reply)
 {
-  Ui_TextEnter textenter;
-  QDialog  textDialog;
-  textenter.setupUi (&textDialog);
-  textenter.passEdit->setEchoMode (QLineEdit::Password);
-  textenter.userEdit->setText (user);
-  int ok = textDialog.exec ();
-  if (ok) {
-    user = textenter.userEdit->text();
-    pass = textenter.passEdit->text();
-    serviceKind = R_Private;
-    SwitchTimeline ();
-    emit RePoll (serviceKind);
-    deliberate::Settings().setValue ("lastuser",user);
-  } else {
-    serviceKind = R_Public;
-    SwitchTimeline ();
+  LoginDialog  askUser (parentWidget);
+  int response = askUser.Exec (user);
+  switch (response) {
+  case 1:
+     user = askUser.User ();
+     pass = askUser.Pass ();
+     serviceKind = R_Private;
+     SwitchTimeline ();
+     emit RePoll (serviceKind);
+     deliberate::Settings().setValue ("lastuser", user);
+     break;
+  case -1:
+     user = "";
+     pass = "";
+     serviceKind = R_Public;
+     SwitchTimeline ();
+     ResetNetwork ();
+     emit RePoll (serviceKind);
+     deliberate::Settings().setValue ("lastuser",user);
+     break;
+  case 0:
+  default:
+     break;
   }
   if (reply) {
-    *reply = ok;
+    *reply = response;
   }
 }
 
@@ -198,7 +241,7 @@ NetworkIF::PushUserStatus (QString status)
   QNetworkRequest  req(url);
   QByteArray nada;
 
-  QNetworkReply * reply = network.post (req,nada);
+  QNetworkReply * reply = Network()->post (req,nada);
 
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
@@ -207,18 +250,34 @@ NetworkIF::PushUserStatus (QString status)
 }
 
 void
+NetworkIF::PushDelete (QString id)
+{
+  QString urlString ("http://api.twitter.com/1/statuses/destroy.xml?id=%1");
+  QUrl url (urlString.arg(id));
+  QNetworkRequest  req(url);
+  QByteArray nada;
+
+  QNetworkReply * reply = Network()->post (req,nada);
+
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  chronicon::R_Destroy); 
+  ExpectReply (reply, chReply);
+}
+
+
+void
 NetworkIF::ReTweet (QString id)
 {
   QString urlString ("http://api.twitter.com/1/statuses/retweet/%1.xml");
   QUrl url (urlString.arg(id));
   QNetworkRequest  req(url);
   QByteArray nada;
-  QNetworkReply * reply = network.post (req, nada);
+  QNetworkReply * reply = Network()->post (req, nada);
   ChronNetworkReply * chReply = new ChronNetworkReply (url,
                                         reply,
                                         chronicon::R_Update);
   ExpectReply (reply, chReply);
-qDebug () << " sent retweet " << reply->url ();
 }
 
 void
