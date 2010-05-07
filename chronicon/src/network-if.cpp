@@ -160,6 +160,7 @@ NetworkIF::login (int * reply)
      SwitchTimeline ();
      emit RePoll (serviceKind);
      deliberate::Settings().setValue ("lastuser", user);
+     Settings().sync();
      break;
   case -1:
      user = "";
@@ -169,6 +170,7 @@ NetworkIF::login (int * reply)
      ResetNetwork ();
      emit RePoll (serviceKind);
      deliberate::Settings().setValue ("lastuser",user);
+     Settings().sync ();
      break;
   case 0:
   default:

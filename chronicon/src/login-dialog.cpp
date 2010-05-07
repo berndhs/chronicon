@@ -42,6 +42,7 @@ LoginDialog::Exec (QString oldUser)
 {
   user = oldUser;
   pass = "";
+  textenter.passEdit->setEchoMode (QLineEdit::Password);
   return exec ();
 }
 

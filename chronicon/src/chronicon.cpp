@@ -38,7 +38,7 @@ namespace chronicon {
 Chronicon::Chronicon (QWidget *parent)
 :QMainWindow(parent),
  pollTimer (this),
- pollPeriod (2*60*1000),
+ pollPeriod (5*60*1000),
  pollRemain (0),
  pollTick  (1000),
  debugTimer (this),
@@ -114,7 +114,7 @@ Chronicon::Start ()
   }
   show ();
   pollRemain = 0;
-  QTimer::singleShot (1000, this, SLOT (Poll()));
+  QTimer::singleShot (500, this, SLOT (Poll()));
 
   QString defaultDir = QDesktopServices::storageLocation 
                         (QDesktopServices::DocumentsLocation);
