@@ -46,7 +46,7 @@ Chronicon::Chronicon (QWidget *parent)
  debugTimer (this),
  network (this),
  theView (this),
- currentView (R_Private),
+ currentView (R_Public),
  itemDialog (this),
  helpView (this),
  pApp(0),
@@ -85,8 +85,10 @@ Chronicon::Connect ()
 
   connect (&network, SIGNAL (NewStatusItem (StatusBlock, TimelineKind)),
            &theView, SLOT (CatchStatusItem (StatusBlock, TimelineKind)));
-  connect (&network, SIGNAL (ReplyComplete()),
-           this, SLOT (PollComplete()));
+  connect (&network, SIGNAL (ClearList()),
+           &theView, SLOT (ClearList()));
+  connect (&network, SIGNAL (ReplyComplete(TimelineKind)),
+           this, SLOT (PollComplete(TimelineKind)));
   connect (&network, SIGNAL (RePoll(TimelineKind)),
            this, SLOT (RePoll(TimelineKind)));
   connect (&network, SIGNAL (ShortenReply (int, QString, QString, bool)),
@@ -122,6 +124,7 @@ Chronicon::Start ()
   if (Settings().contains("lastuser")) {
     QString lastuser = Settings().value("lastuser",QString("")).toString();
     network.SetBasicAuth (lastuser);
+qDebug () << __FILE__ << __LINE__ << " set network user to " << lastuser;
   }
   show ();
   pollRemain = 0;
@@ -134,6 +137,17 @@ Chronicon::Start ()
 
   theView.LoadSettings ();
   itemDialog.LoadSettings ();
+  int startPrivate = 0;
+  startPrivate = Settings().value ("start_private",startPrivate).toInt();
+  Settings().setValue ("start_private",startPrivate);
+  if (startPrivate) {
+    currentView = R_Private;
+qDebug () << " starting private ";
+  } else {
+    currentView = R_Public;
+qDebug () << " starting public ";
+  }
+  network.SetTimeline (currentView);
   network.Init ();
 }
 
@@ -209,9 +223,13 @@ Chronicon::ShortenHttp (QString status)
   }
   wholeList << status.mid (offset, -1);
   shortenTag ++;
-  messageParts[shortenTag] = wholeList;
-  linkParts   [shortenTag] = linkList;
-  network.ShortenHttp (shortenTag,linkList);
+  if (linkList.isEmpty ()) {
+    ReallyFinishMessage (status);
+  } else {
+    messageParts[shortenTag] = wholeList;
+    linkParts   [shortenTag] = linkList;
+    network.ShortenHttp (shortenTag,linkList);
+  }
 }
 
 void
@@ -337,10 +355,10 @@ Chronicon::RePoll (TimelineKind kind)
 }
 
 void
-Chronicon::PollComplete ()
+Chronicon::PollComplete (TimelineKind kind)
 {
   LabelSecs (pollRemain/1000);
-  theView.Display (R_Private);
+  theView.Display (kind);
   theView.Show ();
 }
 

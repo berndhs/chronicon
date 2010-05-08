@@ -36,9 +36,9 @@ NetworkIF::NetworkIF (QWidget *parent)
  serviceKind (R_Public),
  user (QString()),
  pass (QString()),
+ authRetries (0),
  numItems (25)
 {
-  serviceKind = R_Private;
   SwitchTimeline();
 }
 
@@ -63,28 +63,29 @@ NetworkIF::ConnectNetwork ()
 void
 NetworkIF::ResetNetwork ()
 {
+  qDebug () << " reset network at " << nam;
   if (nam) {
     ReplyMapType::iterator rit;
     for (rit = twitterReplies.begin(); rit != twitterReplies.end(); rit++) {
       disconnect (rit->first, 0,0,0);
       disconnect (rit->second, 0,0,0);
-      rit->first->close();
-      rit->first->deleteLater();
-      delete rit->second;
     }
-    twitterReplies.clear ();
     BitlyMapType::iterator brit;
     for (brit = bitlyReplies.begin(); brit != bitlyReplies.end(); brit++) {
       disconnect (brit->first, 0,0,0);
       disconnect (brit->second, 0,0,0);
-      brit->first->close();
-      brit->first->deleteLater();
-      delete brit->second;
     }
     bitlyReplies.clear ();
     delete nam;
     nam = 0;
   }
+}
+
+void
+NetworkIF::SetTimeline (TimelineKind kind)
+{
+  serviceKind = kind;
+  SwitchTimeline ();
 }
 
 void
@@ -120,6 +121,7 @@ NetworkIF::PullTimeline ()
                                                   reply, 
                                                   serviceKind);
   ExpectReply (reply, chReply);
+qDebug () << " pull for " << reply->url();
 }
 
 void
@@ -132,12 +134,12 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
       QDomDocument doc;
       doc.setContent (netReply);
       ParseTwitterDoc (doc, kind);
-      emit ReplyComplete ();
+      emit ReplyComplete (kind);
     } else if (kind == R_Update) {
       QDomDocument update;
       update.setContent (netReply);
       ParseUpdate (update, kind);
-      emit ReplyComplete ();
+      emit ReplyComplete (kind);
     }
     ReplyMapType::iterator index;
     index = twitterReplies.find (netReply);
@@ -182,12 +184,23 @@ NetworkIF::login (int * reply)
 {
   LoginDialog  askUser (parentWidget);
   int response = askUser.Exec (user);
+  QString oldUser (user);
+  QString oldPass (pass);
   switch (response) {
   case 1:
      user = askUser.User ();
      pass = askUser.Pass ();
-     serviceKind = R_Private;
+     if (user != oldUser) {
+       ResetNetwork ();
+     }
+     if (user == "") {
+       serviceKind = R_Public;
+     } else {
+       serviceKind = R_Private;
+     }
+     authRetries = 1;
      SwitchTimeline ();
+     emit ClearList ();
      emit RePoll (serviceKind);
      deliberate::Settings().setValue ("lastuser", user);
      Settings().sync();
@@ -198,6 +211,7 @@ NetworkIF::login (int * reply)
      serviceKind = R_Public;
      SwitchTimeline ();
      ResetNetwork ();
+     emit ClearList ();
      emit RePoll (serviceKind);
      deliberate::Settings().setValue ("lastuser",user);
      Settings().sync ();
@@ -215,13 +229,16 @@ void
 NetworkIF::twitterAuthProvide (QNetworkReply *reply, QAuthenticator *au)
 {
   if (reply && au) {
-    int tryAgain (0);
-    login (&tryAgain);
-    if (tryAgain == 1) {
+    int choice (0);
+    if (authRetries > 0) {
+      authRetries --;
+      choice = 1;
+    } else {
+      login (&choice);
+    }
+    if (choice == 1) {
       au->setPassword (pass);
       au->setUser (user);
-    } else {
-      reply->close();
     }
   }
 }

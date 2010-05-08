@@ -55,7 +55,7 @@ private:
   QString    user;
   QString    pass;
 
-  Ui_EnterPass  textenter;
+  Ui_EnterPass  ui;
 
 };
 

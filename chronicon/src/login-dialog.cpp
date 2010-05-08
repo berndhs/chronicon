@@ -21,19 +21,20 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
+#include "delib-debug.h"
 
 namespace chronicon {
 
 LoginDialog::LoginDialog (QWidget *parent)
 :QDialog (parent)
 { 
-  textenter.setupUi (this);
+  ui.setupUi (this);
   
-  connect (textenter.loginButton, SIGNAL (clicked()),
+  connect (ui.loginButton, SIGNAL (clicked()),
            this, SLOT (Login()));
-  connect (textenter.logoutButton, SIGNAL (clicked()),
+  connect (ui.logoutButton, SIGNAL (clicked()),
            this, SLOT (Logout()));
-  connect (textenter.cancelButton, SIGNAL (clicked()),
+  connect (ui.cancelButton, SIGNAL (clicked()),
            this, SLOT (Cancel()));
 }
 
@@ -41,8 +42,9 @@ int
 LoginDialog::Exec (QString oldUser)
 {
   user = oldUser;
+  ui.userEdit->setText (user);
   pass = "";
-  textenter.passEdit->setEchoMode (QLineEdit::Password);
+  ui.passEdit->setEchoMode (QLineEdit::Password);
   return exec ();
 }
 
@@ -70,8 +72,8 @@ LoginDialog::Cancel ()
 void
 LoginDialog::SaveText ()
 {
-  user = textenter.userEdit->text();
-  pass = textenter.passEdit->text();
+  user = ui.userEdit->text();
+  pass = ui.passEdit->text();
 }
 
 QString

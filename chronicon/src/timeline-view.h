@@ -62,6 +62,7 @@ public slots:
 
   void CatchStatusItem (StatusBlock block, TimelineKind kind);
   void LinkClicked (const QUrl & url);
+  void ClearList ();
 
 signals:
 

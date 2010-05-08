@@ -43,6 +43,7 @@ ItemDialog::ItemDialog (QWidget *parent)
   connect (emailButton,  SIGNAL (clicked()), this, SLOT (Mailto()));
   connect (retweetButton,SIGNAL (clicked()), this, SLOT (ReTweet()));
   connect (saveButton,   SIGNAL (clicked()), this, SLOT (Save()));
+  connect (deleteButton, SIGNAL (clicked()), this, SLOT (Delete()));
 }
 void
 ItemDialog::HtmlStyles ()
@@ -226,6 +227,7 @@ ItemDialog::Delete ()
     accept ();
   } else {
     qDebug () << __FILE__ << __LINE__ << " not network for Delete!";
+    reject ();
   }
 }
 

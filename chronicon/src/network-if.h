@@ -78,9 +78,10 @@ public slots:
 signals:
 
   void NewStatusItem (StatusBlock item, TimelineKind kind);
-  void ReplyComplete ();
+  void ReplyComplete (TimelineKind kind);
   void RePoll (TimelineKind kind);
   void ShortenReply (int tag, QString shortUrl, QString longUrl, bool good);
+  void ClearList ();
 
 private:
 
@@ -117,6 +118,7 @@ private:
   QString                 user;
   QString                 pass;
   QString                 userAgent;
+  int                     authRetries;
 
   int                     numItems;
 

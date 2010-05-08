@@ -59,7 +59,7 @@ void Start ();
 public slots:
 
   void quit ();
-  void PollComplete ();
+  void PollComplete (TimelineKind kind);
   void CatchShortening (int tag, QString shortUrl, QString longUrl, bool good);
 
 private slots:

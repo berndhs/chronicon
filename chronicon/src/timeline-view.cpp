@@ -142,6 +142,13 @@ TimelineView::Display (TimelineKind k)
   currentKind = k;
 }
 
+void
+TimelineView::ClearList ()
+{
+  paragraphs.clear();
+  Show ();
+}
+
 #if 0
 void
 TimelineView::LinkHover ( const QString & link, 
@@ -262,7 +269,7 @@ TimelineView::AddOwn (StatusBlock block)
      block.SetUserValue ("screen_name","me");
   }
   QString text = block.Value("text");
-  text.prepend ("POST: ");
+  text.prepend ("my new POST: ");
   block.SetValue ("text", text);
   if (doNotify && notifyDelay > 0) {
      PopupNotify (id,block);
