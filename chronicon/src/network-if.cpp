@@ -230,10 +230,13 @@ void
 NetworkIF::bitlyAuthProvide (QNetworkReply *reply, QAuthenticator *au)
 {
   if (au) {
-    au->setUser (QString("berndhs"));
-    au->setPassword (QString("R_8c4fa0c06974f73aa61fc1e9742e98c5"));
+    QString bitly_user = Settings().value ("network/bitly_user",
+                               QString("anonymous")).toString();
+    QString bitly_key  = Settings().value ("network/bitly_key",
+                               QString()).toString();
+    au->setUser (bitly_user);
+    au->setPassword (bitly_key);
   }
-qDebug () << " sent bitly auth " ;
 }
 
 void
@@ -262,7 +265,6 @@ NetworkIF::ParseBitlyDoc (QDomDocument & doc,
                           QString & longUrl,
                           bool & good)
 {
-qDebug () << __FILE__ << __LINE__ << " short " << shortUrl << " long " << longUrl;
   QDomElement root = doc.documentElement ();
   QDomElement child;
   QString     tag;
@@ -346,12 +348,13 @@ NetworkIF::AskBitly (int tag, QString http)
 {
   QString requestPat 
         ("http://api.bit.ly/v3/shorten?login=%1&apiKey=%2&format=xml&uri=%3");
-  QString bitlyUser ("berndhs");
-  QString bitlyKey ("R_8c4fa0c06974f73aa61fc1e9742e98c5");
-  QString request = requestPat.arg (bitlyUser)
-                              .arg (bitlyKey)
+  QString bitly_user = Settings().value ("network/bitly_user",
+                             QString("anonymous")).toString();
+  QString bitly_key  = Settings().value ("network/bitly_key",
+                             QString()).toString();
+  QString request = requestPat.arg (bitly_user)
+                              .arg (bitly_key)
                               .arg (http);
-  qDebug () << " will ask bitly " << request;
   QUrl url (request);
   QNetworkRequest req (url);
   QNetworkReply * reply = Network()->get (req);

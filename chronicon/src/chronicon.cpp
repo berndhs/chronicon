@@ -217,8 +217,6 @@ Chronicon::ShortenHttp (QString status)
 void
 Chronicon::CatchShortening (int tag, QString shortUrl, QString longUrl, bool good)
 {
-  qDebug () << __FILE__ << __LINE__ << " short " << shortUrl
-            << " long " << longUrl << " good " << good;
   /// replace the longUrl with shortUrl in the messageParts[tag]
   //  remove the longUrl from the linkParts[tag]
   //  if the linkParts[tag] is empty, we have replaced all the links
@@ -251,7 +249,11 @@ Chronicon::finishMessage ()
 {
   QString msg;
   ownMessage->extractPlain (msg);
-  ShortenHttp (msg);
+  if (Settings().contains ("network/bitly_user")) {
+    ShortenHttp (msg);
+  } else {
+    ReallyFinishMessage (msg);
+  }
 }
 
 void
