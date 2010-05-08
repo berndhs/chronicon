@@ -32,6 +32,7 @@
 #include <map>
 #include "chronicon-types.h"
 #include "chron-network-reply.h"
+#include "bitly-network-reply.h"
 #include "status-block.h"
 
 namespace chronicon {
@@ -58,13 +59,20 @@ public:
   void SetBasicAuth (QString us, QString pa=QString());
   void SetUserAgent (QString ua) { userAgent = ua; }
 
+  void ShortenHttp (int tag, QStringList httpList);
+
 public slots:
   
   void login (int * reply = 0);
 
   void handleReply (ChronNetworkReply *reply);
+  void handleReply (BitlyNetworkReply *reply);
   void networkError (QNetworkReply::NetworkError err);
   void authProvide (QNetworkReply * reply,
+                     QAuthenticator * authenticator);
+  void twitterAuthProvide (QNetworkReply * reply,
+                     QAuthenticator * authenticator);
+  void bitlyAuthProvide (QNetworkReply * reply,
                      QAuthenticator * authenticator);
 
 signals:
@@ -72,6 +80,7 @@ signals:
   void NewStatusItem (StatusBlock item, TimelineKind kind);
   void ReplyComplete ();
   void RePoll (TimelineKind kind);
+  void ShortenReply (int tag, QString shortUrl, QString longUrl, bool good);
 
 private:
 
@@ -79,14 +88,26 @@ private:
   QNetworkAccessManager *Network ();
 
   void ConnectNetwork ();
+  void AskBitly (int tag, QString http);
 
-  void ParseDom (QDomDocument &doc, TimelineKind kind);
+  void ParseTwitterDoc (QDomDocument &doc, TimelineKind kind);
   void ParseUpdate (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);
+  void ParseBitlyDoc (QDomDocument &doc, 
+                      QString & shortUrl,
+                      QString & longUrl,
+                      bool    & good);
+  void ParseBitlyData (QDomElement &data, 
+                      QString & shortUrl,
+                      QString & longUrl,
+                      bool    & good);
   void SwitchTimeline ();
   void ExpectReply (QNetworkReply *reply, 
                     ChronNetworkReply *chReply);
   void CleanupReply (QNetworkReply * reply, ChronNetworkReply *chReply);
+  void ExpectReply (QNetworkReply *reply, 
+                    BitlyNetworkReply *bitReply);
+  void CleanupReply (QNetworkReply * reply, BitlyNetworkReply *bitReply);
   
 
   QNetworkAccessManager   *nam;
@@ -100,8 +121,10 @@ private:
   int                     numItems;
 
   typedef std::map <QNetworkReply *, ChronNetworkReply*>  ReplyMapType;
+  typedef std::map <QNetworkReply *, BitlyNetworkReply*>  BitlyMapType;
 
-  ReplyMapType  replies;
+  ReplyMapType  twitterReplies;
+  BitlyMapType  bitlyReplies;
 
 };
 

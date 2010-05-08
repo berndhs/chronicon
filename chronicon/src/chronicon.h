@@ -29,6 +29,7 @@
   #include <QtCrypto>
 #endif
 #include <QTimer>
+#include <map>
 
 #include "ui_chronicon.h"
 
@@ -59,6 +60,7 @@ public slots:
 
   void quit ();
   void PollComplete ();
+  void CatchShortening (int tag, QString shortUrl, QString longUrl, bool good);
 
 private slots:
 
@@ -89,6 +91,9 @@ protected:
 
 private:
 
+  void ShortenHttp (QString status);
+  void ReallyFinishMessage (QString msg);
+
   void BigEdit ();
   void SmallEdit ();
   void Connect ();
@@ -113,6 +118,13 @@ private:
   HelpView      helpView;
 
   QApplication * pApp;
+
+  int      shortenTag;
+
+  typedef std::map <int, QStringList>  UpdatePartsMap;
+
+  UpdatePartsMap    messageParts;
+  UpdatePartsMap    linkParts;
 
 #if USE_OAUTH
   QOAuth::Interface    auth;

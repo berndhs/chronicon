@@ -29,6 +29,7 @@
 #include <QLineEdit>
 #include <QByteArray>
 #include <QDesktopServices>
+#include <QRegExp>
 
 
 using namespace deliberate;
@@ -48,7 +49,8 @@ Chronicon::Chronicon (QWidget *parent)
  currentView (R_Private),
  itemDialog (this),
  helpView (this),
- pApp(0)
+ pApp(0),
+ shortenTag (1)
 {
   setupUi (this);
   theView.SetView (messageView);
@@ -87,6 +89,8 @@ Chronicon::Connect ()
            this, SLOT (PollComplete()));
   connect (&network, SIGNAL (RePoll(TimelineKind)),
            this, SLOT (RePoll(TimelineKind)));
+  connect (&network, SIGNAL (ShortenReply (int, QString, QString, bool)),
+           this, SLOT (CatchShortening (int, QString, QString, bool)));
 
   connect (&theView, SIGNAL (ItemDialog (QString, StatusBlock, QString)),
            &itemDialog, SLOT (Exec(QString , StatusBlock, QString)));
@@ -184,11 +188,75 @@ Chronicon::startMessage ()
   BigEdit ();
 }
 
+
+void
+Chronicon::ShortenHttp (QString status)
+{
+  QRegExp regular ("(https?://)(\\S*)");
+  status.append (" ");
+  QStringList  linkList;
+  QStringList  wholeList;
+  int where (0), offset(0), lenSub(0);
+  QString link, beforeLink;
+  while ((where = regular.indexIn (status,offset)) > 0) {
+    lenSub = regular.matchedLength();
+    beforeLink = status.mid (offset, where - offset);
+    link = regular.cap(0);
+    linkList << link;
+    wholeList << beforeLink;
+    wholeList << link;
+    offset = where + lenSub;
+  }
+  wholeList << status.mid (offset, -1);
+  shortenTag ++;
+  messageParts[shortenTag] = wholeList;
+  linkParts   [shortenTag] = linkList;
+  network.ShortenHttp (shortenTag,linkList);
+}
+
+void
+Chronicon::CatchShortening (int tag, QString shortUrl, QString longUrl, bool good)
+{
+  qDebug () << __FILE__ << __LINE__ << " short " << shortUrl
+            << " long " << longUrl << " good " << good;
+  /// replace the longUrl with shortUrl in the messageParts[tag]
+  //  remove the longUrl from the linkParts[tag]
+  //  if the linkParts[tag] is empty, we have replaced all the links
+  //  so send append all the messageParts[tag] and finish the message
+  if (messageParts.find(tag) == messageParts.end()) {
+    return; // extra, perhaps duplicates in original
+  }
+  if (linkParts.find(tag) == linkParts.end()) {
+    return;
+  }
+  QStringList::iterator chase;
+  for (chase = messageParts[tag].begin(); 
+       chase != messageParts[tag].end(); 
+       chase++) {
+    if (*chase == longUrl) {
+       *chase = shortUrl;
+    }
+  }
+  linkParts[tag].removeOne (longUrl);
+  if (linkParts[tag].isEmpty()) {
+    QString message = messageParts[tag].join (QString());
+    ReallyFinishMessage (message);
+    messageParts.erase (tag);
+  }
+}
+
+
 void
 Chronicon::finishMessage ()
 {
   QString msg;
   ownMessage->extractPlain (msg);
+  ShortenHttp (msg);
+}
+
+void
+Chronicon::ReallyFinishMessage (QString msg)
+{
   msg = msg.trimmed();
   int len = msg.length();
   bool sendit(true);
