@@ -58,6 +58,10 @@ public:
   void SetTimeline (TimelineKind k);
   void SetBasicAuth (QString us, QString pa=QString());
   void SetUserAgent (QString ua) { userAgent = ua; }
+  void SetServiceRoot (QString root);
+  
+  QString Service (QString path=QString());
+  QUrl    ServiceUrl (QString path=QString());
 
   void ShortenHttp (int tag, QStringList httpList);
 
@@ -112,6 +116,8 @@ private:
   
 
   QNetworkAccessManager   *nam;
+
+  QString                 serverRoot;
 
   TimelineKind            serviceKind;
   QString                 timelineName;

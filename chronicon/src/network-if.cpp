@@ -39,6 +39,7 @@ NetworkIF::NetworkIF (QWidget *parent)
  authRetries (0),
  numItems (25)
 {
+  serverRoot = QString ("http://api.twitter.com/1/");
   SwitchTimeline();
 }
 
@@ -50,7 +51,28 @@ NetworkIF::Network ()
   }
   nam = new QNetworkAccessManager (this);
   ConnectNetwork ();
+qDebug () << " new network " << nam;
   return nam;
+}
+
+QString
+NetworkIF::Service (QString path)
+{
+  static QString slash ("/");
+  return serverRoot + slash + path;
+}
+
+QUrl
+NetworkIF::ServiceUrl (QString path)
+{
+  return QUrl (Service(path));
+}
+
+void
+NetworkIF::SetServiceRoot (QString root)
+{
+  serverRoot = root;
+  Settings().setValue ("network/service",serverRoot);
 }
 
 void
@@ -93,6 +115,8 @@ NetworkIF::Init ()
 {
   numItems = Settings().value ("network/numitems",numItems).toInt();
   Settings ().setValue ("network/numitems",numItems);
+  serverRoot = Settings().value ("network/service",serverRoot).toString();
+  Settings ().setValue ("network/service",serverRoot);
 }
 
 void
@@ -113,7 +137,7 @@ void
 NetworkIF::PullTimeline ()
 {
   QNetworkRequest request;
-  QUrl url  (QString("http://api.twitter.com/1/statuses/%1.xml?count=%2")
+  QUrl url  (QString(Service ("statuses/%1.xml?count=%2"))
                     .arg(timelineName).arg(numItems));
   request.setUrl(url);
   QNetworkReply *reply = Network()->get (request);
@@ -259,12 +283,15 @@ NetworkIF::bitlyAuthProvide (QNetworkReply *reply, QAuthenticator *au)
 void
 NetworkIF::authProvide (QNetworkReply *reply, QAuthenticator *au)
 {
+qDebug () << " asking for auth: " << reply->url();
+qDebug () << " current service " << Service();
+qDebug () << " serviceUrl.host " << ServiceUrl().host();
   if (reply) {
     QUrl url = reply->url();
     QString host = url.host();
     if (host.contains ("api.bit.ly")) {
        bitlyAuthProvide (reply,au);
-    } else if (host.contains ("twitter.com")) {
+    } else if (host.contains (ServiceUrl().host())) {
        twitterAuthProvide (reply, au);
     }
   } 
@@ -384,7 +411,7 @@ void
 NetworkIF::PushUserStatus (QString status)
 {
   QByteArray encoded = QUrl::toPercentEncoding (status);
-  QUrl url ("http://api.twitter.com/1/statuses/update.xml");
+  QUrl url (Service ("statuses/update.xml"));
   url.addEncodedQueryItem (QString("status").toLocal8Bit(),
                            encoded);
   QNetworkRequest  req(url);
@@ -401,7 +428,7 @@ NetworkIF::PushUserStatus (QString status)
 void
 NetworkIF::PushDelete (QString id)
 {
-  QString urlString ("http://api.twitter.com/1/statuses/destroy.xml?id=%1");
+  QString urlString (Service ("statuses/destroy.xml?id=%1"));
   QUrl url (urlString.arg(id));
   QNetworkRequest  req(url);
   QByteArray nada;
@@ -418,7 +445,7 @@ NetworkIF::PushDelete (QString id)
 void
 NetworkIF::ReTweet (QString id)
 {
-  QString urlString ("http://api.twitter.com/1/statuses/retweet/%1.xml");
+  QString urlString (Service ("statuses/retweet/%1.xml"));
   QUrl url (urlString.arg(id));
   QNetworkRequest  req(url);
   QByteArray nada;
