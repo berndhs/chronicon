@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QNetworkReply>
 #include <QUrl>
+#include <QTimer>
 #include "chronicon-types.h"
 
 namespace chronicon {
@@ -37,19 +38,37 @@ Q_OBJECT
 public:
 
 
-  ChronNetworkReply (QUrl &theUrl, QNetworkReply * qnr, TimelineKind req);
+  ChronNetworkReply (QUrl &theUrl, 
+                    QNetworkReply * qnr, 
+                    TimelineKind req,
+                    ApiRequestKind ark = A_None);
+  ~ChronNetworkReply ();
 
   QNetworkReply * NetReply() { return reply; }
   TimelineKind     Kind () { return kind; }
   QUrl            Url () { return url; }
+  ApiRequestKind  ARKind () { return arKind; }
+
+  void Abort();
+  void Close ();
+  void SetTimeout (int msec);
+
+  int error ();
   
 public slots:
 
   void handleReturn ();
+  void handleError (QNetworkReply::NetworkError err);
+  void timedOut ();
 
 signals:
 
   void Finished (ChronNetworkReply *);
+  void AuthVerifyError (ChronNetworkReply * chReply, 
+                        int err);
+  void AuthVerifyGood  (ChronNetworkReply *chReply);
+  void Timeout (ChronNetworkReply * chReply);
+  void networkError (ApiRequestKind ark, int err);
 
 private:
 
@@ -57,6 +76,9 @@ private:
   QUrl           url;
   QNetworkReply  *reply;  
   TimelineKind    kind;
+  ApiRequestKind  arKind;
+  QTimer         *expireTimer;
+  bool            hasExpired;
 
 
 };

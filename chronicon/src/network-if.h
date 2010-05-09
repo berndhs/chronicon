@@ -34,6 +34,7 @@
 #include "chron-network-reply.h"
 #include "bitly-network-reply.h"
 #include "status-block.h"
+#include "login-dialog.h"
 
 namespace chronicon {
 
@@ -57,6 +58,7 @@ public:
 
   void SetTimeline (TimelineKind k);
   void SetBasicAuth (QString us, QString pa=QString());
+  void TestBasicAuth (QString us, QString pa);
   void SetUserAgent (QString ua) { userAgent = ua; }
   void SetServiceRoot (QString root);
   
@@ -72,6 +74,10 @@ public slots:
   void handleReply (ChronNetworkReply *reply);
   void handleReply (BitlyNetworkReply *reply);
   void networkError (QNetworkReply::NetworkError err);
+  void networkErrorInt (ApiRequestKind ark, int err);
+  void twitterAuthBad (ChronNetworkReply * reply, int err);
+  void twitterAuthGood (ChronNetworkReply * reply);
+
   void authProvide (QNetworkReply * reply,
                      QAuthenticator * authenticator);
   void twitterAuthProvide (QNetworkReply * reply,
@@ -86,6 +92,9 @@ signals:
   void RePoll (TimelineKind kind);
   void ShortenReply (int tag, QString shortUrl, QString longUrl, bool good);
   void ClearList ();
+  void TwitterAuthGood ();
+  void TwitterAuthBad ();
+  
 
 private:
 
@@ -121,10 +130,12 @@ private:
 
   TimelineKind            serviceKind;
   QString                 timelineName;
+  LoginDialog             askUser;
   QString                 user;
   QString                 pass;
   QString                 userAgent;
   int                     authRetries;
+  bool                    insideLogin;
 
   int                     numItems;
 
@@ -133,6 +144,8 @@ private:
 
   ReplyMapType  twitterReplies;
   BitlyMapType  bitlyReplies;
+
+  QList <QNetworkAccessManager*> oldNAMs;
 
 };
 

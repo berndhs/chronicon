@@ -22,11 +22,15 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 #include "delib-debug.h"
+#include "network-if.h"
 
 namespace chronicon {
 
-LoginDialog::LoginDialog (QWidget *parent)
-:QDialog (parent)
+
+LoginDialog::LoginDialog (QWidget *parent,
+                          NetworkIF *netIF)
+:QDialog (parent),
+ network (netIF)
 { 
   ui.setupUi (this);
   
@@ -43,7 +47,9 @@ LoginDialog::Exec (QString oldUser)
 {
   user = oldUser;
   ui.userEdit->setText (user);
+  ui.instructLabel->setText (tr("Please enter credentials:"));
   pass = "";
+  ui.passEdit->setText (pass);
   ui.passEdit->setEchoMode (QLineEdit::Password);
   return exec ();
 }
@@ -51,8 +57,23 @@ LoginDialog::Exec (QString oldUser)
 void
 LoginDialog::Login ()
 {
+  if (network) {
+    SaveText ();
+    network->TestBasicAuth (user,pass);
+  }
+}
+
+void
+LoginDialog::AuthOK ()
+{
   SaveText ();
   done (1);
+}
+
+void
+LoginDialog::AuthBad ()
+{
+  ui.instructLabel->setText (tr("Authorization failed - retry?"));
 }
 
 void

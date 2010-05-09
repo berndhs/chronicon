@@ -33,6 +33,20 @@ namespace chronicon {
          R_Top
          };
 
+  enum ApiRequestKind {
+         A_None = 0,
+         A_Timeline,
+         A_AuthVerify,
+         A_Top
+  };
+
+  enum ChronNetworkError {
+        CHERR_None = 0,
+        CHERR_Timeout = 9000,
+        CHERR_Internal = 9999
+  };
+  
+
 } // namespace
 
 #endif

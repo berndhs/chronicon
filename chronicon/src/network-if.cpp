@@ -24,6 +24,7 @@
 #include "login-dialog.h"
 #include <QDomDocument>
 #include <QDateTime>
+#include <QAbstractNetworkCache>
 
 using namespace deliberate;
 
@@ -34,9 +35,11 @@ NetworkIF::NetworkIF (QWidget *parent)
  parentWidget (parent),
  nam(0),
  serviceKind (R_Public),
+ askUser (parent,this),
  user (QString()),
  pass (QString()),
  authRetries (0),
+ insideLogin (false),
  numItems (25)
 {
   serverRoot = QString ("http://api.twitter.com/1/");
@@ -89,16 +92,22 @@ NetworkIF::ResetNetwork ()
   if (nam) {
     ReplyMapType::iterator rit;
     for (rit = twitterReplies.begin(); rit != twitterReplies.end(); rit++) {
+      rit->second->Abort ();
       disconnect (rit->first, 0,0,0);
       disconnect (rit->second, 0,0,0);
     }
     BitlyMapType::iterator brit;
     for (brit = bitlyReplies.begin(); brit != bitlyReplies.end(); brit++) {
+      rit->second->Abort ();
       disconnect (brit->first, 0,0,0);
       disconnect (brit->second, 0,0,0);
     }
     bitlyReplies.clear ();
-    delete nam;
+    QAbstractNetworkCache * cache = nam->cache();
+    if (cache) {
+      cache->clear();
+    }
+    oldNAMs << nam;
     nam = 0;
   }
 }
@@ -149,12 +158,40 @@ qDebug () << " pull for " << reply->url();
 }
 
 void
+NetworkIF::TestBasicAuth (QString us, QString pa)
+{
+  user = us;
+  pass = pa;
+  QNetworkRequest request;
+  QUrl url (QString (Service("account/verify_credentials.xml")));
+  request.setUrl (url);
+  QNetworkReply * reply = Network()->get (request);
+  ChronNetworkReply * chReply = new ChronNetworkReply 
+                                 (url, reply, R_None, A_AuthVerify);
+  ExpectReply (reply, chReply);
+  connect (chReply, SIGNAL (AuthVerifyError (ChronNetworkReply *,
+                              int )),
+           this,    SLOT (twitterAuthBad (ChronNetworkReply*, 
+                               int )));
+  connect (chReply, SIGNAL (AuthVerifyGood (ChronNetworkReply *)),
+            this, SLOT (twitterAuthGood (ChronNetworkReply *)));
+  chReply->SetTimeout (30*1000);
+}
+
+void
 NetworkIF::handleReply (ChronNetworkReply * reply)
 {
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
     TimelineKind kind (reply->Kind());
-    if (kind == R_Public || kind == R_Private) {
+    ApiRequestKind ark (reply->ARKind());
+    if (ark == A_AuthVerify) {
+      if (reply->error() == 0) {
+         emit TwitterAuthGood ();
+      } else {
+         emit TwitterAuthBad ();
+      }
+    } else if (kind == R_Public || kind == R_Private) {
       QDomDocument doc;
       doc.setContent (netReply);
       ParseTwitterDoc (doc, kind);
@@ -197,6 +234,41 @@ NetworkIF::handleReply (BitlyNetworkReply * reply)
 }
 
 void
+NetworkIF::networkError (QNetworkReply::NetworkError err)
+{
+  networkErrorInt (A_None, err);
+}
+
+void
+NetworkIF::networkErrorInt (ApiRequestKind ark, int err)
+{   
+  qDebug () << __FILE__ << __LINE__ << "network error " << err;
+  if (err == QNetworkReply::AuthenticationRequiredError) {
+     twitterAuthBad (0,err);
+  }
+}
+
+void
+NetworkIF::twitterAuthBad (ChronNetworkReply * reply, int err)
+{
+  qDebug () << " twitter auth is bad " << err << " for reply " << reply;
+  if (insideLogin) {
+    askUser.AuthBad ();
+  } else {
+    QTimer::singleShot (500,this,SLOT (login()));
+  }
+}
+
+void
+NetworkIF::twitterAuthGood (ChronNetworkReply * reply)
+{
+  if (insideLogin) {
+    askUser.AuthOK ();
+  }
+}
+
+
+void
 NetworkIF::SetBasicAuth (QString us, QString pa)
 {
   user = us;
@@ -206,12 +278,13 @@ NetworkIF::SetBasicAuth (QString us, QString pa)
 void
 NetworkIF::login (int * reply)
 {
-  LoginDialog  askUser (parentWidget);
+  insideLogin = true;
   int response = askUser.Exec (user);
   QString oldUser (user);
   QString oldPass (pass);
   switch (response) {
   case 1:
+     ResetNetwork ();
      user = askUser.User ();
      pass = askUser.Pass ();
      if (user != oldUser) {
@@ -230,11 +303,11 @@ NetworkIF::login (int * reply)
      Settings().sync();
      break;
   case -1:
+     ResetNetwork ();
      user = "";
      pass = "";
      serviceKind = R_Public;
      SwitchTimeline ();
-     ResetNetwork ();
      emit ClearList ();
      emit RePoll (serviceKind);
      deliberate::Settings().setValue ("network/lastuser",user);
@@ -247,23 +320,16 @@ NetworkIF::login (int * reply)
   if (reply) {
     *reply = response;
   }
+  insideLogin = false;
 }
+
 
 void
 NetworkIF::twitterAuthProvide (QNetworkReply *reply, QAuthenticator *au)
 {
   if (reply && au) {
-    int choice (0);
-    if (authRetries > 0) {
-      authRetries --;
-      choice = 1;
-    } else {
-      login (&choice);
-    }
-    if (choice == 1) {
-      au->setPassword (pass);
-      au->setUser (user);
-    }
+    au->setPassword (pass);
+    au->setUser (user);
   }
 }
 
@@ -295,12 +361,6 @@ qDebug () << " serviceUrl.host " << ServiceUrl().host();
        twitterAuthProvide (reply, au);
     }
   } 
-}
-
-void
-NetworkIF::networkError (QNetworkReply::NetworkError err)
-{
-  qDebug () << "network error " << err;
 }
 
 void
@@ -464,7 +524,9 @@ NetworkIF::ExpectReply (QNetworkReply *reply, ChronNetworkReply * chReply)
   connect (chReply, SIGNAL (Finished(ChronNetworkReply*)),
            this, SLOT (handleReply (ChronNetworkReply*)));
   connect (reply, SIGNAL(error(QNetworkReply::NetworkError)),
-         this, SLOT(networkError(QNetworkReply::NetworkError)));
+         chReply, SLOT(handleError(QNetworkReply::NetworkError)));
+  connect (chReply, SIGNAL (networkError (ApiRequestKind, int)),
+           this, SLOT (networkErrorInt (ApiRequestKind, int)));
 }
 
 void
@@ -483,11 +545,8 @@ NetworkIF::CleanupReply (QNetworkReply * reply, ChronNetworkReply *chReply)
 {
   if (reply && chReply) {
     twitterReplies.erase (reply);
-    disconnect (reply, SIGNAL (finished()), chReply, SLOT (handleReturn()));
-    disconnect (chReply, SIGNAL (Finished(ChronNetworkReply*)),
-           this, SLOT (handleReply (ChronNetworkReply*)));
-    disconnect (reply, SIGNAL(error(QNetworkReply::NetworkError)),
-           this, SLOT(networkError(QNetworkReply::NetworkError)));
+    disconnect (reply, 0, 0, 0);
+    disconnect (chReply, 0, 0, 0);
     delete chReply;
     reply->deleteLater ();
   }
@@ -498,11 +557,8 @@ NetworkIF::CleanupReply (QNetworkReply * reply, BitlyNetworkReply *bitReply)
 {
   if (reply && bitReply) {
     bitlyReplies.erase (reply);
-    disconnect (reply, SIGNAL (finished()), bitReply, SLOT (handleReturn()));
-    disconnect (bitReply, SIGNAL (Finished(BitlyNetworkReply*)),
-           this, SLOT (handleReply (BitlyNetworkReply*)));
-    disconnect (reply, SIGNAL(error(QNetworkReply::NetworkError)),
-           this, SLOT(networkError(QNetworkReply::NetworkError)));
+    disconnect (reply, 0, 0, 0);
+    disconnect (bitReply, 0, 0, 0);
     delete bitReply;
     reply->deleteLater ();
   }

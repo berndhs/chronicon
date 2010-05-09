@@ -28,12 +28,14 @@
 
 namespace chronicon {
 
+class NetworkIF;
+
 class LoginDialog : public QDialog {
 Q_OBJECT
 
 public:
 
-  LoginDialog (QWidget *parent);
+  LoginDialog (QWidget *parent, NetworkIF * netIF);
 
   /** Exec() - return 1 for log in, 0 for nothing done, -1 for log out
   */
@@ -41,6 +43,11 @@ public:
   
   QString User ();
   QString Pass ();
+
+public slots:
+
+  void AuthOK ();
+  void AuthBad ();
 
 private slots:
 
@@ -50,6 +57,7 @@ private slots:
 
 private:
 
+  NetworkIF  * network;
   void SaveText ();
 
   QString    user;

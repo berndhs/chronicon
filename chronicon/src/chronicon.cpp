@@ -125,7 +125,6 @@ Chronicon::Start ()
   if (Settings().contains("network/lastuser")) {
     QString lastuser = Settings().value("network/lastuser",QString("")).toString();
     network.SetBasicAuth (lastuser);
-qDebug () << __FILE__ << __LINE__ << " set network user to " << lastuser;
   }
   show ();
   pollRemain = 0;

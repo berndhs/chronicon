@@ -42,6 +42,9 @@ public:
   QNetworkReply * NetReply() { return reply; }
   QUrl            Url () { return url; }
   int             Tag () { return id; }
+  void Abort();
+  void Close ();
+
   
 public slots:
 

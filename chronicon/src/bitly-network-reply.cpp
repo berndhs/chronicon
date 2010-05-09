@@ -38,4 +38,20 @@ BitlyNetworkReply::handleReturn ()
   emit Finished (this);
 }
 
+void
+BitlyNetworkReply::Abort ()
+{ 
+  if (reply) {
+    reply->abort();
+  }
+}
+
+void
+BitlyNetworkReply::Close ()
+{
+  if (reply) {
+    reply->close ();
+  }
+}
+
 } // namespace
