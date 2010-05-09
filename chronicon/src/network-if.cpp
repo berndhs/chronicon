@@ -242,7 +242,7 @@ NetworkIF::networkError (QNetworkReply::NetworkError err)
 void
 NetworkIF::networkErrorInt (ApiRequestKind ark, int err)
 {   
-  qDebug () << __FILE__ << __LINE__ << "network error " << err;
+  qDebug () << __FILE__ << __LINE__ << " CHRON network error " << err;
   if (err == QNetworkReply::AuthenticationRequiredError) {
      twitterAuthBad (0,err);
   }
@@ -303,6 +303,7 @@ NetworkIF::login (int * reply)
      Settings().sync();
      break;
   case -1:
+     PushTwitterLogout ();
      ResetNetwork ();
      user = "";
      pass = "";
@@ -328,6 +329,9 @@ void
 NetworkIF::twitterAuthProvide (QNetworkReply *reply, QAuthenticator *au)
 {
   if (reply && au) {
+    if (pass == QString("") || user == QString("")) {
+       return ; // no point, will just be denied
+    }
     au->setPassword (pass);
     au->setUser (user);
   }
@@ -466,6 +470,21 @@ NetworkIF::AskBitly (int tag, QString http)
               new BitlyNetworkReply (url, reply, tag);
   ExpectReply (reply, bitlyReply);
 }
+
+void
+NetworkIF::PushTwitterLogout ()
+{
+  QNetworkRequest request;
+  QUrl url (Service("account/end_session.xml"));
+  request.setUrl (url);
+  QByteArray nada;
+  QNetworkReply * reply = Network()->post (request, nada);
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                  reply, chronicon::R_None,
+                                  A_Logout);
+  ExpectReply (reply, chReply);
+}
+
 
 void
 NetworkIF::PushUserStatus (QString status)

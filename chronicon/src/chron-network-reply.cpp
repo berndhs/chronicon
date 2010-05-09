@@ -86,6 +86,9 @@ qDebug () << " emit AVE " << err;
     emit AuthVerifyError (this, err);
   } else {
 qDebug () << " emit NetErr " << err;
+QByteArray data;
+    data = reply->readAll();
+qDebug () << " reply data " << QString (data);
     emit networkError (arKind, err);
   }
 }

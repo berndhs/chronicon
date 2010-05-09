@@ -59,6 +59,7 @@ public:
   void SetTimeline (TimelineKind k);
   void SetBasicAuth (QString us, QString pa=QString());
   void TestBasicAuth (QString us, QString pa);
+  void PushTwitterLogout ();
   void SetUserAgent (QString ua) { userAgent = ua; }
   void SetServiceRoot (QString root);
   

@@ -59,6 +59,7 @@ LoginDialog::Login ()
 {
   if (network) {
     SaveText ();
+    network->ResetNetwork();
     network->TestBasicAuth (user,pass);
   }
 }

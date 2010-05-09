@@ -37,6 +37,7 @@ namespace chronicon {
          A_None = 0,
          A_Timeline,
          A_AuthVerify,
+         A_Logout,
          A_Top
   };
 
