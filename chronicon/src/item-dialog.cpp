@@ -195,7 +195,7 @@ ItemDialog::Save ()
       int bytes = file.write (plain.toLocal8Bit());
       if (bytes > 0) {
         QFileInfo info (file);
-        Settings().setValue ("defaultdir",info.absolutePath());
+        Settings().setValue ("files/savedir",info.absolutePath());
       }
     } else {
       QMessageBox box;

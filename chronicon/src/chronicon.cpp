@@ -49,6 +49,7 @@ Chronicon::Chronicon (QWidget *parent)
  currentView (R_Public),
  itemDialog (this),
  helpView (this),
+ configEdit (this),
  pApp(0),
  shortenTag (1)
 {
@@ -69,7 +70,7 @@ Chronicon::Connect ()
 {
   connect (actionQuit, SIGNAL (triggered()), this, SLOT (quit()));
   connect (actionLogin, SIGNAL (triggered()), &network, SLOT (login()));
-  connect (actionConfigure, SIGNAL (triggered()), this, SLOT (NotYet()));
+  connect (actionConfigure, SIGNAL (triggered()), this, SLOT (Configure()));
   connect (actionAbout, SIGNAL (triggered()), this, SLOT (About()));
   connect (actionManual, SIGNAL (triggered()), this, SLOT (Manual()));
   connect (actionLicense, SIGNAL (triggered()), this, SLOT (License()));
@@ -121,8 +122,8 @@ Chronicon::Start ()
     QSize newsize = Settings().value ("size", defaultSize).toSize();
     resize (newsize);
   }
-  if (Settings().contains("lastuser")) {
-    QString lastuser = Settings().value("lastuser",QString("")).toString();
+  if (Settings().contains("network/lastuser")) {
+    QString lastuser = Settings().value("network/lastuser",QString("")).toString();
     network.SetBasicAuth (lastuser);
 qDebug () << __FILE__ << __LINE__ << " set network user to " << lastuser;
   }
@@ -132,14 +133,14 @@ qDebug () << __FILE__ << __LINE__ << " set network user to " << lastuser;
 
   QString defaultDir = QDesktopServices::storageLocation 
                         (QDesktopServices::DocumentsLocation);
-  defaultDir = Settings ().value ("defaultdir",defaultDir).toString();
-  Settings().setValue ("defaultdir",defaultDir);
+  defaultDir = Settings ().value ("files/savedir",defaultDir).toString();
+  Settings().setValue ("files/savedir",defaultDir);
 
   theView.LoadSettings ();
   itemDialog.LoadSettings ();
   int startPrivate = 0;
-  startPrivate = Settings().value ("start_private",startPrivate).toInt();
-  Settings().setValue ("start_private",startPrivate);
+  startPrivate = Settings().value ("network/start_private",startPrivate).toInt();
+  Settings().setValue ("network/start_private",startPrivate);
   if (startPrivate) {
     currentView = R_Private;
 qDebug () << " starting private ";
@@ -194,6 +195,12 @@ Chronicon::quit ()
     Settings().sync();
     pApp->quit();
   }
+}
+
+void
+Chronicon::Configure ()
+{
+  configEdit.Exec ();
 }
 
 void

@@ -103,7 +103,7 @@ TimelineView::LoadSettings ()
   imgPattern = Settings().value ("view/imgpattern",imgPattern).toString();
   iconLinkStyle = Settings().value ("view/iconlinkstyle", iconLinkStyle).toString();
   maxParagraphs = Settings().value ("view/maxitems",maxParagraphs).toInt();
-  notifyDelay = Settings().value ("notifydelay",notifyDelay).toInt ();
+  notifyDelay = Settings().value ("timers/notifydelay",notifyDelay).toInt ();
   Settings().setValue ("view/DTD",dtd);
   Settings().setValue ("view/headpattern",headPattern);
   Settings().setValue ("view/status_background_color",statusBackgroundColor);
@@ -117,7 +117,7 @@ TimelineView::LoadSettings ()
   Settings().setValue ("view/imgpattern",imgPattern);
   Settings().setValue ("view/maxitems",maxParagraphs);
   Settings().setValue ("view/iconlinkstyle",iconLinkStyle);
-  Settings().setValue ("notifydelay",notifyDelay);
+  Settings().setValue ("timers/notifydelay",notifyDelay);
 }
 
 void

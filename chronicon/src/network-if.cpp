@@ -226,7 +226,7 @@ NetworkIF::login (int * reply)
      SwitchTimeline ();
      emit ClearList ();
      emit RePoll (serviceKind);
-     deliberate::Settings().setValue ("lastuser", user);
+     deliberate::Settings().setValue ("network/lastuser", user);
      Settings().sync();
      break;
   case -1:
@@ -237,7 +237,7 @@ NetworkIF::login (int * reply)
      ResetNetwork ();
      emit ClearList ();
      emit RePoll (serviceKind);
-     deliberate::Settings().setValue ("lastuser",user);
+     deliberate::Settings().setValue ("network/lastuser",user);
      Settings().sync ();
      break;
   case 0:

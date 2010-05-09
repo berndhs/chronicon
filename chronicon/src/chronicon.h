@@ -37,6 +37,7 @@
 #include "timeline-view.h"
 #include "item-dialog.h"
 #include "status-block.h"
+#include "config-edit.h"
 #include "version.h"
 #include "helpview.h"
 
@@ -72,6 +73,7 @@ private slots:
   void About ();
   void License ();
   void Manual ();
+  void Configure ();
   
 
   void firstKey (int key);
@@ -116,6 +118,7 @@ private:
   TimelineKind  currentView;
   ItemDialog    itemDialog;
   HelpView      helpView;
+  ConfigEdit    configEdit;
 
   QApplication * pApp;
 
