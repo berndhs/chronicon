@@ -35,6 +35,7 @@
 #include "bitly-network-reply.h"
 #include "status-block.h"
 #include "login-dialog.h"
+#include "weblogin.h"
 
 namespace chronicon {
 
@@ -132,6 +133,7 @@ private:
   TimelineKind            serviceKind;
   QString                 timelineName;
   LoginDialog             askUser;
+  WebLogin                weblogin;
   QString                 user;
   QString                 pass;
   QString                 userAgent;

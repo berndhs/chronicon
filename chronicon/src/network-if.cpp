@@ -36,6 +36,7 @@ NetworkIF::NetworkIF (QWidget *parent)
  nam(0),
  serviceKind (R_Public),
  askUser (parent,this),
+ weblogin (parent),
  user (QString()),
  pass (QString()),
  authRetries (0),
@@ -278,6 +279,10 @@ NetworkIF::SetBasicAuth (QString us, QString pa)
 void
 NetworkIF::login (int * reply)
 {
+#if 0
+  OAuth silliness to go here
+  weblogin.Start (QString ("http://mobile.twitter.com"));
+#endif
   insideLogin = true;
   int response = askUser.Exec (user);
   QString oldUser (user);

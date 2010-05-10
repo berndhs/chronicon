@@ -31,6 +31,7 @@
 #include "chronicon-types.h"
 #include "status-block.h"
 #include "network-if.h"
+#include "minipage.h"
 #include <map>
 
 namespace chronicon {
@@ -102,6 +103,7 @@ private:
   bool           doNotify;
   int            notifyDelay;
   QWebView      *view;
+  MiniPage      *mypage;
   NetworkIF     *network;
   QLineEdit     *detailTip;
 

@@ -45,6 +45,7 @@ TimelineView::TimelineView (QWidget *parent)
  doNotify (false),
  notifyDelay (10*1000),
  view(0),
+ mypage(0),
  network (0),
  detailTip (0),
  maxParagraphs (100)
@@ -127,8 +128,9 @@ TimelineView::SetView (QWebView *pv)
   if (view) {
     connect (view, SIGNAL (linkClicked (const QUrl&)),
              this, SLOT (LinkClicked (const QUrl&)));
-    QWebPage *page = view->page();
-    page->setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
+    mypage = new MiniPage (parentWidget);
+    view->setPage (mypage);
+    mypage->setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
   }
 }
 
