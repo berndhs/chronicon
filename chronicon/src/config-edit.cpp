@@ -44,6 +44,8 @@ ConfigEdit::ConfigEdit (QWidget * parent)
   configModel->setHorizontalHeaderItem (0,head);
   head = new QStandardItem ("Value");
   configModel->setHorizontalHeaderItem (1,head);
+
+  exemptGroups << "sizes" ;
 }
 
 ConfigEdit::~ConfigEdit ()
@@ -95,6 +97,9 @@ ConfigEdit::Load ()
   QStringList groups = Zett.childGroups();
   QStringList::iterator  grit, subit;
   for (grit = groups.begin(); grit != groups.end(); grit++) {
+    if (exemptGroups.contains (*grit)) {
+      continue;
+    }
     Zett.beginGroup (*grit);
     QStandardItem *groupItem = new QStandardItem (*grit);
     configModel->appendRow (groupItem);  

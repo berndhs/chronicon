@@ -29,6 +29,9 @@
 #include <QWebFrame>
 #include <QWebElement>
 #include <QWebElementCollection>
+#include "deliberate.h"
+
+using namespace deliberate;
 
 namespace chronicon {
 
@@ -53,13 +56,19 @@ WebLogin::Start ()
   authenticated = false;
   user = "";
   uid = "0";
+  QString agentString = page->UserAgent ();
+  agentString = Settings().value ("weblogin/useragentstring",agentString).toString();
+  Settings().setValue ("weblogin/useragentstring",agentString);
+  page->SetUserAgent (agentString);
+  if (Settings().contains("sizes/weblogin")) {
+    QSize defaultSize = size();
+    QSize newsize = Settings().value ("sizes/weblogin", defaultSize).toSize();
+    resize (newsize);
+  }
   show ();
   pinEntry->setText ("");
-qDebug () << " have webview ";
   webAuth->Init ();
-qDebug () << " have Init ";
   bool ok = webAuth->AskRequestToken ();
-qDebug () << " did request token part " << ok;
   if (ok) {
     webView->load (webAuth->WebUrlString());
   }
@@ -70,7 +79,6 @@ qDebug () << " now what? ";
 void
 WebLogin::GrabPIN ()
 {
-  qDebug () << " grabbing PIN ";
   webPin = pinEntry->text();
 qDebug () << " pin is " << webPin;
   QString rawpage = webView->page()->mainFrame()->toHtml();
@@ -81,7 +89,6 @@ qDebug () << " pin is " << webPin;
   if (webPin.length() > 0) {
     bool worked = webAuth->AskAccessToken (webPin,atoken, asecret,
                                           screen_name, user_id);
-qDebug () << " back from ask access " << worked;
     if (worked) {
        user = QString (screen_name);
        uid  = QString (user_id);
@@ -114,24 +121,30 @@ WebLogin::PageArrived (bool good)
 QString
 WebLogin::SearchPin ()
 {
-qDebug () << " search for pin";
   QString pin;
   QWebPage *page = webView->page();
   if (page == 0) { return QString(); }
   QWebFrame *frame = page->mainFrame ();
   if (frame == 0) { return QString(); }
-qDebug () << " have frame";
   QWebElementCollection webParts = frame->documentElement ().findAll ("div");
   foreach (QWebElement divElt, webParts) {
-qDebug () << " element has attribugs " << divElt.attributeNames ();
     if (divElt.attribute ("id") == "oauth_pin") {
       pin = divElt.toPlainText().trimmed();
+qDebug () << " Search PIN found " << pin;
       return pin;
     }
   }
   // if we get here, we didn't find it
   return QString();
 }
+void
+WebLogin::resizeEvent (QResizeEvent * event)
+{
+  QSize newsize = event->size();
+  Settings().setValue ("sizes/weblogin",newsize);
+  QDialog::resizeEvent (event);
+}
+
 
 
 } // namespace

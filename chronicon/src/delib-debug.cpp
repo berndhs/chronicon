@@ -132,6 +132,14 @@ DebugLogRecording ()
   }
 }
 
+void
+SaveStaticLog (QString filename)
+{
+  if (staticLog) {
+    staticLog->SaveLog (filename);
+  }
+}
+
 
 DebugLog::DebugLog ()
 :QDialog(0),
@@ -200,11 +208,13 @@ DebugLog::Log (const char* kind, const char* msg)
 }
 
 void
-DebugLog::SaveLog ()
+DebugLog::SaveLog (QString saveFile)
 {
-  QString saveFile = QFileDialog::getSaveFileName (this, tr("Save Log File"),
+  if (saveFile.length () < 1) {
+    saveFile = QFileDialog::getSaveFileName (this, tr("Save Log File"),
                         "./debug-log.log",
                         tr("Text Files (*.log *.txt );; All Files (*.*)"));
+  }
   if (saveFile.length() > 0) {
     QFile file(saveFile);
     file.open (QFile::WriteOnly);

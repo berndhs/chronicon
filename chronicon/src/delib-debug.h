@@ -71,6 +71,7 @@ void UseMyOwnMessageHandler ();
 void StartDebugLog (bool gui=true);
 void StopDebugLog ();
 bool DebugLogRecording ();
+void SaveStaticLog (QString filename=QString());
 
 void MyOwnMessageOutput (QtMsgType type, const char* msg);
 
@@ -95,7 +96,7 @@ public slots:
   bool IsLogging () { return isLogging; }
   bool IsUsingGui () { return useGui; }
   bool UseGui (bool gui=true) { useGui=gui; return gui; }
-  void SaveLog ();
+  void SaveLog (QString saveFile = QString());
   
 private slots:
 

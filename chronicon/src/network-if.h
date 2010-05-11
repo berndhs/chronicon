@@ -97,6 +97,7 @@ signals:
   void ClearList ();
   void TwitterAuthGood ();
   void TwitterAuthBad ();
+  void StopPoll (bool stopit);
   
 
 private:
@@ -134,6 +135,8 @@ private:
   QByteArray prepareOAuthString( const QString &requestUrl, 
                                      QOAuth::HttpMethod method,
                                const QOAuth::ParamMap &params );
+
+  void DebugShow (const QNetworkRequest &req );
   
 
   QNetworkAccessManager   *nam;

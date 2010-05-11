@@ -84,6 +84,8 @@ main (int argc, char * argv[])
   chron.Start ();
 
   int status = App.exec ();
-  
+  if (showDebug ) {
+    deliberate::SaveStaticLog ("/tmp/chronicon-debug.log");
+  }
   return status;
 }

@@ -94,6 +94,8 @@ Chronicon::Connect ()
            this, SLOT (RePoll(TimelineKind)));
   connect (&network, SIGNAL (ShortenReply (int, QString, QString, bool)),
            this, SLOT (CatchShortening (int, QString, QString, bool)));
+  connect (&network, SIGNAL (StopPoll (bool)),
+           this, SLOT (SuspendPoll (bool)));
 
   connect (&theView, SIGNAL (ItemDialog (QString, StatusBlock, QString)),
            &itemDialog, SLOT (Exec(QString , StatusBlock, QString)));
@@ -117,9 +119,9 @@ Chronicon::SetupTimers (bool debug)
 void
 Chronicon::Start ()
 {
-  if (Settings().contains("size")) {
+  if (Settings().contains("sizes/main")) {
     QSize defaultSize = size();
-    QSize newsize = Settings().value ("size", defaultSize).toSize();
+    QSize newsize = Settings().value ("sizes/main", defaultSize).toSize();
     resize (newsize);
   }
   if (Settings().contains("network/lastuser")) {
@@ -151,13 +153,6 @@ qDebug () << " starting public ";
   network.Init ();
 }
 
-#if USE_OAUTH
-void
-Chronicon::ReadRSA (QCA::SecureArray & secure)
-{
-  
-}
-#endif
 
 void
 Chronicon::License ()
@@ -199,7 +194,10 @@ Chronicon::quit ()
 void
 Chronicon::Configure ()
 {
-  configEdit.Exec ();
+  int changed = configEdit.Exec ();
+  if (changed != 0) {
+    network.Init ();
+  }
 }
 
 void
@@ -324,6 +322,18 @@ Chronicon::returnKey ()
 }
 
 void
+Chronicon::SuspendPoll (bool stopit)
+{
+  if (stopit) {
+    pollTimer.stop ();
+    loadLabel->setText (tr("stopped"));
+  } else {
+    pollTimer.start (pollTick);
+    LabelSecs (pollRemain/1000);
+  }
+}
+
+void
 Chronicon::Poll ()
 {
   pollRemain -= pollTick;
@@ -396,7 +406,7 @@ void
 Chronicon::resizeEvent (QResizeEvent * event)
 {
   QSize newsize = event->size();
-  Settings().setValue ("size",newsize);
+  Settings().setValue ("sizes/main",newsize);
   QMainWindow::resizeEvent (event);
 }
 

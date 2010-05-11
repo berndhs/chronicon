@@ -74,6 +74,8 @@ private slots:
   void License ();
   void Manual ();
   void Configure ();
+
+  void SuspendPoll (bool stopit);
   
 
   void firstKey (int key);

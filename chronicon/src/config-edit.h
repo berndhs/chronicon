@@ -49,6 +49,7 @@ private:
 
 
   QStandardItemModel   *configModel;
+  QStringList          exemptGroups;
 
 
 

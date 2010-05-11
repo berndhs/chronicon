@@ -48,11 +48,16 @@ public:
   bool    IsValid () { return authenticated; }
   QByteArray  AccToken () { return atoken; }
   QByteArray  AccSecret () { return asecret; }
+  QByteArray  Pin () { return webPin.toUtf8(); }
 
 private slots:
 
   void GrabPIN ();
   void PageArrived (bool good);
+
+protected:
+
+  void resizeEvent (QResizeEvent * event);
 
 private:
 

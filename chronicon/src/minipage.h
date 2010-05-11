@@ -45,6 +45,9 @@ public:
    
    QString userAgentForUrl ( const QUrl & url ) const;
 
+   QString UserAgent ();
+   void    SetUserAgent (const QString & uas);
+
 public slots:
 private:
 
