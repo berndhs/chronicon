@@ -1,6 +1,3 @@
-#ifndef WEBLOGIN_H
-#define WEBLOGIN_H
-
 /****************************************************************
  * This file is distributed under the following license:
  *
@@ -21,59 +18,64 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
+#ifndef WEBAUTH_H
+#define WEBAUTH_H
 
-#include <QDialog>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
+#include <QtOAuth>
+#include <QObject>
+#include <QString>
 #include <QByteArray>
-#include <QWebPage>
-#include "ui_weblogin.h"
-#include "minipage.h"
-#include "deliberate.h"
-#include "webauth.h"
+#include <QUrl>
 
+using namespace QOAuth;
 
 namespace chronicon {
 
-class WebLogin : public QDialog, public Ui_WebLoginDialog {
+class WebAuth : public QObject {
 Q_OBJECT
 
 public:
 
-  WebLogin (QWidget * parent, WebAuth * wa);
+  WebAuth (QObject *parent);
+  void Init ();
 
-  void Start ();
-  QString User () { return user; }
-  QString Uid () { return uid; }
-  bool    IsValid () { return authenticated; }
-  QByteArray  AccToken () { return atoken; }
-  QByteArray  AccSecret () { return asecret; }
+  QOAuth::Interface * QOAuth () { return authIF; }
 
-private slots:
+  bool AskRequestToken ();
+  bool AskAccessToken (QString pin, 
+                         QByteArray & atoken, 
+                         QByteArray & asecret,
+                         QByteArray & screen_name,
+                         QByteArray & user_id);
 
-  void GrabPIN ();
-  void PageArrived (bool good);
+  QString WebUrlString ();
+
 
 private:
 
-  QString SearchPin ();
+  void SetKeys ();
 
-  QUrl       siteUrl;
-  MiniPage  *page;
+  QString AuthService (QString path = QString());
+  QString WebService  (QString path = QString());
 
-  WebAuth   *webAuth;
+  QOAuth::Interface *authIF;
 
-  QString   user;
-  QString   uid;
-  bool      authenticated;
+  QString    service;
+  QString    webservice;
 
-  QString      webPin;
-  QByteArray   atoken; 
-  QByteArray   asecret;
-  QByteArray   screen_name;
-  QByteArray   user_id;
+  QByteArray callback_confirm_key;
+  QByteArray req_token_key;
+  QByteArray req_token_secret_key;
+
+  QByteArray req_token_value;
+  QByteArray req_token_secret_value;
+
+  QByteArray acc_token;
+  QByteArray acc_secret;
+
 
 };
+
 
 } // namespace
 

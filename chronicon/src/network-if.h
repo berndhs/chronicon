@@ -36,6 +36,7 @@
 #include "status-block.h"
 #include "login-dialog.h"
 #include "weblogin.h"
+#include "webauth.h"
 
 namespace chronicon {
 
@@ -105,7 +106,13 @@ private:
 
   void ConnectNetwork ();
   void AskBitly (int tag, QString http);
+  void plainLogin (int *reply);
+  void webLogin   (int *reply);
 
+  void PushUserStatusOA (QString status);
+  void PushUserStatusBasic (QString status);
+  void PullTimelineOA ();
+  void PullTimelineBasic ();
   void ParseTwitterDoc (QDomDocument &doc, TimelineKind kind);
   void ParseUpdate (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);
@@ -124,6 +131,9 @@ private:
   void ExpectReply (QNetworkReply *reply, 
                     BitlyNetworkReply *bitReply);
   void CleanupReply (QNetworkReply * reply, BitlyNetworkReply *bitReply);
+  QByteArray prepareOAuthString( const QString &requestUrl, 
+                                     QOAuth::HttpMethod method,
+                               const QOAuth::ParamMap &params );
   
 
   QNetworkAccessManager   *nam;
@@ -132,15 +142,20 @@ private:
 
   TimelineKind            serviceKind;
   QString                 timelineName;
-  LoginDialog             askUser;
-  WebLogin                weblogin;
+  LoginDialog             plainLoginDialog;
+  WebAuth                 webAuth;
+  WebLogin                webLoginDialog;
   QString                 user;
   QString                 pass;
   QString                 userAgent;
   int                     authRetries;
   bool                    insideLogin;
+  bool                    oauthMode;
 
   int                     numItems;
+  QString                 myName ;
+  QByteArray              acc_token;
+  QByteArray              acc_secret;
 
   typedef std::map <QNetworkReply *, ChronNetworkReply*>  ReplyMapType;
   typedef std::map <QNetworkReply *, BitlyNetworkReply*>  BitlyMapType;

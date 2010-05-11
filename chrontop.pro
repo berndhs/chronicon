@@ -1,10 +1,8 @@
 TEMPLATE = subdirs
 
-#SUBDIRS = qoauth chronicon
-SUBDIRS = chronicon
+SUBDIRS = chronicon ../qoauth
 
 
-CONFIG += debug_and_release
 CONFIG += ordered
 
 

@@ -25,6 +25,7 @@
 #include <QDomDocument>
 #include <QDateTime>
 #include <QAbstractNetworkCache>
+#include <QMessageBox>
 
 using namespace deliberate;
 
@@ -35,13 +36,17 @@ NetworkIF::NetworkIF (QWidget *parent)
  parentWidget (parent),
  nam(0),
  serviceKind (R_Public),
- askUser (parent,this),
- weblogin (parent),
+ plainLoginDialog (parent,this),
+ webAuth (this),
+ webLoginDialog (parent,&webAuth),
  user (QString()),
  pass (QString()),
  authRetries (0),
  insideLogin (false),
- numItems (25)
+ numItems (25),
+ myName ("Chronicon"),
+ acc_token (""),
+ acc_secret ("")
 {
   serverRoot = QString ("http://api.twitter.com/1/");
   SwitchTimeline();
@@ -127,6 +132,7 @@ NetworkIF::Init ()
   Settings ().setValue ("network/numitems",numItems);
   serverRoot = Settings().value ("network/service",serverRoot).toString();
   Settings ().setValue ("network/service",serverRoot);
+  myName = Settings().value ("program",myName).toString();
 }
 
 void
@@ -146,6 +152,16 @@ NetworkIF::SwitchTimeline ()
 void
 NetworkIF::PullTimeline ()
 {
+  if (oauthMode) {
+    PullTimelineOA ();
+  } else {
+    PullTimelineBasic ();
+  }
+}
+
+void
+NetworkIF::PullTimelineBasic ()
+{
   QNetworkRequest request;
   QUrl url  (QString(Service ("statuses/%1.xml?count=%2"))
                     .arg(timelineName).arg(numItems));
@@ -155,8 +171,47 @@ NetworkIF::PullTimeline ()
                                                   reply, 
                                                   serviceKind);
   ExpectReply (reply, chReply);
-qDebug () << " pull for " << reply->url();
+qDebug () << " pull Basic for " << reply->url();
 }
+
+void
+NetworkIF::PullTimelineOA ()
+{
+  QString urlString = Service ("statuses/%1.xml").arg(timelineName);
+  QOAuth::ParamMap  args;
+  args.insert("count",QString::number(numItems).toUtf8());
+  QByteArray  parms = prepareOAuthString (urlString, 
+                                          QOAuth::GET,
+                                          args);
+  QNetworkRequest req;
+  req.setRawHeader ("Authorization", parms);
+  urlString.append (webAuth.QOAuth()->inlineParameters 
+                      (args, QOAuth::ParseForInlineQuery));
+  QUrl url (urlString);
+  req.setUrl (url);
+  QNetworkReply *reply = Network()->get (req);
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  serviceKind);
+  ExpectReply (reply, chReply);
+qDebug () << " pull OA for " << reply->url();
+  
+}
+
+QByteArray 
+NetworkIF::prepareOAuthString( const QString &requestUrl, 
+                                     QOAuth::HttpMethod method,
+                               const QOAuth::ParamMap &params )
+{
+  QByteArray content = 
+         webAuth.QOAuth()->createParametersString( requestUrl, method, 
+                                acc_token, acc_secret,
+                                QOAuth::HMAC_SHA1, 
+                                params, 
+                                QOAuth::ParseForHeaderArguments );
+  return content;
+}
+
 
 void
 NetworkIF::TestBasicAuth (QString us, QString pa)
@@ -254,7 +309,7 @@ NetworkIF::twitterAuthBad (ChronNetworkReply * reply, int err)
 {
   qDebug () << " twitter auth is bad " << err << " for reply " << reply;
   if (insideLogin) {
-    askUser.AuthBad ();
+    plainLoginDialog.AuthBad ();
   } else {
     QTimer::singleShot (500,this,SLOT (login()));
   }
@@ -264,7 +319,7 @@ void
 NetworkIF::twitterAuthGood (ChronNetworkReply * reply)
 {
   if (insideLogin) {
-    askUser.AuthOK ();
+    plainLoginDialog.AuthOK ();
   }
 }
 
@@ -276,22 +331,63 @@ NetworkIF::SetBasicAuth (QString us, QString pa)
   pass = pa;
 }
 
+
 void
 NetworkIF::login (int * reply)
 {
-#if 0
-  OAuth silliness to go here
-  weblogin.Start (QString ("http://mobile.twitter.com"));
-#endif
+  QString plain("plain"), oauth ("oauth");
+  QString logintype (plain);
+  logintype = Settings().value ("network/login_type",logintype).toString().toLower();
+  if (logintype == plain) {
+    Settings().setValue ("network/login_type",logintype);
+    plainLogin (reply);
+  } else if (logintype == oauth) {
+    Settings().setValue ("network/login_type",logintype);
+    webLogin (reply);
+  } else {
+    QMessageBox badconfig (parentWidget);
+    QString message (tr("Bad login_type config %1\nnetwork/login_type must be %1 or %2"));
+    badconfig.setText (message.arg(plain).arg(oauth));
+    badconfig.exec ();
+    reply = 0;
+  }
+}
+
+void
+NetworkIF::webLogin (int * reply)
+{
+  if (reply ) {
+    *reply = 0;
+  }
+  webLoginDialog.Start ();
+  if (webLoginDialog.IsValid()) {
+    user = webLoginDialog.User ();
+    acc_token = webLoginDialog.AccToken ();
+    acc_secret = webLoginDialog.AccSecret ();
+    oauthMode = true;
+    if (reply ) {
+      *reply = 1;
+    }
+    serviceKind = R_Private;
+    SwitchTimeline ();
+    emit ClearList ();
+    emit RePoll (serviceKind);
+  }
+}
+
+void
+NetworkIF::plainLogin (int * reply)
+{
   insideLogin = true;
-  int response = askUser.Exec (user);
+  int response = plainLoginDialog.Exec (user);
   QString oldUser (user);
   QString oldPass (pass);
   switch (response) {
   case 1:
      ResetNetwork ();
-     user = askUser.User ();
-     pass = askUser.Pass ();
+     oauthMode = false;
+     user = plainLoginDialog.User ();
+     pass = plainLoginDialog.Pass ();
      if (user != oldUser) {
        ResetNetwork ();
      }
@@ -490,19 +586,57 @@ NetworkIF::PushTwitterLogout ()
   ExpectReply (reply, chReply);
 }
 
-
 void
 NetworkIF::PushUserStatus (QString status)
+{
+  if (oauthMode) {
+    PushUserStatusOA (status);
+  } else {
+    PushUserStatusBasic (status);
+  }
+}
+
+void
+NetworkIF::PushUserStatusBasic (QString status)
 {
   QByteArray encoded = QUrl::toPercentEncoding (status);
   QUrl url (Service ("statuses/update.xml"));
   url.addEncodedQueryItem (QString("status").toLocal8Bit(),
                            encoded);
+  QByteArray encProgName = QUrl::toPercentEncoding (myName);
+  url.addEncodedQueryItem (QString("source").toLocal8Bit(),
+                           encProgName);
   QNetworkRequest  req(url);
   QByteArray nada;
 
   QNetworkReply * reply = Network()->post (req,nada);
 
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  chronicon::R_Update); 
+  ExpectReply (reply, chReply);
+}
+
+void
+NetworkIF::PushUserStatusOA (QString status)
+{
+  QOAuth::ParamMap  paramContent;
+  paramContent.insert ("status",status.toUtf8());
+  paramContent.insert ("source",myName.toUtf8());
+  QString urlStr = Service ("statuses/update.xml");
+  QByteArray authCode = webAuth.QOAuth()->createParametersString (urlStr,
+                                QOAuth::POST, acc_token,
+                                acc_secret, QOAuth::HMAC_SHA1,
+                                paramContent,
+                                QOAuth::ParseForHeaderArguments);
+  QNetworkRequest req;
+  req.setRawHeader ("Authorization", authCode);
+  req.setHeader (QNetworkRequest::ContentTypeHeader, 
+                   "application/x-www-form-urlencoded");
+  QUrl url (urlStr);
+  req.setUrl (url);
+  QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
+  QNetworkReply * reply = Network()->post (req, content);  
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
                                                   chronicon::R_Update); 

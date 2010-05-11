@@ -38,8 +38,8 @@ unix:{
 DEFINES += DELIBERATE_DEBUG=1
 DEFINES += USE_OAUTH=0
 
-#QT += core gui xml network webkit qoautch crypto
-QT += core gui xml network webkit
+QT += core gui xml network webkit qoautch crypto
+#QT += core gui xml network webkit
 
 MAKEFILE = MakeChron
 
@@ -50,12 +50,11 @@ MOC_DIR = tmp/moc
 RESOURCES += chronicon.qrc
 
 INCLUDEPATH += src 
-#INCLUDEPATH += ../qoauth/include
-#INCLUDEPATH += /usr/include/QtCrypto
+INCLUDEPATH += /home/bernd/mywork/qoauth/include
+INCLUDEPATH += /usr/include/QtCrypto
 INCLUDEPATH += temp/ui
 
-#LIBS += -L../qoauth/lib -lqoauth
-LIBS += 
+LIBS += -L../../qoauth/lib -lqoauth
 
 HEADERS = src/chronicon.h \
           src/chron-textedit.h \
@@ -70,6 +69,7 @@ HEADERS = src/chronicon.h \
           src/item-dialog.h \
           src/login-dialog.h \
           src/weblogin.h \
+          src/webauth.h \
           src/minipage.h \
           src/config-edit.h \
           src/helpview.h \
@@ -91,6 +91,7 @@ SOURCES = src/main.cpp \
           src/item-dialog.cpp \
           src/login-dialog.cpp \
           src/weblogin.cpp \
+          src/webauth.cpp \
           src/minipage.cpp \
           src/config-edit.cpp \
           src/helpview.cpp \
