@@ -40,6 +40,7 @@ LoginDialog::LoginDialog (QWidget *parent,
            this, SLOT (Logout()));
   connect (ui.cancelButton, SIGNAL (clicked()),
            this, SLOT (Cancel()));
+  ui.loginButton->setDefault (true);
 }
 
 int
@@ -59,6 +60,7 @@ LoginDialog::Login ()
 {
   if (network) {
     SaveText ();
+    ui.instructLabel->setText (tr("Waiting for server..."));
     network->ResetNetwork();
     network->TestBasicAuth (user,pass);
   }
