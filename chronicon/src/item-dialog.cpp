@@ -42,6 +42,7 @@ ItemDialog::ItemDialog (QWidget *parent)
   connect (cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
   connect (emailButton,  SIGNAL (clicked()), this, SLOT (Mailto()));
   connect (retweetButton,SIGNAL (clicked()), this, SLOT (ReTweet()));
+  connect (addMsgButton, SIGNAL (clicked()), this, SLOT (AddMessage ()));
   connect (saveButton,   SIGNAL (clicked()), this, SLOT (Save()));
   connect (deleteButton, SIGNAL (clicked()), this, SLOT (Delete()));
 }
@@ -123,6 +124,7 @@ ItemDialog::Exec  (QString id, StatusBlock  block, QString itemHtml)
   html.append ("</body>");
   html.append ("</html>");
   itemView->setHtml (html);
+qDebug () << __FILE__ << __LINE__ << block;
   exec ();
 }
 
@@ -138,6 +140,19 @@ ItemDialog::PlainText (QString & plain, const StatusBlock & block)
   plain.append (block.Value("created_at"));
   plain.append ("\n\n");
   plain.append (block.Value ("text"));
+}
+
+void
+ItemDialog::AddMessage ()
+{
+  QString newmsg;
+  newmsg.append ("RT ");
+  newmsg.append ("@");
+  newmsg.append (itemBlock.UserValue("screen_name"));
+  newmsg.append (": ");
+  newmsg.append (itemBlock.Value("text"));
+  emit SendMessage (newmsg,itemBlock.Id());
+  accept ();
 }
 
 void

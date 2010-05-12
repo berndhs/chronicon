@@ -30,6 +30,7 @@
 #include <QByteArray>
 #include <QDesktopServices>
 #include <QRegExp>
+#include <QTextCursor>
 
 
 using namespace deliberate;
@@ -99,6 +100,8 @@ Chronicon::Connect ()
 
   connect (&theView, SIGNAL (ItemDialog (QString, StatusBlock, QString)),
            &itemDialog, SLOT (Exec(QString , StatusBlock, QString)));
+  connect (&itemDialog, SIGNAL (SendMessage (QString,QString)), 
+           this, SLOT (startMessage (QString,QString)));
 }
 
 void
@@ -194,16 +197,28 @@ Chronicon::quit ()
 void
 Chronicon::Configure ()
 {
+  SuspendPoll (true);
   int changed = configEdit.Exec ();
   if (changed != 0) {
     network.Init ();
   }
+  SuspendPoll (false);
 }
 
 void
 Chronicon::startMessage ()
 {
+  inReplyTo = "";
   BigEdit ();
+}
+
+void
+Chronicon::startMessage (QString msg, QString oldId)
+{
+  inReplyTo = oldId;
+  ownMessage->setText (msg);
+  ownMessage->moveCursor (QTextCursor::Start);
+  BigEdit();
 }
 
 
@@ -296,7 +311,7 @@ Chronicon::ReallyFinishMessage (QString msg)
        sendit = (toolong.clickedButton() == yesBut);
     }
     if (sendit) {
-      network.PushUserStatus (msg);
+      network.PushUserStatus (msg,inReplyTo);
     }
   }
   SmallEdit ();

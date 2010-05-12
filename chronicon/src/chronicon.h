@@ -66,6 +66,7 @@ public slots:
 private slots:
 
   void startMessage ();
+  void startMessage (QString msg, QString oldId);
   void finishMessage ();
   void discardMessage ();
 
@@ -130,6 +131,7 @@ private:
 
   UpdatePartsMap    messageParts;
   UpdatePartsMap    linkParts;
+  QString           inReplyTo;
 
 #if USE_OAUTH
   QOAuth::Interface    auth;

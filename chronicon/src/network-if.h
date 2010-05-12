@@ -54,7 +54,7 @@ public:
   void Init ();
 
   void PullTimeline ();
-  void PushUserStatus (QString status);
+  void PushUserStatus (QString status, QString refId);
   void ReTweet (QString id);
   void PushDelete (QString id);
 
@@ -110,8 +110,8 @@ private:
   void plainLogin (int *reply);
   void webLogin   (int *reply);
 
-  void PushUserStatusOA (QString status);
-  void PushUserStatusBasic (QString status);
+  void PushUserStatusOA (QString status, QString refId);
+  void PushUserStatusBasic (QString status, QString refId);
   void PullTimelineOA ();
   void PullTimelineBasic ();
   void ParseTwitterDoc (QDomDocument &doc, TimelineKind kind);

@@ -53,7 +53,12 @@ private slots:
   void Save     ();
   void Log      ();
   void ReTweet  ();
+  void AddMessage ();
   void Delete   ();
+
+signals:
+
+  void SendMessage (QString msg, QString refId);
 
 private:
 

@@ -602,22 +602,27 @@ NetworkIF::PushTwitterLogout ()
 }
 
 void
-NetworkIF::PushUserStatus (QString status)
+NetworkIF::PushUserStatus (QString status, QString refId)
 {
   if (oauthMode) {
-    PushUserStatusOA (status);
+    PushUserStatusOA (status, refId);
   } else {
-    PushUserStatusBasic (status);
+    PushUserStatusBasic (status, refId);
   }
 }
 
 void
-NetworkIF::PushUserStatusBasic (QString status)
+NetworkIF::PushUserStatusBasic (QString status, QString refId)
 {
   QByteArray encoded = QUrl::toPercentEncoding (status);
   QUrl url (Service ("statuses/update.xml"));
   url.addEncodedQueryItem (QString("status").toLocal8Bit(),
                            encoded);
+  if (refId.length() > 0) {
+     encoded = QUrl::toPercentEncoding (refId);
+     url.addEncodedQueryItem (QString("in_reply_to_status_id").toUtf8(),
+                              encoded);
+  }
   QByteArray encProgName = QUrl::toPercentEncoding (myName);
   url.addEncodedQueryItem (QString("source").toLocal8Bit(),
                            encProgName);
@@ -635,10 +640,13 @@ NetworkIF::PushUserStatusBasic (QString status)
 }
 
 void
-NetworkIF::PushUserStatusOA (QString status)
+NetworkIF::PushUserStatusOA (QString status, QString refId)
 {
   QOAuth::ParamMap  paramContent;
   paramContent.insert ("status",status.toUtf8());
+  if (refId.length() > 0) {
+     paramContent.insert ("in_reply_to_status_id",refId.toUtf8());
+  }
   paramContent.insert ("source",myName.toUtf8());
   QString urlStr = Service ("statuses/update.xml");
   QByteArray authCode = webAuth.QOAuth()->createParametersString (urlStr,

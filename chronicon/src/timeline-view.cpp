@@ -199,6 +199,11 @@ qDebug () << " tool tip " << isOff;
 }
 #endif
 
+/** \LinkClicked - Chronicon has internal links, the syntax is
+ *                chronicon://status/item#statusid
+ *            and chronicon://search/q#searchterm
+ */
+
 void
 TimelineView::LinkClicked (const QUrl & url)
 {
@@ -394,8 +399,12 @@ TwitAtAnchor (QString & anchor, QString ref)
     anchor = ref;
     return;
   }
-  anchor = QString ("@<a href=\"http://twitter.com/%1\">%1</a>")
-                 .arg(ref.mid(1));
+  QString text(ref);
+  if (ref.endsWith(':')) {
+    ref.chop(1);
+  }
+  anchor = QString ("@<a href=\"http://twitter.com/%1\">%2</a>")
+                 .arg (ref.mid(1)).arg(text.mid(1));
 }
 
 void
