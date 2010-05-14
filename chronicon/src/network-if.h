@@ -65,6 +65,8 @@ public:
   void PushTwitterLogout ();
   void SetUserAgent (QString ua) { userAgent = ua; }
   void SetServiceRoot (QString root);
+
+  void AutoLogin (QByteArray u, QByteArray key1, QByteArray key2, bool oauth);
   
   QString Service (QString path=QString());
   QUrl    ServiceUrl (QString path=QString());

@@ -20,6 +20,7 @@
  ****************************************************************/
 
 #include "bitly-network-reply.h"
+#include "delib-debug.h"
 
 
 namespace chronicon {

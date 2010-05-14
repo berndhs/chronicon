@@ -38,6 +38,7 @@ public:
 
   WebAuth (QObject *parent);
   void Init ();
+  bool InitDone ();
 
   QOAuth::Interface * QOAuth () { return authIF; }
 
@@ -59,6 +60,7 @@ private:
   QString WebService  (QString path = QString());
 
   QOAuth::Interface *authIF;
+  bool               initComplete;
 
   QString    service;
   QString    webservice;

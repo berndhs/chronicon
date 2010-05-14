@@ -32,7 +32,8 @@ namespace chronicon {
 
 WebAuth::WebAuth (QObject *parent)
 :QObject(parent),
- authIF(0)
+ authIF(0),
+ initComplete (false)
 {
   authIF = new QOAuth::Interface;
   SetKeys ();
@@ -60,6 +61,13 @@ WebAuth::Init ()
   webservice = "https://mobile.twitter.com/oauth";
   webservice = Settings().value("oauth/webservice",webservice).toString();
   Settings().setValue ("oauth/webservice",webservice);
+  initComplete = true;
+}
+
+bool
+WebAuth::InitDone ()
+{ 
+  return initComplete;
 }
 
 bool
@@ -127,6 +135,11 @@ qDebug () << " bad experience getting access token";
   acc_secret = asecret;
   screen_name = reply.value ("screen_name");
   user_id = reply.value ("user_id");
+  Settings().setValue ("oauth/token",acc_token);
+  Settings().setValue ("oauth/secret",acc_secret);
+  Settings().setValue ("oauth/screen_name",screen_name);
+  Settings().setValue ("oauth/user_id",user_id);
+  Settings().sync();
   return true;
 }
 

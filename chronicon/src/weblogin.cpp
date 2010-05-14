@@ -43,8 +43,10 @@ WebLogin::WebLogin (QWidget *parent, WebAuth * wa)
   setupUi (this);
   connect (cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
   connect (okButton, SIGNAL (clicked()), this, SLOT (GrabPIN()));
+  #if 0
   connect (webView, SIGNAL (loadFinished (bool)),
            this, SLOT (PageArrived (bool)));
+  #endif
   page = new MiniPage (this);
   webView->setPage (page);
 }
@@ -67,7 +69,9 @@ WebLogin::Start ()
   }
   show ();
   pinEntry->setText ("");
-  webAuth->Init ();
+  if (!webAuth->InitDone()) {
+    webAuth->Init ();
+  }
   bool ok = webAuth->AskRequestToken ();
   if (ok) {
     webView->load (webAuth->WebUrlString());

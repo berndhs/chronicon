@@ -71,6 +71,8 @@ Chronicon::Connect ()
 {
   connect (actionQuit, SIGNAL (triggered()), this, SLOT (quit()));
   connect (actionLogin, SIGNAL (triggered()), &network, SLOT (login()));
+  connect (actionAutoLogin, SIGNAL (triggered()),
+            this, SLOT (AutoLogin()));
   connect (actionConfigure, SIGNAL (triggered()), this, SLOT (Configure()));
   connect (actionAbout, SIGNAL (triggered()), this, SLOT (About()));
   connect (actionManual, SIGNAL (triggered()), this, SLOT (Manual()));
@@ -417,6 +419,21 @@ Chronicon::SmallEdit ()
   QSizePolicy editPoli = ownMessage->sizePolicy();
   editPoli.setVerticalStretch (normalEditVertical);
   ownMessage->setSizePolicy (editPoli);
+}
+
+void
+Chronicon::AutoLogin ()
+{
+  QByteArray user = "nobody";
+  QByteArray key1 = "";
+  QByteArray key2 = "";
+  user = Settings().value ("oauth/screen_name",user).toByteArray();
+  key1 = Settings().value ("oauth/token",key1).toByteArray();
+  key2 = Settings().value ("oauth/secret",key2).toByteArray();
+  network.AutoLogin (user, key1, key2, true);
+  network.SetTimeline (R_Private);
+  theView.ClearList ();
+  RePoll (R_Private);
 }
 
 void

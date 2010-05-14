@@ -147,6 +147,7 @@ NetworkIF::Init ()
   serverRoot = Settings().value ("network/service",serverRoot).toString();
   Settings ().setValue ("network/service",serverRoot);
   myName = Settings().value ("program",myName).toString();
+  webAuth.Init ();
 }
 
 void
@@ -329,6 +330,19 @@ NetworkIF::login (int * reply)
     badconfig.setText (message.arg(plain).arg(oauth));
     badconfig.exec ();
     reply = 0;
+  }
+}
+
+void
+NetworkIF::AutoLogin (QByteArray u, QByteArray key1, QByteArray key2, bool oauth)
+{
+  oauthMode = oauth;
+  user = QString (u);
+  if (oauth) {
+    acc_token = key1;
+    acc_secret = key2;
+  } else {
+    pass = QString (key1);
   }
 }
 
@@ -541,21 +555,22 @@ NetworkIF::ShortenHttp (int tag, QStringList httpList)
 void
 NetworkIF::AskBitly (int tag, QString http)
 {
-  QString requestPat 
-        ("http://api.bit.ly/v3/shorten?login=%1&apiKey=%2&format=xml&uri=%3");
-  QString bitly_user = Settings().value ("network/bitly_user",
-                             QString("anonymous")).toString();
-  QString bitly_key  = Settings().value ("network/bitly_key",
-                             QString()).toString();
-  QString request = requestPat.arg (bitly_user)
-                              .arg (bitly_key)
-                              .arg (http);
+  QString request 
+        ("http://api.bit.ly/v3/shorten");
   QUrl url (request);
+  url.addQueryItem ("login",Settings().value ("network/bitly_user",
+                             QString("anonymous")).toString());
+  url.addQueryItem ("apiKey",Settings().value ("network/bitly_key",
+                             QString()).toString());
+  url.addQueryItem ("format","xml");
+  url.addEncodedQueryItem ("uri",QUrl::toPercentEncoding (http));
   QNetworkRequest req (url);
   QNetworkReply * reply = Network()->get (req);
   BitlyNetworkReply * bitlyReply = 
               new BitlyNetworkReply (url, reply, tag);
   ExpectReply (reply, bitlyReply);
+qDebug () << __FILE__ << __LINE__ << " bitly request " << req.url();
+qDebug () << " uri for bitly request: " << req.url().allEncodedQueryItemValues("uri");
 }
 
 

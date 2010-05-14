@@ -70,6 +70,8 @@ private slots:
   void finishMessage ();
   void discardMessage ();
 
+  void AutoLogin ();
+
   void NotYet ();
   void About ();
   void License ();
