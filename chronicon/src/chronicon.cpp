@@ -235,7 +235,9 @@ Chronicon::ShortenHttp (QString status)
     lenSub = regular.matchedLength();
     beforeLink = status.mid (offset, where - offset);
     link = regular.cap(0);
-    linkList << link;
+    if (!link.contains ("bit.ly")) {
+      linkList << link;
+    }
     wholeList << beforeLink;
     wholeList << link;
     offset = where + lenSub;

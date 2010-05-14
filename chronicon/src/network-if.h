@@ -38,6 +38,7 @@
 #include "weblogin.h"
 #include "webauth.h"
 
+
 namespace chronicon {
 
 
@@ -110,6 +111,10 @@ private:
   void AskBitly (int tag, QString http);
   void plainLogin (int *reply);
   void webLogin   (int *reply);
+
+  void PostOA (QString  & urlString, 
+                   QOAuth::ParamMap & paramContent,
+                   TimelineKind      kind);
 
   void PushUserStatusOA (QString status, QString refId);
   void PushUserStatusBasic (QString status, QString refId);

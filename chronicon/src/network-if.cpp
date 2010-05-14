@@ -608,8 +608,6 @@ NetworkIF::PullTimelineOA ()
                                                   reply, 
                                                   serviceKind);
   ExpectReply (reply, chReply);
-qDebug () << " pull OAuth for " << reply->url();
-qDebug () << " pull auth header " << req.rawHeader ("Authorization");
   
 }
 
@@ -617,6 +615,9 @@ qDebug () << " pull auth header " << req.rawHeader ("Authorization");
 void
 NetworkIF::PushTwitterLogout ()
 {
+  if (oauthMode) {
+    return;
+  }
   QNetworkRequest request;
   QUrl url (Service("account/end_session.xml"));
   request.setUrl (url);
@@ -673,20 +674,7 @@ NetworkIF::PushUserStatusOA (QString status, QString refId)
      paramContent.insert ("in_reply_to_status_id",refId.toUtf8());
   }
   QString urlStr = OAuthService ("statuses/update.xml");
-  QNetworkRequest req;
-  oauthForPost (req, urlStr, paramContent);
-
-  DebugShow (req);
-  QUrl url (urlStr);
-  req.setUrl (url);
-  QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
-  QNetworkReply * reply = Network()->post (req, content);  
-  ChronNetworkReply *chReply = new ChronNetworkReply (url,
-                                                  reply, 
-                                                  chronicon::R_Update); 
-  ExpectReply (reply, chReply);
-qDebug () << " update OAuth for " << reply->url();
-qDebug () << " updare auth header " << req.rawHeader ("Authorization");
+  PostOA (urlStr, paramContent, R_Update);
 }
 
 void
@@ -703,6 +691,7 @@ NetworkIF::PushDelete (QString id)
 void
 NetworkIF::PushDeleteBasic (QString id)
 {
+  
   QString urlString (Service ("statuses/destroy.xml?id=%1"));
   QUrl url (urlString.arg(id));
   QNetworkRequest  req(url);
@@ -722,22 +711,27 @@ NetworkIF::PushDeleteOA (QString id)
   QOAuth::ParamMap  paramContent;
   paramContent.insert ("id",id.toUtf8());
   QString urlStr = OAuthService ("statuses/destroy.xml");
+  PostOA (urlStr, paramContent, R_Destroy);
+}
+
+void 
+NetworkIF::PostOA (QString  & urlString, 
+                   QOAuth::ParamMap & paramContent,
+                   TimelineKind      kind)
+{
   QNetworkRequest req;
-  oauthForPost (req, urlStr, paramContent);
+  oauthForPost (req, urlString, paramContent);
 
   DebugShow (req);
-  QUrl url (urlStr);
+  QUrl url (urlString);
   req.setUrl (url);
   QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
   QNetworkReply * reply = Network()->post (req, content);  
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
-                                                  chronicon::R_Update); 
+                                                  kind); 
   ExpectReply (reply, chReply);
-qDebug () << " delete OAuth for " << reply->url();
-qDebug () << " delete auth header " << req.rawHeader ("Authorization");
 }
-
 
 void
 NetworkIF::ReTweet (QString id)
@@ -753,20 +747,7 @@ NetworkIF::ReTweetOA (QString id)
 {
   QOAuth::ParamMap  paramContent;
   QString urlStr = OAuthService ("statuses/retweet/%1.xml").arg(id);
-  QNetworkRequest req;
-  oauthForPost (req, urlStr, paramContent);
-
-  DebugShow (req);
-  QUrl url (urlStr);
-  req.setUrl (url);
-  QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
-  QNetworkReply * reply = Network()->post (req, content);  
-  ChronNetworkReply *chReply = new ChronNetworkReply (url,
-                                                  reply, 
-                                                  chronicon::R_Update); 
-  ExpectReply (reply, chReply);
-qDebug () << " retweet OAuth for " << reply->url();
-qDebug () << " retweet auth header " << req.rawHeader ("Authorization");
+  PostOA (urlStr, paramContent, R_Update);
 }
 
 
