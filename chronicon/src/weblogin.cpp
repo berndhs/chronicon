@@ -80,7 +80,6 @@ void
 WebLogin::GrabPIN ()
 {
   webPin = pinEntry->text();
-qDebug () << " pin is " << webPin;
   QString rawpage = webView->page()->mainFrame()->toHtml();
   QFile dump ("/home/bernd/mywork/twitter/testdata/pin-page.dmp");
   dump.open (QFile::WriteOnly);
@@ -130,7 +129,6 @@ WebLogin::SearchPin ()
   foreach (QWebElement divElt, webParts) {
     if (divElt.attribute ("id") == "oauth_pin") {
       pin = divElt.toPlainText().trimmed();
-qDebug () << " Search PIN found " << pin;
       return pin;
     }
   }

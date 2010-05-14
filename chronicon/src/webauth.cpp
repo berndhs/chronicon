@@ -50,8 +50,8 @@ void
 WebAuth::Init ()
 {
   // set the consumer key and secret
-  authIF->setConsumerKey( "6Jy201BBEeQ7C0nAkUj7ig" );
-  authIF->setConsumerSecret( "YZJ5i2Sd8zZbdWj95bmBPDMt3qTRft4LXArLQyMERMM" );
+  authIF->setConsumerKey( "C4MsrJJKTZhMVVL8qCBFnA" );
+  authIF->setConsumerSecret( "dEaYj8p9ZHskqBkjkdLKZoyLvty9BShe9lFw016Xa8" );
   // set a timeout for requests (in msecs)
   authIF->setRequestTimeout( 15000 );
   service = "https://api.twitter.com/oauth";
@@ -104,32 +104,29 @@ WebAuth::AskAccessToken (QString pin,
                          QByteArray & screen_name,
                          QByteArray & user_id)
 {
-qDebug () << " ask access token ";
   QOAuth::ParamMap extra;
   extra.insert ("oauth_verifier",pin.toUtf8());
   QOAuth::ParamMap reply = 
       authIF->accessToken (AuthService("access_token"),
                           QOAuth::POST, req_token_value,
                           req_token_secret_value, QOAuth::HMAC_SHA1, extra);
-qDebug () << " accessToken says " << authIF->error ();
   if (authIF->error() != QOAuth::NoError) {
 qDebug () << " bad experience getting access token";
     return false;
   }
-  
-qDebug () << " reply size " << reply.size();
+  #if CHRON_DEBUG_OAUTH
   QOAuth::ParamMap::iterator pit;
   for (pit = reply.begin(); pit != reply.end(); pit++) {
     qDebug () << " reply part " << QString(pit.key())
                  << " => " << QString (pit.value());
   }
+  #endif
   atoken = reply.value ("oauth_token");
   acc_token = atoken;
-  asecret = reply.value ("oauth_secret");
+  asecret = reply.value ("oauth_token_secret");
   acc_secret = asecret;
   screen_name = reply.value ("screen_name");
   user_id = reply.value ("user_id");
-qDebug () << " done with askAccess";
   return true;
 }
 

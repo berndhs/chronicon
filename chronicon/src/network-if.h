@@ -67,6 +67,7 @@ public:
   
   QString Service (QString path=QString());
   QUrl    ServiceUrl (QString path=QString());
+  QString OAuthService (QString path=QString());
 
   void ShortenHttp (int tag, QStringList httpList);
 
@@ -135,7 +136,9 @@ private:
   QByteArray prepareOAuthString( const QString &requestUrl, 
                                      QOAuth::HttpMethod method,
                                const QOAuth::ParamMap &params );
-
+  void oauthForPost (QNetworkRequest & reg,
+                         const QString   & urlString,
+                         const QOAuth::ParamMap & params);
   void DebugShow (const QNetworkRequest &req );
   
 
