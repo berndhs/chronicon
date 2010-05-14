@@ -43,10 +43,10 @@ WebLogin::WebLogin (QWidget *parent, WebAuth * wa)
   setupUi (this);
   connect (cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
   connect (okButton, SIGNAL (clicked()), this, SLOT (GrabPIN()));
-  #if 0
+
   connect (webView, SIGNAL (loadFinished (bool)),
            this, SLOT (PageArrived (bool)));
-  #endif
+
   page = new MiniPage (this);
   webView->setPage (page);
 }
@@ -105,6 +105,7 @@ void
 WebLogin::PageArrived (bool good)
 {
   if (good) {
+    #if 0
     QString rawpage = webView->page()->mainFrame()->toHtml();
     QDateTime now = QDateTime::currentDateTime ();
     QString filename = QString 
@@ -114,6 +115,7 @@ WebLogin::PageArrived (bool good)
     dump.open (QFile::WriteOnly);
     dump.write (rawpage.toUtf8());
     dump.close ();
+    #endif
     QString pin = SearchPin ();
     if (pin.length() > 0) {
       pinEntry->setText (pin);
