@@ -46,6 +46,7 @@ ConfigEdit::ConfigEdit (QWidget * parent)
   configModel->setHorizontalHeaderItem (1,head);
 
   exemptGroups << "sizes" ;
+  exemptGroups << "oauth";
 }
 
 ConfigEdit::~ConfigEdit ()
