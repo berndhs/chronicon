@@ -668,7 +668,6 @@ NetworkIF::PushUserStatusOA (QString status, QString refId)
 {
   QOAuth::ParamMap  paramContent;
   QByteArray update = QUrl::toPercentEncoding (status.toUtf8());
-qDebug () << " update text " << update;
   paramContent.insert ("status",update);
   if (refId.length() > 0) {
      paramContent.insert ("in_reply_to_status_id",refId.toUtf8());
@@ -693,6 +692,17 @@ qDebug () << " updare auth header " << req.rawHeader ("Authorization");
 void
 NetworkIF::PushDelete (QString id)
 {
+  if (oauthMode) {
+    PushDeleteOA (id);
+  } else {
+    PushDeleteBasic (id);
+  }
+}
+
+
+void
+NetworkIF::PushDeleteBasic (QString id)
+{
   QString urlString (Service ("statuses/destroy.xml?id=%1"));
   QUrl url (urlString.arg(id));
   QNetworkRequest  req(url);
@@ -706,9 +716,63 @@ NetworkIF::PushDelete (QString id)
   ExpectReply (reply, chReply);
 }
 
+void
+NetworkIF::PushDeleteOA (QString id)
+{
+  QOAuth::ParamMap  paramContent;
+  paramContent.insert ("id",id.toUtf8());
+  QString urlStr = OAuthService ("statuses/destroy.xml");
+  QNetworkRequest req;
+  oauthForPost (req, urlStr, paramContent);
+
+  DebugShow (req);
+  QUrl url (urlStr);
+  req.setUrl (url);
+  QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
+  QNetworkReply * reply = Network()->post (req, content);  
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  chronicon::R_Update); 
+  ExpectReply (reply, chReply);
+qDebug () << " delete OAuth for " << reply->url();
+qDebug () << " delete auth header " << req.rawHeader ("Authorization");
+}
+
 
 void
 NetworkIF::ReTweet (QString id)
+{
+  if (oauthMode) {
+    ReTweetOA (id);
+  } else {
+    ReTweetBasic (id);
+  }
+}
+void
+NetworkIF::ReTweetOA (QString id)
+{
+  QOAuth::ParamMap  paramContent;
+  QString urlStr = OAuthService ("statuses/retweet/%1.xml").arg(id);
+  QNetworkRequest req;
+  oauthForPost (req, urlStr, paramContent);
+
+  DebugShow (req);
+  QUrl url (urlStr);
+  req.setUrl (url);
+  QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
+  QNetworkReply * reply = Network()->post (req, content);  
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  chronicon::R_Update); 
+  ExpectReply (reply, chReply);
+qDebug () << " retweet OAuth for " << reply->url();
+qDebug () << " retweet auth header " << req.rawHeader ("Authorization");
+}
+
+
+
+void
+NetworkIF::ReTweetBasic (QString id)
 {
   QString urlString (Service ("statuses/retweet/%1.xml"));
   QUrl url (urlString.arg(id));

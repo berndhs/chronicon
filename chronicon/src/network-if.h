@@ -115,6 +115,10 @@ private:
   void PushUserStatusBasic (QString status, QString refId);
   void PullTimelineOA ();
   void PullTimelineBasic ();
+  void PushDeleteOA (QString id);
+  void PushDeleteBasic (QString id);
+  void ReTweetOA (QString id);
+  void ReTweetBasic (QString id);
   void ParseTwitterDoc (QDomDocument &doc, TimelineKind kind);
   void ParseUpdate (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);
