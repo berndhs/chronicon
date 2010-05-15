@@ -32,14 +32,10 @@
 #include "status-block.h"
 #include "network-if.h"
 #include "minipage.h"
+#include "link-mangle.h"
 #include <map>
 
 namespace chronicon {
-
-
-void HttpAnchor (QString & anchor, QString  ref);
-void TwitAtAnchor (QString & anchor , QString  ref);
-void TwitHashAnchor (QString & anchor, QString ref);
 
 class TimelineView : public QObject {
 
@@ -74,8 +70,6 @@ private:
   void PopupNotify (QString id, StatusBlock & block);
   void CustomLink (const QUrl & url);
   QString FormatTextBlock (const QString & text);
-  QString Anchorize (const QString & text, QRegExp regular, 
-                           void (*anchorFunc)(QString&, QString));
 
   void FlushParagraphs ();
   void HtmlStyles ();

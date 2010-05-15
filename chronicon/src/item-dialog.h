@@ -47,6 +47,7 @@ public:
 public slots:
 
   void Exec (QString id, StatusBlock block, QString itemHtml);
+  void LinkClicked (const QUrl & url);
 
 private slots:
 
@@ -69,6 +70,8 @@ private:
   void SetupMenus ();
 
   void PlainText (QString & plain, const StatusBlock & block);
+
+  QString UserInfoHtml ();
 
   NetworkIF   *network;
 

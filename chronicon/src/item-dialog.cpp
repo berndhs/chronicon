@@ -21,10 +21,13 @@
 
 #include "item-dialog.h"
 #include "deliberate.h"
+#include "link-mangle.h"
 #include <QDesktopServices>
+#include <QWebPage>
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <QUrl>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
@@ -44,6 +47,12 @@ ItemDialog::ItemDialog (QWidget *parent)
 
   connect (cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
   connect (actionButton, SIGNAL (clicked()), this, SLOT (ActionMenu()));
+  connect (itemView, SIGNAL (linkClicked (const QUrl&)),
+             this, SLOT (LinkClicked (const QUrl&)));
+  QWebPage *myPage = itemView->page();
+  if (myPage) {
+    myPage->setLinkDelegationPolicy (QWebPage::DelegateAllLinks);
+  }
 }
 
 void
@@ -60,7 +69,7 @@ ItemDialog::SetupMenus ()
 void
 ItemDialog::ActionMenu ()
 {
-  actionMenu.SetPos (mapToGlobal(itemView->pos()));
+  actionMenu.SetPos (mapToGlobal(actionButton->pos()));
   QTimer::singleShot (50, &actionMenu, SLOT (Popup()));
 }
 
@@ -74,7 +83,7 @@ ItemDialog::HtmlStyles ()
   headPattern = QString ("<head><title>Tweet List</title><meta http-equiv="
              "\"Content-Type\" content=\"text/html;charset=utf-8\" >%1</head>");
   headStyle = QString ("<style type=\"text/css\"> body { background-color:#e0e0e0;} "
-                 "p { font-size:10pt; background-color:%1; "
+                 "p { font-size:small; background-color:%1; "
                     " padding:2px; margin:2x; "
                     " font-family:Times New Roman; } </style>");
   head = headPattern.arg (headStyle.arg(statusBackgroundColor));
@@ -139,6 +148,7 @@ ItemDialog::Exec  (QString id, StatusBlock  block, QString itemHtml)
   html.append (itemHead);
   html.append ("<body>");
   html.append (itemHtml);
+  html.append (UserInfoHtml());
   html.append ("</body>");
   html.append ("</html>");
   itemView->setHtml (html);
@@ -158,6 +168,35 @@ ItemDialog::PlainText (QString & plain, const StatusBlock & block)
   plain.append (block.Value("created_at"));
   plain.append ("\n\n");
   plain.append (block.Value ("text"));
+}
+
+QString
+ItemDialog::UserInfoHtml ()
+{
+  QString html;
+  html.append ("<div style=\"font-size:small;\">");
+  html.append (tr("<p>Message Id %1</p>").arg(itemBlock.Value("id")));
+  html.append (tr("<p>User Info:"));
+  html.append ("<ul>");
+  html.append (tr("<li>User %1 (%2) id %3</li>")
+                   .arg(itemBlock.UserValue("screen_name"))
+                   .arg(itemBlock.UserValue("name"))
+                   .arg(itemBlock.UserValue("id")));
+  html.append (tr("<li>Time Zone: %1</li>")
+                 .arg(itemBlock.UserValue("time_zone")));
+
+  QString site = itemBlock.UserValue("url");
+  void (*anchorFunc) (QString&, QString);
+  QString siteHttp = LinkMangle::Anchorize (site + QString(" "), 
+                             QRegExp ("(https?://)(\\S*)"), 
+                             chronicon::LinkMangle::HttpAnchor);
+  html.append (tr("<li>Site: %1</li>").arg(siteHttp));
+  html.append (
+     tr("<li>Bio: <span style=\"font-style:italic;\">%1</span></li>")
+       .arg(itemBlock.UserValue("description")));
+  html.append ("</ul></p>");
+  html.append("</div>");
+  return html;
 }
 
 void
@@ -200,7 +239,6 @@ ItemDialog::Log ()
   doc.setContent (emptyDoc);
   QDomElement root = doc.documentElement ();
   root.appendChild (elt);
-  qDebug () << " new XML doc is " << doc.toString ();
   accept ();
 }
 
@@ -267,10 +305,18 @@ ItemDialog::Delete ()
 void
 ItemDialog::Direct ()
 {
-qDebug () << __FILE__ << __LINE__ << " direct";
   reject ();
   QString screen_name = itemBlock.UserValue ("screen_name");
   emit MakeDirect (screen_name);
+}
+
+void
+ItemDialog::LinkClicked (const QUrl & url)
+{
+qDebug () << " clicked on link " << url;
+  if (url.isValid()) {
+    QDesktopServices::openUrl (url);
+  }
 }
 
 

@@ -151,53 +151,6 @@ TimelineView::ClearList ()
   Show ();
 }
 
-#if 0
-void
-TimelineView::LinkHover ( const QString & link, 
-                   const QString & title, 
-                   const QString & textContent )
-{
-  QUrl url (link);
-  if (url.isValid()) {
-    QString scheme = url.scheme();
-    if (scheme == "chronicon" && url.host() == "status") {
-      ToolTipItemDetail();
-    }
-  }
-}
-
-
-void
-TimelineView::ToolTipItemDetail ()
-{
-  static bool isOff (true);
-qDebug () << " tool tip " << isOff;
-  if (isOff) {
-    QString helpText (tr("Click for Item Actions"));
-    helpText.prepend (' ');
-    helpText.append (' ');
-    if (detailTip == 0) {
-      detailTip = new QLineEdit (helpText,parentWidget);
-      detailTip->setReadOnly (true);
-      detailTip->setFrame (false);
-    } else {
-      detailTip->setText (helpText);
-    }
-    QFontMetrics fm = detailTip->fontMetrics();
-    QSize sz = fm.size (0,helpText);
-    detailTip->resize (sz);
-    QPoint local (parentWidget->mapFromGlobal (QCursor::pos()));
-    detailTip->move (local);
-    detailTip->show ();
-    isOff = false;
-  } else {
-    if (detailTip) {
-      detailTip->hide();
-    }
-    isOff = true;
-  }
-}
-#endif
 
 /** \LinkClicked - Chronicon has internal links, the syntax is
  *                chronicon://status/item#statusid
@@ -345,79 +298,19 @@ TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
 
 QString 
 TimelineView::FormatTextBlock (const QString & text)
-{
-  void (*anchorFunc) (QString&, QString);
-  anchorFunc = &chronicon::HttpAnchor;
-  QString subHttp = Anchorize (text + QString(" "), 
+{\
+  QString subHttp = LinkMangle::Anchorize (text + QString(" "), 
                              QRegExp ("(https?://)(\\S*)"), 
-                             anchorFunc);
-  anchorFunc = &chronicon::TwitAtAnchor;
-  QString subAt = Anchorize (subHttp, 
+                             chronicon::LinkMangle::HttpAnchor);\
+  QString subAt = LinkMangle::Anchorize (subHttp, 
                              QRegExp ("@(\\S*)"),
-                             anchorFunc);
-  anchorFunc = &chronicon::TwitHashAnchor;
-  QString subHash = Anchorize (subAt, 
+                             chronicon::LinkMangle::TwitAtAnchor);\
+  QString subHash = LinkMangle::Anchorize (subAt, 
                              QRegExp ("#(\\S*)"),
-                             anchorFunc);
+                             chronicon::LinkMangle::TwitHashAnchor);
   QString span  ("<span style=\"font-size:%2;\">%1</span>");
   return span.arg(subHash).arg(fontSize);
 }
-
-QString
-TimelineView::Anchorize (const QString &text, QRegExp regular, 
-                         void (*anchorFunc)(QString&, QString))
-{
-  int where;
-  int offset(0);
-  int lenSub;
-  QString newtext;
-  QString chunk;
-  while ((where  = regular.indexIn (text,offset)) >= 0) {
-    lenSub = regular.matchedLength();
-    chunk = text.mid (offset, where - offset);
-    newtext.append (chunk);
-    QString anchor;
-    (*anchorFunc) (anchor, regular.cap(0));
-    newtext.append (anchor);
-    offset = where + lenSub;
-  }
-  chunk = text.mid (offset,-1);
-  newtext.append (chunk);
-  return newtext;
-}
-
-void
-HttpAnchor (QString & anchor, QString ref)
-{
-  anchor =  QString("<a href=\"%1\">%1</a>").arg(ref);
-}
-
-void
-TwitAtAnchor (QString & anchor, QString ref)
-{
-  if (ref.length() == 1) {
-    anchor = ref;
-    return;
-  }
-  QString text(ref);
-  if (ref.endsWith(':')) {
-    ref.chop(1);
-  }
-  anchor = QString ("@<a href=\"http://twitter.com/%1\">%2</a>")
-                 .arg (ref.mid(1)).arg(text.mid(1));
-}
-
-void
-TwitHashAnchor (QString & anchor, QString ref)
-{
-  if (ref.length() == 1) {
-    anchor = ref;
-    return;
-  }
-  anchor = QString ("<a href=\"chronicon://search/q#%1\">%1</a>")
-                   .arg(ref);
-}
-
 QString
 TimelineView::Ago (int secs)
 {
