@@ -23,9 +23,9 @@
  ****************************************************************/
 
 #include <QMenu>
-#include <QAction>
 
 class QEvent;
+class QAction;
 
 namespace chronicon {
 
@@ -36,12 +36,13 @@ public:
 
   ChMenu  (QWidget *parent);
   
-  void SetPos (QPoint globalPos) { position = globalPos; }
+  QAction* Exec ();
+
+  void SetPos (QPoint globalPos);
 
 public slots:
 
-  QAction* Exec () { return exec (position); }
-  void Popup () { popup (position); }
+  void Popup ();
 
 
 protected:

@@ -20,12 +20,31 @@
  ****************************************************************/
 
 #include "ch-menu.h"
+#include <QAction>
 
 namespace chronicon {
 
 ChMenu::ChMenu (QWidget *parent)
 :QMenu(parent)
 {
+}
+
+void
+ChMenu::SetPos (QPoint globalPos)
+{ 
+  position = globalPos; 
+}
+
+QAction*
+ChMenu::Exec ()
+{ 
+  return exec (position);
+}
+
+void
+ChMenu::Popup ()
+{ 
+  popup (position); 
 }
 
 void
