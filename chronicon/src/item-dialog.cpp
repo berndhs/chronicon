@@ -252,9 +252,9 @@ void
 ItemDialog::Direct ()
 {
 qDebug () << __FILE__ << __LINE__ << " direct";
+  reject ();
   QString screen_name = itemBlock.UserValue ("screen_name");
   emit MakeDirect (screen_name);
-  reject ();
 }
 
 

@@ -1,5 +1,3 @@
-
-#include "helpview.h"
 /****************************************************************
  * This file is distributed under the following license:
  *
@@ -21,67 +19,22 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#include "delib-debug.h"
-#include <QFile>
-#include <QString>
+#include "ch-menu.h"
 
-namespace deliberate {
+namespace chronicon {
+
+ChMenu::ChMenu (QWidget *parent)
+:QMenu(parent)
+{
+}
+
+void
+ChMenu::leaveEvent (QEvent *event)
+{
+  hide();
+  QMenu::leaveEvent (event);
+}
 
 
- HelpView::HelpView (QWidget *parent)
- :QDialog(parent)
- {
-   setupUi (this);
-   ConnectButtons ();
-   hide();
- }
-
- HelpView::~HelpView ()
- {
- 
- }
- 
- void
- HelpView::update ()
- {
-   box->update ();
-   QWidget::update ();
- }
-
- void 
- HelpView::ConnectButtons ()
- {
-   connect (closeButton, SIGNAL (clicked()), this, SLOT (DoClose()));
-   connect (backButton, SIGNAL (clicked()), this, SLOT (DoBack()));
-   connect (forwardButton, SIGNAL (clicked()), this, SLOT (DoForward()));
- }
-
- void
- HelpView::DoClose ()
- {
-   hide();
- }
- 
- void
- HelpView::DoBack ()
- {
-   box->back();
- }
- 
- void
- HelpView::DoForward ()
- {
-   box->forward();
- }
- 
- void
- HelpView::Show (QString urlString)
- {
-   QUrl url(urlString);
-   box->load (url);
-   show ();
- }
- 
-} // namespace
-
+}
 

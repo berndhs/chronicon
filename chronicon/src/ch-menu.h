@@ -1,5 +1,6 @@
+#ifndef CH_MENU_H
+#define CH_MENU_H
 
-#include "helpview.h"
 /****************************************************************
  * This file is distributed under the following license:
  *
@@ -21,67 +22,41 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#include "delib-debug.h"
-#include <QFile>
-#include <QString>
+#include <QMenu>
+#include <QAction>
 
-namespace deliberate {
+class QEvent;
 
+namespace chronicon {
 
- HelpView::HelpView (QWidget *parent)
- :QDialog(parent)
- {
-   setupUi (this);
-   ConnectButtons ();
-   hide();
- }
+class ChMenu : public QMenu {
+Q_OBJECT
 
- HelpView::~HelpView ()
- {
- 
- }
- 
- void
- HelpView::update ()
- {
-   box->update ();
-   QWidget::update ();
- }
+public:
 
- void 
- HelpView::ConnectButtons ()
- {
-   connect (closeButton, SIGNAL (clicked()), this, SLOT (DoClose()));
-   connect (backButton, SIGNAL (clicked()), this, SLOT (DoBack()));
-   connect (forwardButton, SIGNAL (clicked()), this, SLOT (DoForward()));
- }
+  ChMenu  (QWidget *parent);
+  
+  void SetPos (QPoint globalPos) { position = globalPos; }
 
- void
- HelpView::DoClose ()
- {
-   hide();
- }
- 
- void
- HelpView::DoBack ()
- {
-   box->back();
- }
- 
- void
- HelpView::DoForward ()
- {
-   box->forward();
- }
- 
- void
- HelpView::Show (QString urlString)
- {
-   QUrl url(urlString);
-   box->load (url);
-   show ();
- }
- 
-} // namespace
+public slots:
+
+  QAction* Exec () { return exec (position); }
+  void Popup () { popup (position); }
 
 
+protected:
+
+  void leaveEvent (QEvent *event);
+
+
+private:
+
+  QPoint  position;
+
+
+};
+
+}
+
+
+#endif

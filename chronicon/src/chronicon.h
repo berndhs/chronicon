@@ -42,6 +42,7 @@
 #include "helpview.h"
 #include "shortener.h"
 #include "direct-dialog.h"
+#include "ch-menu.h"
 
 using namespace deliberate;
 
@@ -70,6 +71,10 @@ public slots:
 private slots:
 
   void ReStart ();
+
+  void startHelpMenu ();
+  void startStartMenu ();
+  void startActionMenu ();
 
   void startMessage ();
   void startMessage (QString msg, QString oldId);
@@ -103,11 +108,11 @@ protected:
 
 private:
 
-
   void BigEdit ();
   void SmallEdit ();
   void Connect ();
   void SetupTimers (bool debug=false);
+  void SetupMenus ();
   void LabelSecs (int secs);
   
   int  normalEditVertical;
@@ -122,6 +127,11 @@ private:
 
   TimelineView  theView;
   TimelineKind  currentView;
+
+  ChMenu        startMenu;
+  ChMenu        actionMenu;
+  ChMenu        helpMenu;
+
   ItemDialog    itemDialog;
   HelpView      helpView;
   ConfigEdit    configEdit;

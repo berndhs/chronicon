@@ -73,6 +73,7 @@ HEADERS = src/chronicon.h \
           src/direct-dialog.h \
           src/shortener.h \
           src/login-dialog.h \
+          src/ch-menu.h \
           src/weblogin.h \
           src/webauth.h \
           src/minipage.h \
@@ -97,6 +98,7 @@ SOURCES = src/main.cpp \
           src/direct-dialog.cpp \
           src/shortener.cpp \
           src/login-dialog.cpp \
+          src/ch-menu.cpp \
           src/weblogin.cpp \
           src/webauth.cpp \
           src/minipage.cpp \

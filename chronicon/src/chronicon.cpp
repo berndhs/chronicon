@@ -48,6 +48,9 @@ Chronicon::Chronicon (QWidget *parent)
  network (this),
  theView (this),
  currentView (R_Public),
+ startMenu (this),
+ actionMenu (this),
+ helpMenu (this),
  itemDialog (this),
  helpView (this),
  configEdit (this),
@@ -62,6 +65,7 @@ Chronicon::Chronicon (QWidget *parent)
   normalEditVertical = ownMessage->sizePolicy().verticalStretch();
 
   Connect ();
+  SetupMenus ();
   SetupTimers (true);
   network.SetUserAgent (Settings().value("program").toString());
 
@@ -81,17 +85,7 @@ Chronicon::RunAgain ()
 void
 Chronicon::Connect ()
 {
-  connect (actionQuit, SIGNAL (triggered()), this, SLOT (quit()));
-  connect (actionLogin, SIGNAL (triggered()), &network, SLOT (login()));
-  connect (actionAutoLogin, SIGNAL (triggered()),
-            this, SLOT (AutoLogin()));
-  connect (actionConfigure, SIGNAL (triggered()), this, SLOT (Configure()));
 
-  connect (actionNewUpdate, SIGNAL (triggered()), this, SLOT (startMessage()));
-  connect (actionRestart, SIGNAL (triggered()), this, SLOT (ReStart()));
-  connect (actionAbout, SIGNAL (triggered()), this, SLOT (About()));
-  connect (actionManual, SIGNAL (triggered()), this, SLOT (Manual()));
-  connect (actionLicense, SIGNAL (triggered()), this, SLOT (License()));
 
   connect (typeButton, SIGNAL (clicked()), this, SLOT (startMessage()));
   connect (updateButton, SIGNAL (clicked()), this, SLOT (RePoll()));
@@ -125,6 +119,7 @@ Chronicon::Connect ()
 
   connect (&shortener, SIGNAL (DoneShortening (QString )),
            this, SLOT (ReallyFinishMessage (QString)));
+
 }
 
 void
@@ -143,11 +138,61 @@ Chronicon::SetupTimers (bool debug)
 }
 
 void
+Chronicon::SetupMenus ()
+{
+
+  /** start/stop menu */
+
+  menubar->addAction (tr("Start/Stop..."), this, SLOT (startStartMenu()));
+  startMenu.addAction (tr("Login"), &network, SLOT (login()));
+  startMenu.addAction (tr("Auto Login"), this, SLOT (AutoLogin()));
+  startMenu.addAction (tr("Configure"), this, SLOT (Configure()));
+  startMenu.addAction (tr("Restart"), this, SLOT (ReStart()));
+  startMenu.addAction (tr("Quit"), this, SLOT (quit()));
+
+  /** action menu */
+
+  menubar->addAction (tr("Actions..."), this, SLOT (startActionMenu()));
+  actionMenu.addAction (tr("New Update"), this, SLOT (startMessage()));
+
+
+  /** Help Menu */
+  menubar->addAction (tr("Help..."), this, SLOT (startHelpMenu()));
+  helpMenu.addAction (tr("About"), this, SLOT (About()));
+  helpMenu.addAction (tr("Manual"), this, SLOT (Manual()));
+  helpMenu.addAction (tr("License"), this, SLOT (License()));
+}
+
+void
+Chronicon::startStartMenu ()
+{
+  startMenu.SetPos (QCursor::pos());
+  QTimer::singleShot (50, &startMenu, SLOT (Popup()));
+}
+
+void
+Chronicon::startActionMenu ()
+{
+  actionMenu.SetPos (QCursor::pos());
+  QTimer::singleShot (50, &actionMenu, SLOT (Popup()));
+}
+
+
+
+void
+Chronicon::startHelpMenu ()
+{
+  helpMenu.SetPos (QCursor::pos());
+  QTimer::singleShot (50, &helpMenu, SLOT (Popup()));
+}
+
+void
 Chronicon::ReStart ()
 {
   rerun = true;
   quit();
 }
+
 
 void
 Chronicon::Start ()
