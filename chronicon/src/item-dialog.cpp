@@ -27,6 +27,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTimer>
 
 using namespace deliberate;
 
@@ -34,18 +35,33 @@ namespace chronicon {
 
 ItemDialog::ItemDialog (QWidget *parent)
 :QDialog(parent),
- network(0)
+ network(0),
+ actionMenu (this)
 {
   setupUi (this);
   HtmlStyles ();
+  SetupMenus ();
 
   connect (cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
-  connect (emailButton,  SIGNAL (clicked()), this, SLOT (Mailto()));
-  connect (retweetButton,SIGNAL (clicked()), this, SLOT (ReTweet()));
-  connect (addMsgButton, SIGNAL (clicked()), this, SLOT (AddMessage ()));
-  connect (saveButton,   SIGNAL (clicked()), this, SLOT (Save()));
-  connect (deleteButton, SIGNAL (clicked()), this, SLOT (Delete()));
-  connect (directButton, SIGNAL (clicked()), this, SLOT (Direct()));
+  connect (actionButton, SIGNAL (clicked()), this, SLOT (ActionMenu()));
+}
+
+void
+ItemDialog::SetupMenus ()
+{
+  actionMenu.addAction (tr("E-Mail"), this, SLOT (Mailto()));
+  actionMenu.addAction (tr("ReTweet"), this, SLOT (ReTweet()));
+  actionMenu.addAction (tr("ReTweet-Plus"), this, SLOT (AddMessage()));
+  actionMenu.addAction (tr("Save Message"), this, SLOT (Save()));
+  actionMenu.addAction (tr("Delete My Message"), this, SLOT (Delete()));
+  actionMenu.addAction (tr("Send Direct Message"), this, SLOT (Direct()));
+}
+
+void
+ItemDialog::ActionMenu ()
+{
+  actionMenu.SetPos (mapToGlobal(itemView->pos()));
+  QTimer::singleShot (50, &actionMenu, SLOT (Popup()));
 }
 
 void

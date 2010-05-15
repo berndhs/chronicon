@@ -29,6 +29,7 @@
 
 #include "network-if.h"
 #include "timeline-view.h"
+#include "ch-menu.h"
 
 namespace chronicon {
 
@@ -56,6 +57,7 @@ private slots:
   void AddMessage ();
   void Delete   ();
   void Direct   ();
+  void ActionMenu ();
 
 signals:
 
@@ -64,9 +66,13 @@ signals:
 
 private:
 
+  void SetupMenus ();
+
   void PlainText (QString & plain, const StatusBlock & block);
 
   NetworkIF   *network;
+
+  ChMenu      actionMenu;
 
   QString       itemId;
   StatusBlock   itemBlock;
