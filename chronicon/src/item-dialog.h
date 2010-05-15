@@ -55,10 +55,12 @@ private slots:
   void ReTweet  ();
   void AddMessage ();
   void Delete   ();
+  void Direct   ();
 
 signals:
 
   void SendMessage (QString msg, QString refId);
+  void MakeDirect  (QString toName);
 
 private:
 

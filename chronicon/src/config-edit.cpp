@@ -47,6 +47,7 @@ ConfigEdit::ConfigEdit (QWidget * parent)
 
   exemptGroups << "sizes" ;
   exemptGroups << "oauth";
+  exemptGroups << "logins";
 }
 
 ConfigEdit::~ConfigEdit ()

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>204</height>
+    <width>376</width>
+    <height>212</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,6 +110,13 @@
        </property>
        <property name="text">
         <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="directButton">
+       <property name="text">
+        <string>Direct Message</string>
        </property>
       </widget>
      </item>

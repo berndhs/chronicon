@@ -28,6 +28,7 @@
 #endif
 #include <QAuthenticator>
 #include <QTimer>
+#include <QUuid>
 #include "delib-debug.h"
 #include <map>
 #include "chronicon-types.h"
@@ -72,7 +73,7 @@ public:
   QUrl    ServiceUrl (QString path=QString());
   QString OAuthService (QString path=QString());
 
-  void ShortenHttp (int tag, QStringList httpList);
+  void ShortenHttp (QUuid tag, QStringList httpList);
 
 public slots:
   
@@ -91,13 +92,14 @@ public slots:
                      QAuthenticator * authenticator);
   void bitlyAuthProvide (QNetworkReply * reply,
                      QAuthenticator * authenticator);
+  void DirectMessage (QString toName, QString msg);
 
 signals:
 
   void NewStatusItem (StatusBlock item, TimelineKind kind);
   void ReplyComplete (TimelineKind kind);
   void RePoll (TimelineKind kind);
-  void ShortenReply (int tag, QString shortUrl, QString longUrl, bool good);
+  void ShortenReply (QUuid tag, QString shortUrl, QString longUrl, bool good);
   void ClearList ();
   void TwitterAuthGood ();
   void TwitterAuthBad ();
@@ -110,7 +112,7 @@ private:
   QNetworkAccessManager *Network ();
 
   void ConnectNetwork ();
-  void AskBitly (int tag, QString http);
+  void AskBitly (QUuid tag, QString http);
   void plainLogin (int *reply);
   void webLogin   (int *reply);
 
@@ -120,6 +122,8 @@ private:
 
   void PushUserStatusOA (QString status, QString refId);
   void PushUserStatusBasic (QString status, QString refId);
+  void DirectMessageOA (QString toName, QString msg);
+  void DirectMessageBasic (QString toName, QString msg);
   void PullTimelineOA ();
   void PullTimelineBasic ();
   void PushDeleteOA (QString id);

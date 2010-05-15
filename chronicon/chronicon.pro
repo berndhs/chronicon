@@ -46,15 +46,18 @@ MAKEFILE = MakeChron
 UI_DIR = tmp/ui
 OBJECTS_DIR = tmp/obj
 MOC_DIR = tmp/moc
+RCC_DIR = tmp/rcc
 
 RESOURCES += chronicon.qrc
 
 INCLUDEPATH += src 
-INCLUDEPATH += /home/bernd/mywork/qoauth/include
+#INCLUDEPATH += /home/bernd/mywork/ch-qoauth/include
 INCLUDEPATH += /usr/include/QtCrypto
+INCLUDEPATH += /usr/include/QtOAuth
 INCLUDEPATH += temp/ui
 
-LIBS += -L../../qoauth/lib -lqoauth
+#LIBS += -L../../qoauth/lib -lqoauth
+LIBS += -lqoauth
 
 HEADERS = src/chronicon.h \
           src/chron-textedit.h \
@@ -67,6 +70,8 @@ HEADERS = src/chronicon.h \
           src/status-block.h \
           src/deliberate.h \
           src/item-dialog.h \
+          src/direct-dialog.h \
+          src/shortener.h \
           src/login-dialog.h \
           src/weblogin.h \
           src/webauth.h \
@@ -89,6 +94,8 @@ SOURCES = src/main.cpp \
           src/status-block.cpp \
           src/deliberate.cpp \
           src/item-dialog.cpp \
+          src/direct-dialog.cpp \
+          src/shortener.cpp \
           src/login-dialog.cpp \
           src/weblogin.cpp \
           src/webauth.cpp \
@@ -104,6 +111,8 @@ FORMS = ui/chronicon.ui \
         ui/itemdetail.ui \
         ui/helpwin.ui \
         ui/config-edit.ui \
+        ui/directmsg.ui \
+
 
 
 

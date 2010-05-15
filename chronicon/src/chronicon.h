@@ -40,6 +40,8 @@
 #include "config-edit.h"
 #include "version.h"
 #include "helpview.h"
+#include "shortener.h"
+#include "direct-dialog.h"
 
 using namespace deliberate;
 
@@ -57,19 +59,22 @@ void SetApp (QApplication *a) {pApp = a;}
 
 void Start ();
 
+bool RunAgain ();
+
 public slots:
 
   void quit ();
   void PollComplete (TimelineKind kind);
-  void CatchShortening (int tag, QString shortUrl, QString longUrl, bool good);
+  void ReallyFinishMessage (QString msg);
 
 private slots:
+
+  void ReStart ();
 
   void startMessage ();
   void startMessage (QString msg, QString oldId);
   void finishMessage ();
   void discardMessage ();
-
   void AutoLogin ();
 
   void NotYet ();
@@ -98,17 +103,13 @@ protected:
 
 private:
 
-  void ShortenHttp (QString status);
-  void ReallyFinishMessage (QString msg);
 
   void BigEdit ();
   void SmallEdit ();
   void Connect ();
   void SetupTimers (bool debug=false);
   void LabelSecs (int secs);
-#if USE_OAUTH
-  void ReadRSA (QCA::SecureArray & secure);
-#endif  
+  
   int  normalEditVertical;
   QTimer  pollTimer;
   int     pollPeriod;
@@ -124,15 +125,13 @@ private:
   ItemDialog    itemDialog;
   HelpView      helpView;
   ConfigEdit    configEdit;
+  Shortener     shortener;
+  DirectDialog  directDialog;
 
   QApplication * pApp;
 
-  int      shortenTag;
+  bool     rerun;
 
-  typedef std::map <int, QStringList>  UpdatePartsMap;
-
-  UpdatePartsMap    messageParts;
-  UpdatePartsMap    linkParts;
   QString           inReplyTo;
 
 #if USE_OAUTH

@@ -543,7 +543,7 @@ NetworkIF::ParseStatus (QDomElement & elt, TimelineKind kind)
 }
 
 void
-NetworkIF::ShortenHttp (int tag, QStringList httpList)
+NetworkIF::ShortenHttp (QUuid tag, QStringList httpList)
 {
   QStringList::iterator index;
   for (index = httpList.begin(); index != httpList.end(); index++) {
@@ -553,7 +553,7 @@ NetworkIF::ShortenHttp (int tag, QStringList httpList)
 }
 
 void
-NetworkIF::AskBitly (int tag, QString http)
+NetworkIF::AskBitly (QUuid tag, QString http)
 {
   QString request 
         ("http://api.bit.ly/v3/shorten");
@@ -569,8 +569,6 @@ NetworkIF::AskBitly (int tag, QString http)
   BitlyNetworkReply * bitlyReply = 
               new BitlyNetworkReply (url, reply, tag);
   ExpectReply (reply, bitlyReply);
-qDebug () << __FILE__ << __LINE__ << " bitly request " << req.url();
-qDebug () << " uri for bitly request: " << req.url().allEncodedQueryItemValues("uri");
 }
 
 
@@ -598,7 +596,6 @@ NetworkIF::PullTimelineBasic ()
                                                   reply, 
                                                   serviceKind);
   ExpectReply (reply, chReply);
-qDebug () << " pull Basic for " << reply->url();
 }
 
 void
@@ -690,6 +687,48 @@ NetworkIF::PushUserStatusOA (QString status, QString refId)
   }
   QString urlStr = OAuthService ("statuses/update.xml");
   PostOA (urlStr, paramContent, R_Update);
+}
+
+void
+NetworkIF::DirectMessage (QString toName, QString msg)
+{
+  if (oauthMode) {
+    DirectMessageOA (toName, msg);
+  } else {
+    DirectMessageBasic (toName, msg);
+  }
+}
+
+void
+NetworkIF::DirectMessageBasic (QString toName, QString msg)
+{
+  QString urlString (Service ("direct_messages/new.xml"));
+  QUrl  url (urlString);
+  url.addQueryItem ("screen_name",toName);
+  QByteArray encoded = QUrl::toPercentEncoding (msg);
+  url.addEncodedQueryItem ("text",encoded);
+  QNetworkRequest req (url);
+  QByteArray nada;
+
+  req.setRawHeader ("User-Agent","Chronicon WebKit");
+  DebugShow (req);
+  QNetworkReply * reply = Network()->post (req,nada);
+
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  chronicon::R_Update); 
+  ExpectReply (reply, chReply);
+}
+
+void
+NetworkIF::DirectMessageOA (QString toName, QString msg)
+{
+  QOAuth::ParamMap  paramContent;
+  paramContent.insert ("screen_name",QUrl::toPercentEncoding (toName.toUtf8()));
+  QByteArray update = QUrl::toPercentEncoding (msg.toUtf8());
+  paramContent.insert ("text",update);
+  QString urlString (OAuthService ("direct_messages/new.xml"));
+  PostOA (urlString, paramContent, R_Update);
 }
 
 void

@@ -72,20 +72,25 @@ main (int argc, char * argv[])
 
   deliberate::UseMyOwnMessageHandler ();
   deliberate::StartDebugLog (showDebug);
+  bool runit (true);
+  int status (1);
+  while (runit) {
+  
+    chronicon::Chronicon chron;
 
-  chronicon::Chronicon chron;
-
-  int maxitems (100);
-  maxitems = settings.value("view/maxitems",maxitems).toInt();
-  opts.SetIntOpt ("view/maxitems",maxitems);
-  settings.setValue ("view/maxitems",maxitems);
+    int maxitems (100);
+    maxitems = settings.value("view/maxitems",maxitems).toInt();
+    opts.SetIntOpt ("view/maxitems",maxitems);
+    settings.setValue ("view/maxitems",maxitems);
  
-  chron.SetApp (&App);
-  chron.Start ();
+    chron.SetApp (&App);
+    chron.Start ();
 
-  int status = App.exec ();
-  if (showDebug ) {
-    deliberate::SaveStaticLog ("/tmp/chronicon-debug.log");
+    status = App.exec ();
+    if (showDebug ) {
+      deliberate::SaveStaticLog ("/tmp/chronicon-debug.log");
+    }
+    runit = chron.RunAgain();
   }
   return status;
 }

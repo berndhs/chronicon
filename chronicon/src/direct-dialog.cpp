@@ -1,3 +1,4 @@
+
 /****************************************************************
  * This file is distributed under the following license:
  *
@@ -19,41 +20,60 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#include "bitly-network-reply.h"
+#include "direct-dialog.h"
+#include "shortener.h"
 #include "delib-debug.h"
-#include <QUuid>
-
 
 namespace chronicon {
 
-BitlyNetworkReply::BitlyNetworkReply (QUrl & theUrl, 
-                                      QNetworkReply * qnr,
-                                      QUuid tag)
-:url(theUrl),
- reply(qnr),
- id (tag)
-{}
-
-void
-BitlyNetworkReply::handleReturn ()
+DirectDialog::DirectDialog (QWidget *parent)
+:QDialog (parent),
+ network (0),
+ shortener (this)
 {
-  emit Finished (this);
+  ui.setupUi (this);
+  connect (ui.cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
+  connect (ui.sendButton, SIGNAL (clicked()), this, SLOT (SendMessage()));
+  connect (&shortener, SIGNAL (DoneShortening (QString)),
+             this, SLOT (CatchShort (QString)));
 }
 
 void
-BitlyNetworkReply::Abort ()
-{ 
-  if (reply) {
-    reply->abort();
+DirectDialog::SetNetwork (NetworkIF* net)
+{
+  shortener.SetNetwork (net);
+  network = net;
+}
+
+
+void
+DirectDialog::WriteMessage (QString toName)
+{
+  destUserName = toName;
+  ui.nameEdit->setText (toName);
+  ui.nameEdit->setReadOnly (true);
+  ui.messageEdit->clear();
+  exec ();
+}
+
+void
+DirectDialog::SendMessage ()
+{
+  QString body = ui.messageEdit->toPlainText ();
+  bool wait;
+  shortener.ShortenHttp (body, wait);
+  if (!wait) {
+    emit SendDirect (destUserName, body);
+    accept ();
   }
 }
 
 void
-BitlyNetworkReply::Close ()
+DirectDialog::CatchShort (QString shortMsg)
 {
-  if (reply) {
-    reply->close ();
-  }
+  ui.messageEdit->setPlainText (shortMsg);
+  emit SendDirect (destUserName, shortMsg);
+  accept ();
 }
 
 } // namespace

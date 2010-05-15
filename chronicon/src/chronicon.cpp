@@ -51,8 +51,10 @@ Chronicon::Chronicon (QWidget *parent)
  itemDialog (this),
  helpView (this),
  configEdit (this),
+ shortener (this),
+ directDialog (this),
  pApp(0),
- shortenTag (1)
+ rerun (false)
 {
   setupUi (this);
   theView.SetView (messageView);
@@ -64,6 +66,16 @@ Chronicon::Chronicon (QWidget *parent)
   network.SetUserAgent (Settings().value("program").toString());
 
   itemDialog.SetNetwork (&network);
+  shortener.SetNetwork (&network);
+  directDialog.SetNetwork (&network);
+}
+
+bool
+Chronicon::RunAgain ()
+{
+  bool again = rerun;
+  rerun = false;
+  return again;
 }
 
 void
@@ -74,6 +86,9 @@ Chronicon::Connect ()
   connect (actionAutoLogin, SIGNAL (triggered()),
             this, SLOT (AutoLogin()));
   connect (actionConfigure, SIGNAL (triggered()), this, SLOT (Configure()));
+
+  connect (actionNewUpdate, SIGNAL (triggered()), this, SLOT (startMessage()));
+  connect (actionRestart, SIGNAL (triggered()), this, SLOT (ReStart()));
   connect (actionAbout, SIGNAL (triggered()), this, SLOT (About()));
   connect (actionManual, SIGNAL (triggered()), this, SLOT (Manual()));
   connect (actionLicense, SIGNAL (triggered()), this, SLOT (License()));
@@ -95,8 +110,6 @@ Chronicon::Connect ()
            this, SLOT (PollComplete(TimelineKind)));
   connect (&network, SIGNAL (RePoll(TimelineKind)),
            this, SLOT (RePoll(TimelineKind)));
-  connect (&network, SIGNAL (ShortenReply (int, QString, QString, bool)),
-           this, SLOT (CatchShortening (int, QString, QString, bool)));
   connect (&network, SIGNAL (StopPoll (bool)),
            this, SLOT (SuspendPoll (bool)));
 
@@ -104,6 +117,14 @@ Chronicon::Connect ()
            &itemDialog, SLOT (Exec(QString , StatusBlock, QString)));
   connect (&itemDialog, SIGNAL (SendMessage (QString,QString)), 
            this, SLOT (startMessage (QString,QString)));
+  connect (&itemDialog, SIGNAL (MakeDirect (QString)),
+           &directDialog, SLOT (WriteMessage (QString)));
+
+  connect (&directDialog, SIGNAL (SendDirect (QString, QString)),
+           &network, SLOT (DirectMessage (QString, QString)));
+
+  connect (&shortener, SIGNAL (DoneShortening (QString )),
+           this, SLOT (ReallyFinishMessage (QString)));
 }
 
 void
@@ -119,6 +140,13 @@ Chronicon::SetupTimers (bool debug)
   if (debug) {
     //debugTimer.start (15*1000);
   }
+}
+
+void
+Chronicon::ReStart ()
+{
+  rerun = true;
+  quit();
 }
 
 void
@@ -225,74 +253,15 @@ Chronicon::startMessage (QString msg, QString oldId)
 
 
 void
-Chronicon::ShortenHttp (QString status)
-{
-  QRegExp regular ("(https?://)(\\S*)");
-  status.append (" ");
-  QStringList  linkList;
-  QStringList  wholeList;
-  int where (0), offset(0), lenSub(0);
-  QString link, beforeLink;
-  while ((where = regular.indexIn (status,offset)) > 0) {
-    lenSub = regular.matchedLength();
-    beforeLink = status.mid (offset, where - offset);
-    link = regular.cap(0);
-    if (!link.contains ("bit.ly")) {
-      linkList << link;
-    }
-    wholeList << beforeLink;
-    wholeList << link;
-    offset = where + lenSub;
-  }
-  wholeList << status.mid (offset, -1);
-  shortenTag ++;
-  if (linkList.isEmpty ()) {
-    ReallyFinishMessage (status);
-  } else {
-    messageParts[shortenTag] = wholeList;
-    linkParts   [shortenTag] = linkList;
-    network.ShortenHttp (shortenTag,linkList);
-  }
-}
-
-void
-Chronicon::CatchShortening (int tag, QString shortUrl, QString longUrl, bool good)
-{
-  /// replace the longUrl with shortUrl in the messageParts[tag]
-  //  remove the longUrl from the linkParts[tag]
-  //  if the linkParts[tag] is empty, we have replaced all the links
-  //  so send append all the messageParts[tag] and finish the message
-  if (messageParts.find(tag) == messageParts.end()) {
-    return; // extra, perhaps duplicates in original
-  }
-  if (linkParts.find(tag) == linkParts.end()) {
-    return;
-  }
-  QStringList::iterator chase;
-  for (chase = messageParts[tag].begin(); 
-       chase != messageParts[tag].end(); 
-       chase++) {
-    if (*chase == longUrl) {
-       *chase = shortUrl;
-    }
-  }
-  linkParts[tag].removeOne (longUrl);
-  if (linkParts[tag].isEmpty()) {
-    QString message = messageParts[tag].join (QString());
-    ReallyFinishMessage (message);
-    messageParts.erase (tag);
-  }
-}
-
-
-void
 Chronicon::finishMessage ()
 {
   QString msg;
   ownMessage->extractPlain (msg);
+  bool wait (false);
   if (Settings().contains ("network/bitly_user")) {
-    ShortenHttp (msg);
-  } else {
+    shortener.ShortenHttp (msg, wait);
+  } 
+  if (!wait) {
     ReallyFinishMessage (msg);
   }
 }

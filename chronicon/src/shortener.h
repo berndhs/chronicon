@@ -1,3 +1,7 @@
+
+#ifndef SHORTENER_H
+#define SHORTENER_H
+
 /****************************************************************
  * This file is distributed under the following license:
  *
@@ -19,48 +23,47 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#ifndef BITLY_NETWORK_REPLY_H
-#define BITLY_NETWORK_REPLY_H
-
 #include <QObject>
-#include <QNetworkReply>
-#include <QUrl>
+#include <QStringList>
 #include <QUuid>
-#include "chronicon-types.h"
+#include <map>
 
 namespace chronicon {
 
 
-class BitlyNetworkReply : public QObject {
+class NetworkIF;
 
+class Shortener : public QObject {
 Q_OBJECT
 
 public:
 
+  Shortener (QObject *parent);
 
-  BitlyNetworkReply (QUrl &theUrl, QNetworkReply * qnr, QUuid tag);
+  void SetNetwork (NetworkIF * net);
 
-  QNetworkReply * NetReply() { return reply; }
-  QUrl            Url () { return url; }
-  QUuid           Tag () { return id; }
-  void Abort();
-  void Close ();
+  void ShortenHttp (QString status, bool & wait);
 
-  
 public slots:
 
-  void handleReturn ();
+  void CatchShortening (QUuid tag, QString shortUrl, QString longUrl, bool good);
 
 signals:
 
-  void Finished (BitlyNetworkReply *);
+  void DoneShortening (QString shortMsg);
 
 private:
 
 
-  QUrl           url;
-  QNetworkReply  *reply;  
-  QUuid          id;
+  typedef std::map <QUuid, QStringList>  UpdatePartsMap;
+
+  QUuid             shortenTag;
+  UpdatePartsMap    messageParts;
+  UpdatePartsMap    linkParts;
+
+  NetworkIF        *network;
+
+
 
 
 };

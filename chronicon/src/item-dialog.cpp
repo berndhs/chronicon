@@ -45,7 +45,9 @@ ItemDialog::ItemDialog (QWidget *parent)
   connect (addMsgButton, SIGNAL (clicked()), this, SLOT (AddMessage ()));
   connect (saveButton,   SIGNAL (clicked()), this, SLOT (Save()));
   connect (deleteButton, SIGNAL (clicked()), this, SLOT (Delete()));
+  connect (directButton, SIGNAL (clicked()), this, SLOT (Direct()));
 }
+
 void
 ItemDialog::HtmlStyles ()
 {
@@ -244,6 +246,15 @@ ItemDialog::Delete ()
     qDebug () << __FILE__ << __LINE__ << " not network for Delete!";
     reject ();
   }
+}
+
+void
+ItemDialog::Direct ()
+{
+qDebug () << __FILE__ << __LINE__ << " direct";
+  QString screen_name = itemBlock.UserValue ("screen_name");
+  emit MakeDirect (screen_name);
+  reject ();
 }
 
 

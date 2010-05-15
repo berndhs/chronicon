@@ -1,3 +1,7 @@
+
+#ifndef DIRECT_DIALOG_H
+#define DIRECT_DIALOG_H
+
 /****************************************************************
  * This file is distributed under the following license:
  *
@@ -19,53 +23,47 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#ifndef BITLY_NETWORK_REPLY_H
-#define BITLY_NETWORK_REPLY_H
-
-#include <QObject>
-#include <QNetworkReply>
-#include <QUrl>
-#include <QUuid>
-#include "chronicon-types.h"
+#include <QDialog>
+#include "ui_directmsg.h"
+#include "shortener.h"
 
 namespace chronicon {
 
+class NetworkIF;
 
-class BitlyNetworkReply : public QObject {
-
+class DirectDialog : public QDialog {
 Q_OBJECT
 
 public:
 
+  DirectDialog (QWidget * parent);
 
-  BitlyNetworkReply (QUrl &theUrl, QNetworkReply * qnr, QUuid tag);
+  void SetNetwork (NetworkIF *net);
 
-  QNetworkReply * NetReply() { return reply; }
-  QUrl            Url () { return url; }
-  QUuid           Tag () { return id; }
-  void Abort();
-  void Close ();
-
-  
 public slots:
 
-  void handleReturn ();
+  void WriteMessage (QString toName);
+  void CatchShort   (QString shortMsg);
+
+private slots:
+
+  void SendMessage ();
 
 signals:
-
-  void Finished (BitlyNetworkReply *);
+  
+  void SendDirect (QString toName, QString msg);
 
 private:
 
+  NetworkIF  *network;
+  Shortener  shortener;
 
-  QUrl           url;
-  QNetworkReply  *reply;  
-  QUuid          id;
+  QString    destUserName;
 
+  Ui_DirectMessage   ui;
 
 };
 
 } // namespace
-
 
 #endif
