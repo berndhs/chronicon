@@ -21,7 +21,7 @@
 #ifndef WEBAUTH_H
 #define WEBAUTH_H
 
-#include <QtOAuth>
+#include "QtOAuth-local.h"
 #include <QObject>
 #include <QString>
 #include <QByteArray>

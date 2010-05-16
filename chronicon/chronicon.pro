@@ -38,7 +38,7 @@ unix:{
 DEFINES += DELIBERATE_DEBUG=1
 DEFINES += USE_OAUTH=0
 
-QT += core gui xml network webkit qoautch crypto
+QT += core gui xml network webkit  crypto
 #QT += core gui xml network webkit
 
 MAKEFILE = MakeChron
@@ -51,13 +51,13 @@ RCC_DIR = tmp/rcc
 RESOURCES += chronicon.qrc
 
 INCLUDEPATH += src 
-#INCLUDEPATH += /home/bernd/mywork/ch-qoauth/include
+INCLUDEPATH += qoa-src
 INCLUDEPATH += /usr/include/QtCrypto
-INCLUDEPATH += /usr/include/QtOAuth
+#INCLUDEPATH += /usr/include/QtOAuth
 INCLUDEPATH += temp/ui
 
-#LIBS += -L../../qoauth/lib -lqoauth
-LIBS += -lqoauth
+#LIBS += -lqoauth
+LIBS += -lqca
 
 HEADERS = src/chronicon.h \
           src/chron-textedit.h \
@@ -81,6 +81,10 @@ HEADERS = src/chronicon.h \
           src/config-edit.h \
           src/helpview.h \
           src/version.h \
+         qoa-src/interface.h \
+         qoa-src/interface_p.h \
+         qoa-src/qoauth_global.h \
+         qoa-src/qoauth_namespace.h \
 
 
 SOURCES = src/main.cpp \
@@ -106,6 +110,7 @@ SOURCES = src/main.cpp \
           src/minipage.cpp \
           src/config-edit.cpp \
           src/helpview.cpp \
+          qoa-src/interface.cpp \
 
 
 FORMS = ui/chronicon.ui \

@@ -313,7 +313,6 @@ ItemDialog::Direct ()
 void
 ItemDialog::LinkClicked (const QUrl & url)
 {
-qDebug () << " clicked on link " << url;
   if (url.isValid()) {
     QDesktopServices::openUrl (url);
   }
