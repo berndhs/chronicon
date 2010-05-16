@@ -23,9 +23,6 @@
 #define NETWORK_IF_H
 
 #include <QNetworkAccessManager>
-#if USE_OAUTH
-  #include <QtCrypto>
-#endif
 #include <QAuthenticator>
 #include <QTimer>
 #include <QUuid>

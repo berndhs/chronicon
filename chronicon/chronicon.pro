@@ -36,10 +36,8 @@ unix:{
 }
 
 DEFINES += DELIBERATE_DEBUG=1
-DEFINES += USE_OAUTH=0
 
 QT += core gui xml network webkit  crypto
-#QT += core gui xml network webkit
 
 MAKEFILE = MakeChron
 
@@ -53,10 +51,8 @@ RESOURCES += chronicon.qrc
 INCLUDEPATH += src 
 INCLUDEPATH += qoa-src
 INCLUDEPATH += /usr/include/QtCrypto
-#INCLUDEPATH += /usr/include/QtOAuth
 INCLUDEPATH += temp/ui
 
-#LIBS += -lqoauth
 LIBS += -lqca
 
 HEADERS = src/chronicon.h \

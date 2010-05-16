@@ -24,10 +24,6 @@
 
 #include <QMainWindow>
 #include <QApplication>
-#if USE_OAUTH
-  #include <QtOAuth>
-  #include <QtCrypto>
-#endif
 #include <QTimer>
 #include <map>
 
