@@ -23,6 +23,8 @@
 #include "chronicon-global.h"
 #include "chronicon.h"
 #include <QApplication>
+#include <QStyle>
+#include <QStyleFactory>
 #include "delib-debug.h"
 #include "cmdoptions.h"
 #include <QSettings>
@@ -31,6 +33,22 @@
 
 
 const char chronicon::ChroniconName[] = "Chronicon";
+
+namespace deliberate {
+
+void
+SetStyle (QApplication & app)
+{
+  QStringList avail = QStyleFactory::keys();
+  QString     normal("oxygen");
+  normal = Settings().value ("style/windowstyle",normal).toString();
+  if (avail.contains (normal, Qt::CaseInsensitive)) {
+    app.setStyle (normal);
+    Settings().setValue ("style/windowstyle",normal);
+  }
+}
+
+}
 
 int
 main (int argc, char * argv[])
@@ -73,6 +91,7 @@ main (int argc, char * argv[])
   deliberate::UseMyOwnMessageHandler ();
   deliberate::StartDebugLog (showDebug);
   deliberate::SetQuietDebug (!showDebug);
+  deliberate::SetStyle (App);
   bool runit (true);
   int status (1);
   while (runit) {
