@@ -62,7 +62,8 @@ Shortener::ShortenHttp (QString status, bool & wait)
     lenSub = regular.matchedLength();
     beforeLink = status.mid (offset, where - offset);
     link = regular.cap(0);
-    if (!link.contains ("bit.ly")) {
+    if ((!link.contains ("bit.ly"))
+        && (link.length() > QString("http://bit.ly/12345678").length())) {
       linkList << link;
     }
     wholeList << beforeLink;
