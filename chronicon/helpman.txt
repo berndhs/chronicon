@@ -3,12 +3,6 @@ Chronicon Help Manual
 Bernd Stramm <bernd.stramm@gmail.com>
 Version 0.1.0,  17 May 2010
 
-Coming soon.
-
-In the meantime:
-
-Be careful.
-
 == Startup
 
 By default, *Chronicon* starts by showing the public timeline of messages
