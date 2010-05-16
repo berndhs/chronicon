@@ -1,1 +1,20 @@
 Chronicon is a twitter client using Qt and a QOAuth fork
+
+Requirements
+------------
+
+To build this, you need a few things:
+
+- Qt 4.6 or later. Yes, Qt 4.5 won't work
+- qca2-devel
+- libnotify
+
+To RUN this with OAuth, you also need:
+
+- qca-ossl
+
+  it will run with basic authorization without this library.
+  It will *build* without this library as well, but if you try
+  to use OAuth (web login), it will crash complaining about
+  HMAC SHA1 not being supported. That is qca2 giving up.
+
