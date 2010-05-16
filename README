@@ -1,5 +1,27 @@
 Chronicon is a twitter client using Qt and a QOAuth fork
 
+Using OAuth
+-----------
+
+By default, chronicon is configured to so Basic Authentication login.
+This works for Twitter and StatusNet servers.
+
+To use the new and improved authentication for Twitter called OAuth,
+change the configuration:
+
+ - click on Start/Stop
+   - click on Configure
+   - open up the "network" section
+   - edit the "login_type" entry to read "oauth", without the quotes.
+   - Save
+
+Link Shortening
+---------------
+
+Chronicon will automatically shorten links in your posts if you tell it
+your bit.ly user name and key. You can do that in the configuration.
+
+
 Requirements
 ------------
 
