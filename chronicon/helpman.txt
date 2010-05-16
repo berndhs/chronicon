@@ -1,10 +1,248 @@
 Chronicon Help Manual
 =====================
 Bernd Stramm <bernd.stramm@gmail.com>
-Version 0.1.0,  7 May 2010
+Version 0.1.0,  17 May 2010
 
 Coming soon.
 
 In the meantime:
 
 Be careful.
+
+== Startup
+
+By default, *Chronicon* starts by showing the public timeline of messages
+on the configured service. The default service is http://api.twitter.com. You can
+change this to match your preferences, see the xref:network[Network] section
+of xref:config[Configuration].
+
+== Login
+
+There are two login methods available in *Chronicon*. Which one you use
+depends largely on your service provider. Most http://status.net[StatusNet]
+providers use Basic Authentication, while http://twitter.com[Twitter] prefers
+OAuth.
+
+=== Basic Authentication
+
+Basic Authentication asks you for a user name and password. Enter those from
+your microblogging service. Be aware that *Chronicon* does not store your
+password.
+
+=== OAuth
+
+OAuth is "An open protocol to allow secure API authorization  in a simple and standard  method from desktop and web applications", according to http://oauth.net.
+How secure and how convenient it is remains for history to decide, as this is a
+fairly recent standard. It also remains to be seen how many versions of this
+standard will arise.
+
+*Chronicon* supports OAuth with the xref:logintype[login_type] configuration item.
+
+When in *oauth* mode, selecting *Login* from the *Start/Stop* menu brings up
+a *Web Login* window. 
+In this window, enter your user name and your password
+for the microblogging service. Check the contents of the window to make sure
+it is the right service.
+
+You will need to grant access to *Chronicon* on the web page in the *Web Login* window. Read the instruction in the window, and on the web page displayed inside.
+
+Note that *Chronicon* does not store your service password. Whatever you enter
+on the web page in the *Web Login* window goes to the service provider.
+
+After you have authorized *Chronicon* to access the service, you will be given
+a PIN. *Chronicon* will try to read the PIN on the authorization response. You can
+also copy the PIN from the web page reply, and paste it into the *Your PIN* field
+on the *Web Login* window.
+
+
+==== Auto Login
+
+Auto Login uses the authentication from the last successful OAuth login. Be
+aware that this information could have expired as a policy of the service
+provider. Also, if you have logged in using *Chronicon* from another computer,
+or from another phone, the authentication may be outdated.
+
+== Messages
+
+Click on the avatar image of a message in the timeline to get the *Status Item*
+detail window.
+
+=== Sending Messages
+
+You can send new messages by typing them in the text input field above the timeline
+list. The input field will expand when you start typing.
+
+You can also click on the *Type* button before you start typing.
+
+To send the message as typed (except for automatic link shortening, see below),
+click on the *Send Update* button.
+
+==== Link Shortening
+
+Microblogging services impose draconian limits on message sizes 
+(typically 140 bytes) while otherwise being quite liberal with the use of bandwidth.
+Because of this, *shortening links* has become popular, and many services
+are available help.
+
+*Chronicon* supports automatic link shortening using one of these services
+available at http://bit.ly. If you want automatic link shortening, you need
+an account there. At the time of this writing, these accounts are available
+at no cost. See the xref:shortening[Shortening Service] section below. 
+
+A more generic configuration, supporting arbitrary shortening services, is
+planned for a future release.
+
+=== Email
+
+Selecting *email* composes an email message consisting of the current message
+in the Status Item window, and hands it to your email program. You can then
+supply a destination email, and edit the message body and subject in your
+normal email client.
+
+=== ReTweet and ReTweet Plus
+
+You can re-tweet a message exactly as it is, or send your own message 
+based on the content of the current message in the Status Item window.
+
+=== Direct Message
+
+You can send direct messages to the sender of the message you are viewing
+in the Status Item detail window. Note that not all users allow direct
+messages to be sent too them.
+
+=== Save Message
+
+You can save messages as text. *Chronicon* makes up a file name based
+on the sender of the message and the message id. You can of course change
+that name.
+
+=== Delete Message
+
+You can only delete your own messages. Note also that a deleted message
+will not dissapear right away from your local timeline view - *Chronicon*
+shows status items as it found them, not as they are currently
+in the server databases.
+
+
+== [[config]] Configuration
+
+You can change how *Chronicon* behaves in several ways.
+
+=== Files
+
+* The *savedir* item contains the directory where the last saved message
+was written. You can change this so that the next time you save a message,
+the dialog will start in a particular directory. However be aware that
+saving a file will set this item, to the directory that you saved the file in.
+
+=== [[network]] Network
+
+* The [[logintype]] *login_type* item should be set to either "basic" or "oauth", 
+depending on which authentication (login) method your service provider
+wants you to use.
+
+==== Message Service
+
+* The *service* item contains the web address of the microblogging service
+used. The default for this is http://api.twitter.com/1. Note that this
+is more than just a web site address, there is a trailing __path__ portion. All
+of it needs to be correct.
+
+==== [[shortening]] Shortening Service
+
+The Shortening service setup is currently done by providing two
+configuration items, which you obtain from the http://bit.ly service:
+
+* *bitly_user* is the user name at the shortening service
+
+* *bitly_key* is the user identification key
+
+=== Style
+
+* You can change the Qt window style used for *Chronicon* to match your
+taste, or to match what is available on your system.
+
+=== Timers and Delays
+
+The *timers* section of the Configuration contains these values:
+
+* The *pollperiod* item allows you to change how often *Chronicon* checks
+for new messages. The value is expressed in milliseconds.
+
+* The *notifydelay* item allows you to change how long a notification popup
+stays on your desktop. The value is expressed in milliseconds.
+
+=== View HTML/CSS Style
+
+There are several configurable items in this category. Keep in mind that 
+these items are used only for displaying things within *Chronicon*. Nothing in
+here affects messages that you send out.
+
+HTML/CSS style settings can be cryptic, so be careful what you change here.
+Slight misspellings in keywords will cause CSS to ignore what you did. Forgetting
+to close brackets can affect styled text that is completely unrelated to what
+you are trying to do.
+
+=== Weblogin
+
+This section contains configuration items useful for the OAuth web login
+function.
+
+* The User Agent String field *useragentstring* is what tells the 
+service website what kind of formatting
+to use for the authorization web page. The default setting suggests to use
+formatting for a mobile phone, which uses a conveniently small window.
+
+
+== Prerequisits
+
+To build and run *Chronicon*, the current version uses:
+
+. C++
+.. Gcc
+. Qt4.6 or later , including these parts:
+.. Xml
+.. WebKit
+.. Network
+.. Gui
+. qca2 -- a Qt module providing cryptographic services
+. qca-ossl -- a plugin providing openssl support for QCA2
+
+If you are trying to build *Chronicon* from source, you will need the devel
+version of these modules. Some Linux distros can be very slow in making current
+versions of modules available.
+
+Applicable local and export laws may affect which cryptographic tools you can use.
+
+
+=== How to Build
+
+It's pretty straightforward. Please read the README file that comes with
+the source code.
+
+
+== License and Warranty ==
+
+This is free open source software, hence the usual licensing. And the 
+usual warranty, or lack thereof:
+
+****
+These programs are distributed under the terms of the 
+GNU General Public License version 2.
+
+See the file *LICENSE.txt* for the complete text of the license. You can
+also find it on http://www.gnu.org. Or you can select *Help->License* from the
+menu bar to see a copy.
+
+This software is distributed in the hope that it will be useful, 
+but WITHOUT ANY WARRANTY; without even the implied warranty 
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+****
+
+
+____
+
+ 
+~Copyright (C) 2010 http://www.bernd-stramm.com/[Bernd Stramm] All Rights Reserved~
+____
+
