@@ -27,6 +27,8 @@
 #include <QByteArray>
 #include <QUrl>
 
+#define CHRON_DEBUG_OAUTH 0
+
 using namespace QOAuth;
 
 namespace chronicon {

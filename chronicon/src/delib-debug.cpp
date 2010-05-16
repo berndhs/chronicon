@@ -33,6 +33,12 @@ namespace deliberate {
 
 static DebugLog *staticLog(0);
 
+#if DELIBERATE_DEBUG
+bool DebugQuiet (false);
+#else
+bool DebugQuiet (true);
+#endif
+
 void UseMyOwnMessageHandler ()
 {
   qInstallMsgHandler (deliberate::MyOwnMessageOutput);
@@ -41,45 +47,60 @@ void UseMyOwnMessageHandler ()
 void MyOwnMessageOutput (QtMsgType type, const char* msg)
 {
 #if DELIBERATE_DEBUG
-  switch (type) {
-  case QtDebugMsg:
-    if (staticLog && staticLog->IsUsingGui()) {
-      staticLog->Log ("Qt Debug: ", msg);
-    } else {
-      cout << "Qt Debug: " << msg << endl;
-    }
-    break;
-  case QtWarningMsg:
-    if (staticLog && staticLog->IsUsingGui()) {
-      staticLog->Log ("Qt Warn: ", msg);
-    } else {
-      cout << "Qt Warn: " << msg << endl;
-    }
-    break;
-  case QtCriticalMsg:
-    if (staticLog && staticLog->IsUsingGui()) {
-      staticLog->Log ("Qt Critical: ", msg);
-    } else {
-      cout << "Qt Critical: " << msg << endl;
-    }
-    break;
-  case QtFatalMsg:
-    cout << "Qt Fatal: " << msg << endl;
-    if (staticLog && staticLog->IsUsingGui()) {
-      staticLog->Log ("Qt Fatal: ", msg);
-    } else {
+  if (DebugQuiet) {
+    switch (type) {
+    case QtFatalMsg:
       cout << "Qt Fatal: " << msg << endl;
+      abort();
+      break;
+    case QtDebugMsg:
+    case QtWarningMsg:
+    case QtCriticalMsg:
+    default:
+      // start prayer, maybe it's not a problem
+      break;
     }
-    abort();
-    break;
-  default:
-    cout << " unknown Qt msg type: " << msg << endl;
-    if (staticLog && staticLog->IsUsingGui()) {
-      staticLog->Log ("Qt Debug: ", msg);
-    } else {
-      cout << "Qt Debug: " << msg << endl;
+  } else {
+    switch (type) {
+    case QtDebugMsg:
+      if (staticLog && staticLog->IsUsingGui()) {
+        staticLog->Log ("Qt Debug: ", msg);
+      } else {
+        cout << "Qt Debug: " << msg << endl;
+      }
+      break;
+    case QtWarningMsg:
+      if (staticLog && staticLog->IsUsingGui()) {
+        staticLog->Log ("Qt Warn: ", msg);
+      } else {
+        cout << "Qt Warn: " << msg << endl;
+      }
+      break;
+    case QtCriticalMsg:
+      if (staticLog && staticLog->IsUsingGui()) {
+        staticLog->Log ("Qt Critical: ", msg);
+      } else {
+        cout << "Qt Critical: " << msg << endl;
+      }
+      break;
+    case QtFatalMsg:
+      cout << "Qt Fatal: " << msg << endl;
+      if (staticLog && staticLog->IsUsingGui()) {
+        staticLog->Log ("Qt Fatal: ", msg);
+      } else {
+        cout << "Qt Fatal: " << msg << endl;
+      }
+      abort();
+      break;
+    default:
+      cout << " unknown Qt msg type: " << msg << endl;
+      if (staticLog && staticLog->IsUsingGui()) {
+        staticLog->Log ("Qt Debug: ", msg);
+      } else {
+        cout << "Qt Debug: " << msg << endl;
+      }
+      break;
     }
-    break;
   }
 #else
   switch (type) {
@@ -96,6 +117,12 @@ void MyOwnMessageOutput (QtMsgType type, const char* msg)
   }
 #endif
 
+}
+
+void
+SetQuietDebug (bool quiet)
+{
+  DebugQuiet = quiet;
 }
 
 

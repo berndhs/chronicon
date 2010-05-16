@@ -80,10 +80,12 @@ WebAuth::AskRequestToken ()
       authIF->requestToken( AuthService ("request_token"),
                           QOAuth::GET, QOAuth::HMAC_SHA1, extra );
   QOAuth::ParamMap::iterator pit;
+  #if CHRON_DEBUG_OAUTH
   for (pit = reply.begin(); pit != reply.end(); pit++) {
     qDebug () << " reply part " << QString(pit.key())
                  << " => " << QString (pit.value());
   }
+  #endif
   QByteArray req_token_confirm = reply.value (callback_confirm_key);
   if (authIF->error() != QOAuth::NoError) {
     return false;
@@ -119,7 +121,9 @@ WebAuth::AskAccessToken (QString pin,
                           QOAuth::POST, req_token_value,
                           req_token_secret_value, QOAuth::HMAC_SHA1, extra);
   if (authIF->error() != QOAuth::NoError) {
-qDebug () << " bad experience getting access token";
+    #if CHRON_DEBUG_OAUTH
+    qDebug () << " bad experience getting access token";
+    #endif
     return false;
   }
   #if CHRON_DEBUG_OAUTH

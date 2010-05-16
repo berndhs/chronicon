@@ -71,6 +71,7 @@ private:
   QString   user;
   QString   uid;
   bool      authenticated;
+  bool      loadingFirst;
 
   QString      webPin;
   QByteArray   atoken; 

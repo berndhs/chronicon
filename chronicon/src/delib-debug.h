@@ -72,6 +72,9 @@ void StartDebugLog (bool gui=true);
 void StopDebugLog ();
 bool DebugLogRecording ();
 void SaveStaticLog (QString filename=QString());
+void SetQuietDebug (bool quiet=true);
+
+extern bool DebugQuiet;
 
 void MyOwnMessageOutput (QtMsgType type, const char* msg);
 

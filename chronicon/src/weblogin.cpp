@@ -38,7 +38,8 @@ namespace chronicon {
 WebLogin::WebLogin (QWidget *parent, WebAuth * wa)
 :QDialog (parent),
  page (0),
- webAuth (wa)
+ webAuth (wa),
+ loadingFirst(false)
 {
   setupUi (this);
   connect (cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
@@ -75,8 +76,11 @@ WebLogin::Start ()
   bool ok = webAuth->AskRequestToken ();
   if (ok) {
     webView->load (webAuth->WebUrlString());
+    instructions->setText (tr("Loading Service  Web Page..."));
+    loadingFirst = true;
+  } else {
+    instructions->setText (tr("Failure Contacting Service"));
   }
-qDebug () << " now what? ";
   exec ();
 }
 
@@ -116,9 +120,17 @@ WebLogin::PageArrived (bool good)
     dump.write (rawpage.toUtf8());
     dump.close ();
     #endif
-    QString pin = SearchPin ();
-    if (pin.length() > 0) {
-      pinEntry->setText (pin);
+    if (loadingFirst) {
+      instructions->setText (tr("Please Log in Below"));
+      loadingFirst = false;
+    } else {
+      QString pin = SearchPin ();
+      if (pin.length() > 0) {
+        pinEntry->setText (pin);
+        instructions->setText (tr("Verify the PIN and click OK"));
+      } else {
+        instructions->setText (tr("Cannot find PIN"));
+      }
     }
   }
 }

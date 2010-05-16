@@ -72,6 +72,7 @@ main (int argc, char * argv[])
 
   deliberate::UseMyOwnMessageHandler ();
   deliberate::StartDebugLog (showDebug);
+  deliberate::SetQuietDebug (!showDebug);
   bool runit (true);
   int status (1);
   while (runit) {
