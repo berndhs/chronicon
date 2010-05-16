@@ -298,19 +298,20 @@ TimelineView::FormatParagraph (QString & html, const StatusBlock & para)
 
 QString 
 TimelineView::FormatTextBlock (const QString & text)
-{\
+{
   QString subHttp = LinkMangle::Anchorize (text + QString(" "), 
                              QRegExp ("(https?://)(\\S*)"), 
-                             chronicon::LinkMangle::HttpAnchor);\
+                             chronicon::LinkMangle::HttpAnchor);
   QString subAt = LinkMangle::Anchorize (subHttp, 
                              QRegExp ("@(\\S*)"),
-                             chronicon::LinkMangle::TwitAtAnchor);\
+                             chronicon::LinkMangle::TwitAtAnchor);
   QString subHash = LinkMangle::Anchorize (subAt, 
                              QRegExp ("#(\\S*)"),
                              chronicon::LinkMangle::TwitHashAnchor);
   QString span  ("<span style=\"font-size:%2;\">%1</span>");
   return span.arg(subHash).arg(fontSize);
 }
+
 QString
 TimelineView::Ago (int secs)
 {
