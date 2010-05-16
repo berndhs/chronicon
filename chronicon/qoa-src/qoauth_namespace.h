@@ -80,7 +80,7 @@ namespace QOAuth {
         POST,  //!< Sets the HTTP method to POST
         HEAD,  //!< Sets the HTTP method to HEAD
         PUT,   //!< Sets the HTTP method to PUT
-        DELETE //!< Sets the HTTP method to DELETE
+        HTTP_DELETE //!< Sets the HTTP method to DELETE
     };
 
     /*!

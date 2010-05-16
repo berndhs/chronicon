@@ -18,8 +18,9 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
-
+#if USE_NOTIFY
 #include <libnotify/notify.h>
+#endif
 #include "chronicon-global.h"
 #include "delib-debug.h"
 #include "deliberate.h"
@@ -243,6 +244,7 @@ TimelineView::PopupNotify (QString id, StatusBlock & block)
   if (paragraphs.find(id) != paragraphs.end()) {
     return;
   }
+#if USE_NOTIFY
   QString msg (tr("From: "));
   msg.append (block.UserValue ("screen_name"));
   msg.append (" at ");
@@ -262,7 +264,7 @@ TimelineView::PopupNotify (QString id, StatusBlock & block)
   } else {
     qDebug () << " cannot allocate notification";
   }
-  
+#endif
 }
 
 

@@ -137,7 +137,7 @@ ConfigEdit::Save ()
       QString key, value;
       index = configModel->indexFromItem (rowhead);
       if (configModel->hasChildren (index)) {
-        int row, col;
+        int row;
         for (row = 0; row < rowhead->rowCount(); row++) {
           keyItem = rowhead->child (row,0);
           valueItem = rowhead->child (row,1);

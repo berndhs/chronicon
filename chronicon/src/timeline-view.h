@@ -103,7 +103,7 @@ private:
 
   typedef  std::map <QString, StatusBlock>   PagePartMap;
 
-  int           maxParagraphs;
+  uint           maxParagraphs;
   PagePartMap   paragraphs;
 
 

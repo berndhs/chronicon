@@ -19,7 +19,9 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
+#if USE_NOTIFY
 #include <libnotify/notify.h>
+#endif
 #include "chronicon-global.h"
 #include "chronicon.h"
 #include <QApplication>
@@ -62,7 +64,9 @@ main (int argc, char * argv[])
   deliberate::SetSettings (settings);
   settings.setValue ("program",pv.MyName());
 
+#if USE_NOTIFY
   notify_init (chronicon::ChroniconName);
+#endif
 
   deliberate::SetStyle (settings);
   QApplication App (argc, argv);

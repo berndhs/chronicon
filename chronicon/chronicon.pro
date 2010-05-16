@@ -33,6 +33,12 @@ CONFIG += qt
 unix:{
   CONFIG += link_pkgconfig
   PKGCONFIG += libnotify
+  DEFINES += USE_NOTIFY=1
+}
+
+win32: {
+  DEFINES += USE_NOTIFY=0
+  INCLUDEPATH += C:\Qt\qca-2.0.1-mingw\include\QtCrypto
 }
 
 DEFINES += DELIBERATE_DEBUG=1
@@ -50,11 +56,14 @@ RESOURCES += chronicon.qrc
 
 INCLUDEPATH += src 
 INCLUDEPATH += qoa-src
+unix: {
 INCLUDEPATH += /usr/include/QtCrypto
+}
 INCLUDEPATH += temp/ui
 
-LIBS += -lqca
-
+unix:{
+  LIBS += -lqca
+}
 HEADERS = src/chronicon.h \
           src/chron-textedit.h \
           src/delib-debug.h \
