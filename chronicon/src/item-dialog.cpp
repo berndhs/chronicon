@@ -250,7 +250,7 @@ ItemDialog::Save ()
   filename.append ("_");
   filename.append (itemId);
   filename.append (".txt");
-  QString defaultDir = Settings().value ("defaultDir",QString(".")).toString();
+  QString defaultDir = Settings().value ("files/savedir",QString(".")).toString();
   defaultDir.append (QDir::separator());
   defaultDir.append (filename);
   QString fullName = QFileDialog::getSaveFileName (this,
