@@ -186,7 +186,6 @@ ItemDialog::UserInfoHtml ()
                  .arg(itemBlock.UserValue("time_zone")));
 
   QString site = itemBlock.UserValue("url");
-  void (*anchorFunc) (QString&, QString);
   QString siteHttp = LinkMangle::Anchorize (site + QString(" "), 
                              QRegExp ("(https?://)(\\S*)"), 
                              chronicon::LinkMangle::HttpAnchor);
