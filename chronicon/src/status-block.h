@@ -67,8 +67,10 @@ public:
   QString   Value (const QString & key) const;
   QString   UserValue (const QString & key) const;
 
-  bool  HasValue (const QString & key) const { return statusValues.HasValue (key); }
-  bool  HasUserValue (const QString & key) const { return userValues.HasValue (key); }
+  bool  HasValue (const QString & key) const 
+                 { return statusValues.HasValue (key); }
+  bool  HasUserValue (const QString & key) const 
+                 { return userValues.HasValue (key); }
 
   void  SetValue (const QString & key, const QString & value);
   void  SetUserValue (const QString & key, const QString & value);

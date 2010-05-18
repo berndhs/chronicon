@@ -26,10 +26,11 @@ namespace chronicon {
 
   enum TimelineKind {
          R_None = 0,
-         R_Public,
-         R_Private,
-         R_Update,
-         R_Destroy,
+         R_Public = 1,
+         R_Private = 2,
+         R_Update = 3,
+         R_Destroy = 4,
+         R_UserStat = 5,
          R_Top
          };
 

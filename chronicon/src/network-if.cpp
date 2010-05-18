@@ -224,17 +224,29 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
       } else {
          emit TwitterAuthBad ();
       }
-    } else if (kind == R_Public || kind == R_Private) {
+    } else {
       QDomDocument doc;
       doc.setContent (netReply);
-      ParseTwitterDoc (doc, kind);
-      emit ReplyComplete (kind);
-    } else if (kind == R_Update) {
-      QDomDocument update;
-      update.setContent (netReply);
-      ParseUpdate (update, kind);
-      emit ReplyComplete (kind);
+      switch (kind) {
+      case R_Public:
+      case R_Private:
+        ParseTwitterDoc (doc, kind);
+        emit ReplyComplete (kind);
+        break;
+      case R_Update:
+        ParseUpdate (doc, kind);
+        emit ReplyComplete (kind);
+        break;
+      case R_UserStat:
+        ParseUserBlock (doc, kind);
+        emit ReplyComplete (kind);
+        break;
+      default:
+        // ignore
+        break;
+      }
     }
+
     ReplyMapType::iterator index;
     index = twitterReplies.find (netReply);
     if (index != twitterReplies.end()) {
@@ -534,6 +546,20 @@ NetworkIF::ParseUpdate (QDomDocument & doc, TimelineKind kind)
 }
 
 void
+NetworkIF::ParseUserBlock (QDomDocument & doc, TimelineKind kind)
+{
+  QDomElement root = doc.documentElement();
+  QDomElement child;
+  for (child = root.firstChildElement(); !child.isNull(); 
+       child = child.nextSiblingElement()) {
+    if (child.tagName() == "status") {
+       ParseStatus (child, kind);
+       break; // only want first one, ignore the rest
+    }
+  }
+}
+
+void
 NetworkIF::ParseStatus (QDomElement & elt, TimelineKind kind)
 {
   StatusBlock  block (elt);
@@ -619,6 +645,57 @@ NetworkIF::PullTimelineOA ()
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
                                                   serviceKind);
+  ExpectReply (reply, chReply);
+  
+}
+
+
+void
+NetworkIF::PullUserBlock ()
+{
+  if (oauthMode) {
+    PullUserBlockOA ();
+  } else {
+    PullUserBlockBasic ();
+  }
+}
+
+void
+NetworkIF::PullUserBlockBasic ()
+{
+  QNetworkRequest request;
+  QUrl url  (QString(Service ("statuses/%1.xml"))
+                    .arg("user_timeline"));
+  request.setUrl(url);
+  request.setRawHeader ("User-Agent","Chronicon; WebKit");
+  DebugShow (request);
+  QNetworkReply *reply = Network()->get (request);
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  R_UserStat);
+  ExpectReply (reply, chReply);
+}
+
+void
+NetworkIF::PullUserBlockOA ()
+{
+  QString urlString = OAuthService ("statuses/%1.xml")
+                              .arg("user_timeline");
+  QOAuth::ParamMap  args;
+  QByteArray  parms = prepareOAuthString (urlString, 
+                                          QOAuth::GET,
+                                          args);
+  QNetworkRequest req;
+  req.setRawHeader ("Authorization", parms);
+  urlString.append (webAuth.QOAuth()->inlineParameters 
+                      (args, QOAuth::ParseForInlineQuery));
+  QUrl url (urlString);
+  req.setUrl (url);
+  DebugShow (req);
+  QNetworkReply *reply = Network()->get (req);
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  R_UserStat);
   ExpectReply (reply, chReply);
   
 }

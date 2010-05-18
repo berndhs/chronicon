@@ -106,6 +106,10 @@ private:
   uint           maxParagraphs;
   PagePartMap   paragraphs;
 
+  QString followers;
+  QString followees;
+  QString ownMessageCount;
+
 
   QString dtd;
   QString head;

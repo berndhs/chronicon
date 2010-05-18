@@ -90,6 +90,7 @@ public slots:
   void bitlyAuthProvide (QNetworkReply * reply,
                      QAuthenticator * authenticator);
   void DirectMessage (QString toName, QString msg);
+  void PullUserBlock ();
 
 signals:
 
@@ -123,12 +124,15 @@ private:
   void DirectMessageBasic (QString toName, QString msg);
   void PullTimelineOA ();
   void PullTimelineBasic ();
+  void PullUserBlockOA ();
+  void PullUserBlockBasic ();
   void PushDeleteOA (QString id);
   void PushDeleteBasic (QString id);
   void ReTweetOA (QString id);
   void ReTweetBasic (QString id);
   void ParseTwitterDoc (QDomDocument &doc, TimelineKind kind);
   void ParseUpdate (QDomDocument &doc, TimelineKind kind);
+  void ParseUserBlock (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);
   void ParseBitlyDoc (QDomDocument &doc, 
                       QString & shortUrl,

@@ -372,6 +372,9 @@ Chronicon::Poll ()
   pollRemain -= pollTick;
   if (pollRemain <= 0) {
     network.PullTimeline ();
+    if (currentView == R_Private) {
+      QTimer::singleShot (10000,&network, SLOT(PullUserBlock ()));
+    }
     loadLabel->setText (tr("load..."));
     pollRemain = pollPeriod;
   } else {
@@ -400,6 +403,9 @@ Chronicon::RePoll (TimelineKind kind)
   pollTimer.start (pollTick);
   theView.Display (currentView);
   network.PullTimeline ();
+  if (currentView == R_Private) {
+    QTimer::singleShot (10000,&network, SLOT(PullUserBlock ()));
+  }
   loadLabel->setText (tr("reload..."));
 }
 
