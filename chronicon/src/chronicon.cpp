@@ -172,6 +172,18 @@ Chronicon::SetupMenus ()
 }
 
 void
+Chronicon::SetupDefaults ()
+{
+  QString bitly_user ("");
+  bitly_user = Settings().value("network/bitly_user",bitly_user).toString();
+  Settings().setValue ("network/bitly_user",bitly_user);
+  QString bitly_key ("");
+  bitly_key = Settings().value ("network/bitly_key",bitly_key).toString();
+  Settings().setValue ("network/bitly_key", bitly_key);
+  Settings().sync();
+}
+
+void
 Chronicon::startStartMenu ()
 {
   startMenu.SetPos (QCursor::pos());
@@ -235,6 +247,7 @@ qDebug () << " starting private ";
     currentView = R_Public;
 qDebug () << " starting public ";
   }
+  SetupDefaults ();
   network.SetTimeline (currentView);
   network.Init ();
 }
@@ -312,7 +325,11 @@ Chronicon::finishMessage ()
   ownMessage->extractPlain (msg);
   bool wait (false);
   if (Settings().contains ("network/bitly_user")) {
-    shortener.ShortenHttp (msg, wait);
+    QString bitly_user = Settings().value("network/bitly_user",QString())
+                                   .toString();
+    if (bitly_user.length() > 0) {
+      shortener.ShortenHttp (msg, wait);
+    }
   } 
   if (!wait) {
     ReallyFinishMessage (msg);

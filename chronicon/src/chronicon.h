@@ -68,6 +68,8 @@ void Start ();
 
 bool RunAgain ();
 
+void SetupDefaults ();
+
 public slots:
 
   void quit ();
