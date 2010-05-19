@@ -91,7 +91,7 @@ ItemDialog::HtmlStyles ()
   fontSize = "90%";
   nickStyle = "font-weight:bold;text-decoration:none;";
   titleStyle = "font-size:smaller; color:0f2f0f;";
-  titleDateForm = tr("ddd hh:mm:hh");
+  titleDateForm = tr("ddd hh:mm:ss");
   imgPattern = QString ("<div style=\"float:left;margin:3px;\">"
                     "<a href=\"chronicon://status/item#%2\" style=\"%3\">"
                     "<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" "
@@ -218,9 +218,9 @@ ItemDialog::Mailto ()
   subject.append (itemBlock.UserValue("screen_name"));
   QString plainText;
   PlainText (plainText, itemBlock);
-  QUrl url(QString("mailto:?subject=")
-                   + subject
-                   + "&body=" + plainText);
+  QUrl url(QString("mailto:?"));
+  url.addQueryItem ("subject",subject);
+  url.addQueryItem ("body",plainText);
   QDesktopServices::openUrl (url);
   accept ();
 }
