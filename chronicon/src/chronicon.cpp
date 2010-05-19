@@ -407,7 +407,9 @@ void
 Chronicon::PollComplete (TimelineKind kind)
 {
   LabelSecs (pollRemain/1000);
-  theView.Display (kind);
+  if (kind == R_Public || kind == R_Private) {
+    theView.Display (kind);
+  }
   theView.Show ();
   if (kind == R_Private) {
     QTimer::singleShot (pollTick - 1,&network, SLOT(PullUserBlock ()));
