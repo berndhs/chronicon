@@ -1,6 +1,5 @@
-
-#ifndef DIRECT_DIALOG_H
-#define DIRECT_DIALOG_H
+#ifndef SWITCH_DIALOG_H
+#define SWITCH_DIALOG_H
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -23,48 +22,49 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
+#include "ui_pick-timeline.h"
 #include <QDialog>
-#include "ui_directmsg.h"
-#include "shortener.h"
+#include "chronicon-types.h"
+#include <map>
 
 namespace chronicon {
 
-class NetworkIF;
-
-
-/** \brief Dialog for sending a direct message
+/** \brief User can choose to change to view a different timeline.
+  *
+  * Private, Public, own posts, other users's posts.
+  * This dialog only determins the users choice, it doesnt 
+  * actually switch anything.
   */
 
-class DirectDialog : public QDialog {
+class SwitchDialog : public QDialog, public Ui_PickTimelineDialog {
 Q_OBJECT
 
 public:
 
-  DirectDialog (QWidget * parent);
+  SwitchDialog (QWidget * parent);
 
-  void SetNetwork (NetworkIF *net);
+  int     Choice ();
+  QString OtherUser ();
 
 public slots:
 
-  void WriteMessage (QString toName);
-  void CatchShort   (QString shortMsg);
+  int Exec ();
 
 private slots:
 
-  void SendMessage ();
+  void Choose ();
+  void Cancel ();
 
 signals:
-  
-  void SendDirect (QString toName, QString msg);
+
+  void TimelineSwitch (int timeline, QString user);
 
 private:
 
-  NetworkIF  *network;
-  Shortener  shortener;
+  int        timelineChoice;
+  QString    userChoice;
 
-  QString    destUserName;
-
-  Ui_DirectMessage   ui;
+  std::map <QAbstractButton*, int>  choiceMap;
 
 };
 

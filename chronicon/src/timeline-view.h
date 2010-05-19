@@ -58,8 +58,14 @@ public:
 public slots:
 
   void CatchStatusItem (StatusBlock block, TimelineKind kind);
+
+/** \brief Chronicon has internal links, the syntax is
+ *                chronicon://status/item#statusid
+ *            and chronicon://search/q#searchterm
+ */
+
   void LinkClicked (const QUrl & url);
-  void ClearList ();
+  void ClearList (TimelineKind kind = R_None);
 
 signals:
 
@@ -71,10 +77,10 @@ private:
   void CustomLink (const QUrl & url);
   QString FormatTextBlock (const QString & text);
 
-  void FlushParagraphs ();
+  void FlushParagraphs (TimelineKind kind = R_None);
   void HtmlStyles ();
 
-  void AddCurrent (StatusBlock block);
+  void AddCurrent (StatusBlock block, TimelineKind kind);
   void AddOwn     (StatusBlock block);
   bool ParseBlock (      StatusBlock & block,
                          QString     & text,
@@ -93,7 +99,7 @@ private:
 
   QWidget       *parentWidget;
 
-  int            currentKind;
+  TimelineKind            currentKind;
   bool           doNotify;
   int            notifyDelay;
   QWebView      *view;
@@ -102,9 +108,10 @@ private:
   QLineEdit     *detailTip;
 
   typedef  std::map <QString, StatusBlock>   PagePartMap;
+  typedef  std::map <int, PagePartMap>       TimelineMap;
 
   uint           maxParagraphs;
-  PagePartMap   paragraphs;
+  TimelineMap    paragraphs;
 
   QString followers;
   QString followees;

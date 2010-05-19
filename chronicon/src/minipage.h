@@ -34,6 +34,11 @@
 
 namespace chronicon {
 
+/** \brief Supplies a user agent string to the web server.
+  *
+  * Supplying the User Agent string is useful when you want the
+  * web server to present a mobile-formatted web page.
+  */
 
 class MiniPage : public QWebPage {
 

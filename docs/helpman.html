@@ -388,11 +388,11 @@ div#toc a:visited { color: blue; }
 <span id="author">Bernd Stramm</span><br />
 <span id="email"><tt>&lt;<a href="mailto:bernd.stramm@gmail.com">bernd.stramm@gmail.com</a>&gt;</tt></span><br />
 <span id="revnumber">version 0.1.0,</span>
-<span id="revdate">17 May 2010</span>
+<span id="revdate">19 May 2010</span>
 </div>
 <h2 id="_startup">Startup</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>By default, <strong>Chronicon</strong> starts by showing the public timeline of messages
+<div class="paragraph"><p><strong>Chronicon</strong> starts by showing the public timeline of messages
 on the configured service. The default service is <a href="http://api.twitter.com">http://api.twitter.com</a>. You can
 change this to match your preferences, see the <a href="#network">Network</a> section
 of <a href="#config">Configuration</a>.</p></div>
@@ -539,7 +539,10 @@ taste, or to match what is available on your system.
 <li>
 <p>
 The <strong>pollperiod</strong> item allows you to change how often <strong>Chronicon</strong> checks
-for new messages. The value is expressed in milliseconds.
+for new messages. The value is expressed in milliseconds. So a value of 180000
+means that 180 seconds will pass between successive pulls of the service. Note
+that polling faster than once a minute is usually not useful, unless you have
+a special service provider that updates very fast.
 </p>
 </li>
 <li>
@@ -658,7 +661,7 @@ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p></div>
 <div id="footer">
 <div id="footer-text">
 Version 0.1.0<br />
-Last updated 2010-05-16 15:33:31 EDT
+Last updated 2010-05-19 13:14:00 EDT
 </div>
 </div>
 </body>

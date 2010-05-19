@@ -53,6 +53,7 @@ public:
   void Init ();
 
   void PullTimeline ();
+  void PullTimeline (QString otherUser);
   void PushUserStatus (QString status, QString refId);
   void ReTweet (QString id);
   void PushDelete (QString id);
@@ -65,6 +66,7 @@ public:
   void SetServiceRoot (QString root);
 
   void AutoLogin (QByteArray u, QByteArray key1, QByteArray key2, bool oauth);
+  bool HaveUser () { return haveUser; }
   
   QString Service (QString path=QString());
   QUrl    ServiceUrl (QString path=QString());
@@ -122,8 +124,8 @@ private:
   void PushUserStatusBasic (QString status, QString refId);
   void DirectMessageOA (QString toName, QString msg);
   void DirectMessageBasic (QString toName, QString msg);
-  void PullTimelineOA ();
-  void PullTimelineBasic ();
+  void PullTimelineOA (QString otherUser = QString());
+  void PullTimelineBasic (QString otherUser = QString());
   void PullUserBlockOA ();
   void PullUserBlockBasic ();
   void PushDeleteOA (QString id);
@@ -142,7 +144,6 @@ private:
                       QString & shortUrl,
                       QString & longUrl,
                       bool    & good);
-  void SwitchTimeline ();
   void ExpectReply (QNetworkReply *reply, 
                     ChronNetworkReply *chReply);
   void CleanupReply (QNetworkReply * reply, ChronNetworkReply *chReply);
@@ -156,6 +157,9 @@ private:
                          const QString   & urlString,
                          const QOAuth::ParamMap & params);
   void DebugShow (const QNetworkRequest &req );
+
+  
+  QString                 timelineName (TimelineKind kind);
   
 
   QNetworkAccessManager   *nam;
@@ -163,7 +167,6 @@ private:
   QString                 serverRoot;
 
   TimelineKind            serviceKind;
-  QString                 timelineName;
   LoginDialog             plainLoginDialog;
   WebAuth                 webAuth;
   WebLogin                webLoginDialog;
@@ -173,6 +176,7 @@ private:
   int                     authRetries;
   bool                    insideLogin;
   bool                    oauthMode;
+  bool                    haveUser;
 
   int                     numItems;
   QString                 myName ;

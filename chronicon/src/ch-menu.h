@@ -29,6 +29,13 @@ class QAction;
 
 namespace chronicon {
 
+/** \brief Used for popup menus that can be activated by timer signals.
+  *
+  * The normal calling sequence is to position the menu first
+  * with SetPos ( QPoint whereYouWantIt ), then set up a timer or other signal
+  * to call Popup().
+ */
+
 class ChMenu : public QMenu {
 Q_OBJECT
 

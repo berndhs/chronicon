@@ -30,8 +30,16 @@ DEBUG_SUBS = chronicon
 NODEBUG_SUBS = qoauth
 MAKEFILE = MakeChron
 TOP_MAKEFILE = Makefile
+HELP_HTML = helpman.html
+HELP_TXT = helpman.txt
 
-all: $(MAKEFILE) 
+
+# Note that a copy of the manual is embedded in the program, so to update the 
+# executable completely, the manual needs to be made first
+
+all: manual program
+
+program: $(MAKEFILE)
 	make -f $(MAKEFILE) all
 
 clean: $(MAKEFILE) FORCE
@@ -44,6 +52,17 @@ distclean: $(MAKEFILE) FORCE
 	@echo
 	@echo "Run ./configure to re-create the Makefile"
 	@echo
+
+manual:	docs/$(HELP_HTML) chronicon/docu/$(HELP_HTML)
+
+dox:
+	doxygen  Doxyfile
+
+chronicon/docu/$(HELP_HTML): docs/$(HELP_HTML)
+	cp docs/$(HELP_HTML) chronicon/docu/$(HELP_HTML)
+
+docs/$(HELP_HTML): docs/$(HELP_TXT)
+	cd docs; asciidoc $(HELP_TXT)
 	
 debug: $(MAKEFILE) FORCE
 	for D in $(NODEBUG_SUBS) ; do \

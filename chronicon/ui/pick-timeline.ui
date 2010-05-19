@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PickTimelineDialog</class>
+ <widget class="QDialog" name="PickTimelineDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>365</width>
+    <height>218</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Choose Timeline</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../chronicon.qrc">
+    <normaloff>:/ch.png</normaloff>:/ch.png</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QRadioButton" name="publicButton">
+       <property name="text">
+        <string>Public Timeline</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string>buttonChoice</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="privateButton">
+       <property name="text">
+        <string>Private Timeline</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string>buttonChoice</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="ownButton">
+       <property name="text">
+        <string>Own Updates</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string>buttonChoice</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="otherUserButton">
+       <property name="text">
+        <string>Updates for User:</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string>buttonChoice</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="otherName"/>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="chooseButton">
+       <property name="text">
+        <string>Choose</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../chronicon.qrc"/>
+ </resources>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="buttonChoice"/>
+ </buttongroups>
+</ui>

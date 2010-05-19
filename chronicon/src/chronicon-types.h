@@ -30,7 +30,8 @@ namespace chronicon {
          R_Private = 2,
          R_Update = 3,
          R_Destroy = 4,
-         R_UserStat = 5,
+         R_ThisUser = 5,
+         R_OtherUser = 6,
          R_Top
          };
 

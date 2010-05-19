@@ -79,6 +79,7 @@ HEADERS = src/chronicon.h \
           src/shortener.h \
           src/login-dialog.h \
           src/link-mangle.h \
+          src/switch-dialog.h \
           src/ch-menu.h \
           src/weblogin.h \
           src/webauth.h \
@@ -106,6 +107,7 @@ SOURCES = src/main.cpp \
           src/deliberate.cpp \
           src/item-dialog.cpp \
           src/direct-dialog.cpp \
+          src/switch-dialog.cpp \
           src/shortener.cpp \
           src/login-dialog.cpp \
           src/link-mangle.cpp \
@@ -126,6 +128,7 @@ FORMS = ui/chronicon.ui \
         ui/helpwin.ui \
         ui/config-edit.ui \
         ui/directmsg.ui \
+        ui/pick-timeline.ui \
 
 
 

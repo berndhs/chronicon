@@ -29,17 +29,34 @@ class QRegExp;
 
 namespace chronicon {
 
+/** \brief Supply Link transformation functions.
+  *
+  * This class exists solely to provide a number of text processing
+  * functions that locate links in a text, and replace these links
+  * with formatted Html or Twitter faux-syntax, so that the resulting
+  * text contains links recognized by the viewer module.
+  *
+  */
+
 class LinkMangle {
 
 public:
 
+/** \brief Anchorize rearranges the text argument to contain links.
+  *
+  * The text argument is scanned to find parts that match the \regular 
+  * expression. Each matched part is given to the \anchorFunc 
+  * function, and the result of that function call replaces the original
+  * matched portion in the new text.
+  */
+
+static QString Anchorize (const QString &text, QRegExp regular, 
+                         void (*anchorFunc)(QString&, QString));
 
 static void HttpAnchor (QString & anchor, QString  ref);
 static void TwitAtAnchor (QString & anchor , QString  ref);
 static void TwitHashAnchor (QString & anchor, QString ref);
 
-static QString Anchorize (const QString &text, QRegExp regular, 
-                         void (*anchorFunc)(QString&, QString));
 
 };
 

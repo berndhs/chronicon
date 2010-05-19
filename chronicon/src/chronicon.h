@@ -38,12 +38,22 @@
 #include "helpview.h"
 #include "shortener.h"
 #include "direct-dialog.h"
+#include "switch-dialog.h"
 #include "ch-menu.h"
 
 using namespace deliberate;
 
 namespace chronicon {
 
+/*! \brief The main window of the chronicon application 
+  *
+  * This is the top level object, contains the polling loop,
+  * and controls the initialization flow of the other objects.
+  * The network interface object lives here, and other objects
+  * get pointer to it. Note that the NetworkIF object is not 
+  * identical to a QNetworkAccessManager, that issue is up to
+  * the NetworkIF class.
+  */
 
 class Chronicon : public QMainWindow, public Ui_ChroniconWindow {
 Q_OBJECT
@@ -63,6 +73,7 @@ public slots:
   void quit ();
   void PollComplete (TimelineKind kind);
   void ReallyFinishMessage (QString msg);
+  void ChangeTimeline (int timeline, QString user);
 
 private slots:
 
@@ -133,12 +144,15 @@ private:
   ConfigEdit    configEdit;
   Shortener     shortener;
   DirectDialog  directDialog;
+  SwitchDialog  switchDialog;
+  //followDialog  followDialog;
 
   QApplication * pApp;
 
   bool     rerun;
 
   QString           inReplyTo;
+  QString           otherUser;
 
 #if USE_OAUTH
   QOAuth::Interface    auth;

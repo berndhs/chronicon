@@ -53,6 +53,12 @@ private:
 
 };
 
+/** \brief Our internal representation of a status message.
+  *
+  * Anything found in the XML document about the status message itself,
+  * and the user part is stored in a StatusBlock.
+  */
+
 class StatusBlock {
 public:
 

@@ -146,14 +146,20 @@ TimelineView::Display (TimelineKind k)
 }
 
 void
-TimelineView::ClearList ()
+TimelineView::ClearList (TimelineKind kind)
 {
-  paragraphs.clear();
+  TimelineKind k;
+  if (kind == R_None) {
+    k = currentKind;
+  } else {
+    k = kind;
+  }
+  paragraphs[k].clear();
   Show ();
 }
 
 
-/** \LinkClicked - Chronicon has internal links, the syntax is
+/** \brief Chronicon has internal links, the syntax is
  *                chronicon://status/item#statusid
  *            and chronicon://search/q#searchterm
  */
@@ -180,8 +186,8 @@ TimelineView::CustomLink (const QUrl & url)
   QString path = url.path();
   QString host = url.host();
   if (host == "status" && path == "/item") {
-     PagePartMap::iterator index = paragraphs.find (frag);
-     if (index != paragraphs.end()) {
+     PagePartMap::iterator index = paragraphs[currentKind].find (frag);
+     if (index != paragraphs[currentKind].end()) {
        QString html;
        FormatParagraph (html, index->second);
        emit ItemDialog (frag, index->second, html);
@@ -198,15 +204,14 @@ void
 TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
 {
   if (kind > R_None && kind < R_Top) {
-    if (kind == R_UserStat) {
+    if (kind == R_ThisUser) {
       followers = block.UserValue ("followers_count");
       followees = block.UserValue ("friends_count");
       ownMessageCount = block.UserValue ("statuses_count");
     }
-    if (kind == currentKind) {
-       AddCurrent (block);
-    }
-    if (kind == R_Update) {
+    if (kind != R_Update) {
+      AddCurrent (block, kind);
+    } else {
        AddOwn (block);
     }
   } else {
@@ -215,7 +220,7 @@ TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
 }
 
 void
-TimelineView::AddCurrent (StatusBlock block)
+TimelineView::AddCurrent (StatusBlock block, TimelineKind kind)
 {
   QString id = block.Id();
   if (!block.HasUserValue("screen_name")) {
@@ -224,7 +229,7 @@ TimelineView::AddCurrent (StatusBlock block)
   if (doNotify && notifyDelay > 0) {
      PopupNotify (id,block);
   }
-  paragraphs[id] = block;
+  paragraphs[kind][id] = block;
 }
 
 void
@@ -240,13 +245,13 @@ TimelineView::AddOwn (StatusBlock block)
   if (doNotify && notifyDelay > 0) {
      PopupNotify (id,block);
   }
-  paragraphs[id] = block;
+  paragraphs[currentKind][id] = block;
 }
 
 void
 TimelineView::PopupNotify (QString id, StatusBlock & block)
 {
-  if (paragraphs.find(id) != paragraphs.end()) {
+  if (paragraphs[currentKind].find(id) != paragraphs[currentKind].end()) {
     return;
   }
 #if USE_NOTIFY
@@ -343,23 +348,26 @@ TimelineView::Ago (int secs)
 }
 
 void
-TimelineView::FlushParagraphs ()
+TimelineView::FlushParagraphs (TimelineKind kind)
 {
+  if (kind == R_None) {
+    kind = currentKind;
+  }
   maxParagraphs = Settings().value ("view/maxitems",maxParagraphs).toInt();
-  if (maxParagraphs > paragraphs.size()) {
+  if (maxParagraphs > paragraphs[kind].size()) {
     return;
   }
   PagePartMap::iterator  index;
-  int toomany = paragraphs.size() - maxParagraphs;
+  int toomany = paragraphs[kind].size() - maxParagraphs;
   QStringList oldEntries;
-  for (index = paragraphs.begin(); 
-       toomany > 0 && index != paragraphs.end(); 
+  for (index = paragraphs[kind].begin(); 
+       toomany > 0 && index != paragraphs[currentKind].end(); 
        toomany--, index++) {
     oldEntries << index->first;
   }
   QStringList::iterator sindex;
   for (sindex = oldEntries.begin(); sindex != oldEntries.end(); sindex++) {
-    paragraphs.erase (*sindex);
+    paragraphs[kind].erase (*sindex);
   }
 }
 
@@ -396,7 +404,7 @@ TimelineView::Show ()
   }
   QString parHtml;
   PagePartMap::reverse_iterator para;
-  for (para = paragraphs.rbegin(); para != paragraphs.rend(); para++) {
+  for (para = paragraphs[currentKind].rbegin(); para != paragraphs[currentKind].rend(); para++) {
      FormatParagraph (parHtml, para->second);
      html.append (parHtml);
   }
