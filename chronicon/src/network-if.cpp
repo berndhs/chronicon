@@ -405,9 +405,9 @@ NetworkIF::plainLogin (int * reply)
 {
   insideLogin = true;
   emit StopPoll (true);
-  int response = plainLoginDialog.Exec (user);
   QString oldUser (user);
   QString oldPass (pass);
+  int response = plainLoginDialog.Exec (user);
   switch (response) {
   case 1:
      ResetNetwork ();
