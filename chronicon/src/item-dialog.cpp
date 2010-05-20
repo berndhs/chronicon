@@ -153,7 +153,6 @@ ItemDialog::Exec  (QString id, StatusBlock  block, QString itemHtml)
   html.append ("</body>");
   html.append ("</html>");
   itemView->setHtml (html);
-qDebug () << __FILE__ << __LINE__ << block;
   exec ();
 }
 

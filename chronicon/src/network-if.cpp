@@ -852,12 +852,18 @@ qDebug () << " NetworkIF::ChangeFollow " << otherUser << " by " << change;
 void
 NetworkIF::ChangeFollowBasic (QString otherUser, int change)
 {
-  QString action = QString("notifications/%1.xml")
-                  .arg (change < 0 ? "leave" : "follow");
+  QString action;
+  if (change < 0) {
+    action = QString ("friendships/destroy.xml");
+  } else if (change > 0) {
+    action = QString ("friendships/create/twitterapi.xml");
+  } else {
+    return;
+  }
   QString urlString (Service (action));
   QUrl  url (urlString);
   QByteArray encoUser = QUrl::toPercentEncoding (otherUser);
-  url.addEncodedQueryItem ("id",encoUser);
+  url.addEncodedQueryItem ("screen_name",encoUser);
   QNetworkRequest req (url);
   QByteArray nada;
   PostBasic (url, req, nada, R_Ignore);
@@ -866,14 +872,18 @@ NetworkIF::ChangeFollowBasic (QString otherUser, int change)
 void
 NetworkIF::ChangeFollowOA (QString otherName, int change)
 {
-  if (change == 0) {
+  QString action;
+  if (change < 0) {
+    action = QString ("friendships/destroy.xml");
+  } else if (change > 0) {
+    action = QString ("friendships/create/twitterapi.xml");
+  } else {
     return;
   }
   QOAuth::ParamMap  paramContent;
-  paramContent.insert ("id",QUrl::toPercentEncoding 
+  paramContent.insert ("screen_name",QUrl::toPercentEncoding 
                                      (otherName.toUtf8()));
-  QString action = QString("notifications/%1.xml")
-                  .arg (change < 0 ? "leave" : "follow");
+
   QString urlString (OAuthService (action));
 qDebug () << " Change url " << urlString;
 qDebug () << " Change parms " << paramContent;
