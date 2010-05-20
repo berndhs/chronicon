@@ -39,6 +39,7 @@
 #include "shortener.h"
 #include "direct-dialog.h"
 #include "switch-dialog.h"
+#include "follow-dialog.h"
 #include "ch-menu.h"
 
 using namespace deliberate;
@@ -76,6 +77,7 @@ public slots:
   void PollComplete (TimelineKind kind);
   void ReallyFinishMessage (QString msg);
   void ChangeTimeline (int timeline, QString user);
+  void ChangeFollow (QString user, int change);
 
 private slots:
 
@@ -147,7 +149,7 @@ private:
   Shortener     shortener;
   DirectDialog  directDialog;
   SwitchDialog  switchDialog;
-  //followDialog  followDialog;
+  FollowDialog  followDialog;
 
   QApplication * pApp;
 

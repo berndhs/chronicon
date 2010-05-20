@@ -57,6 +57,7 @@ Chronicon::Chronicon (QWidget *parent)
  shortener (this),
  directDialog (this),
  switchDialog (this),
+ followDialog (this),
  pApp(0),
  rerun (false)
 {
@@ -114,12 +115,17 @@ Chronicon::Connect ()
            this, SLOT (startMessage (QString,QString)));
   connect (&itemDialog, SIGNAL (MakeDirect (QString)),
            &directDialog, SLOT (WriteMessage (QString)));
+  connect (&itemDialog, SIGNAL (MaybeFollow (StringBlock)),
+           &followDialog, SLOT (Exec (StringBlock)));
 
   connect (&directDialog, SIGNAL (SendDirect (QString, QString)),
            &network, SLOT (DirectMessage (QString, QString)));
 
   connect (&switchDialog, SIGNAL (TimelineSwitch (int, QString)),
             this, SLOT (ChangeTimeline (int, QString)));
+
+  connect (&followDialog, SIGNAL (Follow (QString, int)),
+            this, SLOT (ChangeFollow (QString, int)));
 
   connect (&shortener, SIGNAL (DoneShortening (QString )),
            this, SLOT (ReallyFinishMessage (QString)));
@@ -158,8 +164,8 @@ Chronicon::SetupMenus ()
 
   menubar->addAction (tr("Actions..."), this, SLOT (startActionMenu()));
   actionMenu.addAction (tr("New Update"), this, SLOT (startMessage()));
- // actionMenu.addAction (tr("(Un-) Follow"), 
- //                      &followDialog, SLOT (Exec()));
+  actionMenu.addAction (tr("(Un-) Follow"), 
+                       &followDialog, SLOT (Exec()));
   actionMenu.addAction (tr("Choose Timeline"), 
                        &switchDialog, SLOT (Exec()));
 
@@ -458,6 +464,13 @@ Chronicon::PollComplete (TimelineKind kind)
 }
 
 void
+Chronicon::ChangeFollow (QString user, int change)
+{
+  qDebug () << " they want to change follow of " << user << " by " << change;
+  network.ChangeFollow (user, change);
+}
+
+void
 Chronicon::ChangeTimeline (int timeline, QString user)
 {
   TimelineKind tl;
@@ -520,7 +533,7 @@ Chronicon::AutoLogin ()
   } else {
     network.login ();
   }
-  if (currentView = R_Public) {
+  if (currentView == R_Public) {
     currentView = R_Private;
   }
   network.SetTimeline (currentView);

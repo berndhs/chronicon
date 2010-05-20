@@ -252,6 +252,11 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
         ParseUserBlock (doc, kind);
         emit ReplyComplete (kind);
         break;
+      case R_Ignore:
+        qDebug () << " ignoring reply from " << netReply->url();
+        qDebug () << " net error " << netReply->error ();
+        qDebug () << " xml content " << doc.toString();
+        break;
       default:
         // ignore
         break;
@@ -838,6 +843,55 @@ NetworkIF::DirectMessageOA (QString toName, QString msg)
 }
 
 void
+NetworkIF::ChangeFollow (QString otherUser, int change)
+{
+qDebug () << " NetworkIF::ChangeFollow " << otherUser << " by " << change;
+  if (oauthMode) {
+    ChangeFollowOA (otherUser, change);
+  } else {
+    ChangeFollowBasic (otherUser, change);
+  }
+}
+
+void
+NetworkIF::ChangeFollowBasic (QString otherUser, int change)
+{
+  QString action = QString("notifications/%1.xml")
+                  .arg (change < 0 ? "leave" : "follow");
+  QString urlString (Service (action));
+  QUrl  url (urlString);
+  url.addQueryItem ("screen_name",otherUser);
+  QNetworkRequest req (url);
+  QByteArray nada;
+
+  req.setRawHeader ("User-Agent","Chronicon WebKit");
+  DebugShow (req);
+  QNetworkReply * reply = Network()->post (req,nada);
+
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  chronicon::R_Ignore); 
+  ExpectReply (reply, chReply);
+}
+
+void
+NetworkIF::ChangeFollowOA (QString otherName, int change)
+{
+  if (change == 0) {
+    return;
+  }
+  QOAuth::ParamMap  paramContent;
+  paramContent.insert ("screen_name",QUrl::toPercentEncoding 
+                                     (otherName.toUtf8()));
+  QString action = QString("notifications/%1.xml")
+                  .arg (change < 0 ? "leave" : "follow");
+  QString urlString (OAuthService (action));
+qDebug () << " Change url " << urlString;
+qDebug () << " Change parms " << paramContent;
+  PostOA (urlString, paramContent, R_Ignore);
+}
+
+void
 NetworkIF::PushDelete (QString id)
 {
   if (oauthMode) {
@@ -882,9 +936,9 @@ NetworkIF::PostOA (QString  & urlString,
   QNetworkRequest req;
   oauthForPost (req, urlString, paramContent);
 
-  DebugShow (req);
   QUrl url (urlString);
   req.setUrl (url);
+  DebugShow (req);
   QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
   QNetworkReply * reply = Network()->post (req, content);  
   ChronNetworkReply *chReply = new ChronNetworkReply (url,

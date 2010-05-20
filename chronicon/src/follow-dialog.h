@@ -1,5 +1,5 @@
-#ifndef CHRONICON_TYPES_H
-#define CHRONICON_TYPES_H
+#ifndef FOLLOW_DIALOG_H
+#define FOLLOW_DIALOG_H
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -21,36 +21,50 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
+#include <QDialog>
+#include <QString>
+#include "ui_follow.h"
+#include "status-block.h"
 
 namespace chronicon {
 
-  enum TimelineKind {
-         R_None = 0,
-         R_Public = 1,
-         R_Private = 2,
-         R_Update = 3,
-         R_Destroy = 4,
-         R_ThisUser = 5,
-         R_OtherUser = 6,
-         R_Ignore = 7,
-         R_Top
-         };
 
-  enum ApiRequestKind {
-         A_None = 0,
-         A_Timeline,
-         A_AuthVerify,
-         A_Logout,
-         A_Top
-  };
+class FollowDialog : public QDialog, public Ui_FollowDialog {
+Q_OBJECT
 
-  enum ChronNetworkError {
-        CHERR_None = 0,
-        CHERR_Timeout = 9000,
-        CHERR_Internal = 9999
-  };
+public:
+
+  FollowDialog (QWidget *parent);
+
+  QString User () { return fuser; }
+
+  /** \brief ShallFollow 1=change to yes, -1=change to no, 0=unchanged
+   */
+  int    ShallFollow () { return dofollow; }
+
+public slots:
+
+  void Exec (QString user = QString());
+  void Exec (StringBlock  userData);
+
+private slots:
+
+  void DoFollow ();
+  void UnFollow ();
+
+signals:
   
+  void Follow (QString user, int change);
+
+private:
+
+  QString fuser;
+  int    dofollow;
+
+
+};
 
 } // namespace
+
 
 #endif

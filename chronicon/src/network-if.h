@@ -39,6 +39,18 @@
 
 namespace chronicon {
 
+/** \brief The connection to the twitter/statusnet server and shortening server.
+  *
+  * The NetworkIF sends requests to the twitter/stausnet server, as well as
+  * the shortening service, and handles the replies.
+  * 
+  * NetworkIF knows the different kinds of requests, and 2 different
+  * authorization modes. It decides when authorization is needed, and when
+  * a user has to log in.
+  * When replies come back with data for statuses (tweets) or for shortening
+  * results (http links), NetworkIF handles the basic decoding of XML
+  * data and makes the results available by emitting signals.
+  */
 
 class NetworkIF : public QObject {
 
@@ -54,6 +66,7 @@ public:
 
   void PullTimeline ();
   void PullTimeline (QString otherUser);
+  void ChangeFollow (QString otherUser, int change);
   void PushUserStatus (QString status, QString refId);
   void ReTweet (QString id);
   void PushDelete (QString id);
@@ -124,6 +137,8 @@ private:
   void PushUserStatusBasic (QString status, QString refId);
   void DirectMessageOA (QString toName, QString msg);
   void DirectMessageBasic (QString toName, QString msg);
+  void ChangeFollowOA (QString otherUser, int change);
+  void ChangeFollowBasic (QString otherUser, int change);
   void PullTimelineOA (QString otherUser = QString());
   void PullTimelineBasic (QString otherUser = QString());
   void PullUserBlockOA ();

@@ -64,6 +64,7 @@ ItemDialog::SetupMenus ()
   actionMenu.addAction (tr("Save Message"), this, SLOT (Save()));
   actionMenu.addAction (tr("Delete My Message"), this, SLOT (Delete()));
   actionMenu.addAction (tr("Send Direct Message"), this, SLOT (Direct()));
+  actionMenu.addAction (tr("(Un-) Follow"), this, SLOT (Follow()));
 }
 
 void
@@ -315,6 +316,14 @@ ItemDialog::LinkClicked (const QUrl & url)
   if (url.isValid()) {
     QDesktopServices::openUrl (url);
   }
+}
+
+void
+ItemDialog::Follow ()
+{
+  StringBlock userData = itemBlock.User();
+  emit MaybeFollow (userData);
+  accept ();
 }
 
 
