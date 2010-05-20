@@ -65,6 +65,8 @@ unix:{
   LIBS += -lqca
 }
 HEADERS = src/chronicon.h \
+          src/chronicon-types.h \
+          src/chronicon-global.h \
           src/chron-textedit.h \
           src/delib-debug.h \
           src/cmdoptions.h \
@@ -97,6 +99,7 @@ HEADERS = src/chronicon.h \
 SOURCES = src/main.cpp \
           src/version.cpp \
           src/chronicon.cpp \
+          src/chronicon-types.cpp \
           src/chron-textedit.cpp  \
           src/delib-debug.cpp \
           src/cmdoptions.cpp \

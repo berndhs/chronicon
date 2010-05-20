@@ -38,6 +38,10 @@ SwitchDialog::SwitchDialog (QWidget *parent)
   choiceMap[publicButton] =  R_Public;
   choiceMap[ownButton]    =  R_ThisUser;
   choiceMap[otherUserButton] = R_OtherUser;
+  choiceMap[mentionsButton]  = R_Mentions;
+  choiceMap[retweetMineButton] = R_OwnRetweets;
+  choiceMap[retweetFriendsButton] = R_FriendRetweets;
+
 }
 
 void

@@ -1,5 +1,5 @@
-#ifndef CHRONICON_TYPES_H
-#define CHRONICON_TYPES_H
+
+#include "chronicon-types.h"
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -21,42 +21,41 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
-#include <QString>
 
 namespace chronicon {
 
-  enum TimelineKind {
-         R_None = 0,
-         R_Public = 1,
-         R_Private = 2,
-         R_Update = 3,
-         R_Destroy = 4,
-         R_ThisUser = 5,
-         R_OtherUser = 6,
-         R_Ignore = 7,
-         R_Mentions = 8,
-         R_OwnRetweets = 9,
-         R_FriendRetweets = 10,
-         R_Top
-         };
-
-  QString timelineName (TimelineKind kind);
-
-  enum ApiRequestKind {
-         A_None = 0,
-         A_Timeline,
-         A_AuthVerify,
-         A_Logout,
-         A_Top
-  };
-
-  enum ChronNetworkError {
-        CHERR_None = 0,
-        CHERR_Timeout = 9000,
-        CHERR_Internal = 9999
-  };
-  
+QString
+timelineName (TimelineKind kind)
+{
+  QString name;
+  switch (kind) {
+  case R_Public:
+    name = "public_timeline";
+    break;
+  case R_Private:
+    name = "home_timeline";
+    break;
+  case R_ThisUser:
+    name = "user_timeline";
+    break;
+  case R_OtherUser:
+    name = "user_timeline";
+    break;
+  case R_Mentions:
+    name = "mentions";
+    break;
+  case R_OwnRetweets:
+    name = "retweeted_by_me";
+    break;
+  case R_FriendRetweets:
+    name = "retweeted_to_me";
+    break;
+  default:
+    name = "public_timeline";
+    break;
+  }
+  return name;
+}
 
 } // namespace
 
-#endif

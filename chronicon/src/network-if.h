@@ -178,9 +178,6 @@ private:
   void DebugShow (const QNetworkRequest &req );
 
   
-  QString                 timelineName (TimelineKind kind);
-  
-
   QNetworkAccessManager   *nam;
 
   QString                 serverRoot;

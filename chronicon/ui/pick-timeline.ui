@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>365</width>
-    <height>218</height>
+    <height>274</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,6 +34,36 @@
       <widget class="QRadioButton" name="privateButton">
        <property name="text">
         <string>Private Timeline</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string>buttonChoice</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="mentionsButton">
+       <property name="text">
+        <string>Mentions</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string>buttonChoice</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="retweetMineButton">
+       <property name="text">
+        <string>Retweets By Me</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string>buttonChoice</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="retweetFriendsButton">
+       <property name="text">
+        <string>Retweets By Friends</string>
        </property>
        <attribute name="buttonGroup">
         <string>buttonChoice</string>

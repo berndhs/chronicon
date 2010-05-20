@@ -150,29 +150,6 @@ NetworkIF::Init ()
 }
 
 
-QString
-NetworkIF::timelineName (TimelineKind kind)
-{
-  QString name;
-  switch (kind) {
-  case R_Public:
-    name = "public_timeline";
-    break;
-  case R_Private:
-    name = "home_timeline";
-    break;
-  case R_ThisUser:
-    name = "user_timeline";
-    break;
-  case R_OtherUser:
-    name = "user_timeline";
-    break;
-  default:
-    name = "public_timeline";
-    break;
-  }
-  return name;
-}
 
 QByteArray 
 NetworkIF::prepareOAuthString( const QString &requestUrl, 
@@ -226,7 +203,13 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
 {
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
+qDebug () << " net reply at " << __FILE__ << __LINE__ ;
+qDebug () << " net reply Status header " << netReply->rawHeader ("Status");
+qDebug () << " net reply Content-Type " << netReply->rawHeader ("Content-Type");
+qDebug () << " net reply X-Ratelimit-Remaining " << netReply->rawHeader ("X-Ratelimit-Remaining");
+qDebug () << " net reply X-Ratelimit-Limit " << netReply->rawHeader ("X-Ratelimit-Limit");
     TimelineKind kind (reply->Kind());
+qDebug () << " net reply is for " << timelineName (kind);
     ApiRequestKind ark (reply->ARKind());
     if (ark == A_AuthVerify) {
       if (reply->error() == 0) {
@@ -240,6 +223,9 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
       switch (kind) {
       case R_Public:
       case R_Private:
+      case R_Mentions:
+      case R_OwnRetweets:
+      case R_FriendRetweets:
         ParseTwitterDoc (doc, kind);
         emit ReplyComplete (kind);
         break;
@@ -653,6 +639,8 @@ NetworkIF::PullTimelineBasic (QString otherUser)
                                                   reply, 
                                                   serviceKind);
   ExpectReply (reply, chReply);
+qDebug () << " basic pull timeline GET " << timelineName (serviceKind);
+qDebug () << " GET for " << reply->url();
 }
 
 void
@@ -680,6 +668,8 @@ NetworkIF::PullTimelineOA (QString otherUser)
                                                   reply, 
                                                   serviceKind);
   ExpectReply (reply, chReply);
+qDebug () << " oauth pull timeline GET " << timelineName (serviceKind);
+qDebug () << " GET for " << reply->url();
   
 }
 
@@ -910,6 +900,8 @@ NetworkIF::PostBasic (QUrl &url,
                       QByteArray & data,
                       TimelineKind kind)
 {
+qDebug () << " debug for post basic: " ;
+  DebugShow (req);
   QNetworkReply * reply = Network()->post (req, data);
   ChronNetworkReply * chReply = new ChronNetworkReply (url, reply, kind);
   ExpectReply (reply, chReply);
@@ -926,6 +918,7 @@ NetworkIF::PostOA (QString  & urlString,
 
   QUrl url (urlString);
   req.setUrl (url);
+qDebug () << " debug for post OA: ";
   DebugShow (req);
   QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
   QNetworkReply * reply = Network()->post (req, content);  
