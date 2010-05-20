@@ -103,7 +103,6 @@ main (int argc, char * argv[])
   }
   bool showDebug = opts.SeenOpt ("debug");
 
-  deliberate::UseMyOwnMessageHandler ();
   deliberate::StartDebugLog (showDebug);
   deliberate::SetQuietDebug (!showDebug);
   bool runit (true);
