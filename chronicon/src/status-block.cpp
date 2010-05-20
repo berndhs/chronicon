@@ -128,6 +128,75 @@ StatusBlock::Domify (QDomElement & dom)
   dom = top;
 }
 
+
+
+UserBlock::UserBlock (const QDomElement & dom)
+{
+  ParseContent (userValues, dom);
+  ident = userValues.Value("id");
+}
+
+
+void
+UserBlock::SetValue (const QString & key, const QString & value)
+{
+  userValues.SetValue (key, value);
+}
+
+
+QString
+UserBlock::Value (const QString & key) const
+{
+  if (!userValues.HasValue(key)) {
+    return QString ();
+  } else {
+    return userValues.Value (key);
+  }
+}
+
+void
+UserBlock::ParseContent (StringBlock & block, const QDomElement & dom)
+{
+  QDomElement child;
+  for (child = dom.firstChildElement (); !child.isNull();
+       child = child.nextSiblingElement())
+  {
+    QString tag = child.tagName();
+    if (tag == "status") {
+      // ignore for now, don't recurse
+    } else {
+      block.SetValue (tag,child.text());
+    }
+  }
+}
+
+void
+UserBlock::Domify (QDomElement & dom)
+{
+  QDomDocument doc("chronicon_doc");
+  QDomElement top = doc.createElement (QString("status"));
+  std::map <QString,QString>::iterator index;
+  for (index = userValues.values.begin();
+       index != userValues.values.end();
+       index++) {
+    QDomElement child = doc.createElement (index->first);
+    QDomText    text = doc.createTextNode (index->second);
+    child.appendChild (text);
+    top.appendChild (child);
+  }
+  QDomElement userPart = doc.createElement (QString("user"));
+  for (index = userValues.values.begin();
+       index != userValues.values.end();
+       index++ ) {
+    QDomElement userChild = doc.createElement (index->first);
+    QDomText   text = doc.createTextNode (index->second);
+    userChild.appendChild (text);
+    userPart.appendChild (userChild);
+  }
+  top.appendChild (userPart);
+  dom = top;
+}
+
 QDebug & 
 operator << (QDebug & out, const StringBlock & data)
 {
@@ -150,5 +219,16 @@ operator << (QDebug & out, const StatusBlock & data)
   out << " ) ";
   return out;
 }
+
+
+QDebug &
+operator << (QDebug & out, const UserBlock & data)
+{
+  out << " UserBlock (";
+  out << " userValues ( " << data.userValues << " ) "; 
+  out << " ) ";
+  return out;
+}
+
 
 } // namespace

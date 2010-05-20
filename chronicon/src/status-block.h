@@ -46,6 +46,7 @@ public:
   friend QDebug & operator << (QDebug & out, const StringBlock & data);
 
   friend class StatusBlock;
+  friend class UserBlock;
 
 private:
 
@@ -69,6 +70,7 @@ public:
 
   void Domify (QDomElement & dom);
 
+  /// \brief Id() is the status id, not the user
   QString   Id () const { return ident; } 
   QString   Value (const QString & key) const;
   QString   UserValue (const QString & key) const;
@@ -100,8 +102,49 @@ private:
   
 };
 
+/** \brief Our internal representation of a user information block.
+  *
+  */
+
+class UserBlock {
+public:
+
+  UserBlock  ();
+  UserBlock (const QDomElement & dom);
+
+  void SetContent (const QDomElement & dom);
+
+  void Domify (QDomElement & dom);
+
+  /// \brief Id () is the user id (not status)
+
+  QString   Id () const { return ident; } 
+  QString   Value (const QString & key) const;
+
+  bool  HasValue (const QString & key) const 
+                 { return userValues.HasValue (key); }
+
+  void  SetValue (const QString & key, const QString & value);
+
+  StringBlock &   User   () { return userValues; }
+
+  void SetUser   (const StringBlock & user)   { userValues = user; }
+
+private:
+
+  void ParseContent (StringBlock & block, const QDomElement & dom);
+
+  QString   ident; 
+
+  StringBlock   userValues;
+ 
+  friend QDebug & operator << (QDebug & out, const UserBlock & data);
+  
+};
+
 QDebug & operator << (QDebug & out, const StringBlock & data);
 QDebug & operator << (QDebug & out, const StatusBlock & data);
+QDebug & operator << (QDebug & out, const UserBlock & data);
 
 } // namespace
 

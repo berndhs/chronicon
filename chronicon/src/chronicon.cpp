@@ -100,6 +100,8 @@ Chronicon::Connect ()
 
   connect (&network, SIGNAL (NewStatusItem (StatusBlock, TimelineKind)),
            &theView, SLOT (CatchStatusItem (StatusBlock, TimelineKind)));
+  connect (&network, SIGNAL (NewUserInfo (UserBlock)),
+           &theView, SLOT (CatchUserInfo (UserBlock)));
   connect (&network, SIGNAL (ClearList()),
            &theView, SLOT (ClearList()));
   connect (&network, SIGNAL (ReplyComplete(TimelineKind)),

@@ -44,9 +44,10 @@ namespace chronicon {
 
   enum ApiRequestKind {
          A_None = 0,
-         A_Timeline,
-         A_AuthVerify,
-         A_Logout,
+         A_Timeline = 1,
+         A_AuthVerify = 2,
+         A_Logout = 3,
+         A_UserInfo = 4,
          A_Top
   };
 

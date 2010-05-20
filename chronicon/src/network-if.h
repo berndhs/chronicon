@@ -110,6 +110,7 @@ public slots:
 signals:
 
   void NewStatusItem (StatusBlock item, TimelineKind kind);
+  void NewUserInfo (UserBlock userInfo);
   void ReplyComplete (TimelineKind kind);
   void RePoll (TimelineKind kind);
   void ShortenReply (QUuid tag, QString shortUrl, QString longUrl, bool good);
@@ -152,6 +153,7 @@ private:
   void ReTweetOA (QString id);
   void ReTweetBasic (QString id);
   void ParseTwitterDoc (QDomDocument &doc, TimelineKind kind);
+  void ParseUserInfo (QDomDocument &doc);
   void ParseUpdate (QDomDocument &doc, TimelineKind kind);
   void ParseUserBlock (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);

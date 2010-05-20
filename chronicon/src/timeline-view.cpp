@@ -205,11 +205,6 @@ void
 TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
 {
   if (kind > R_None && kind < R_Top) {
-    if (kind == R_ThisUser) {
-      followers = block.UserValue ("followers_count");
-      followees = block.UserValue ("friends_count");
-      ownMessageCount = block.UserValue ("statuses_count");
-    }
     if (kind != R_Update) {
       AddCurrent (block, kind);
     } else {
@@ -218,6 +213,16 @@ TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
   } else {
     qDebug () << __FILE__ << __LINE__ << " bad timeline kind " << kind;
   }
+}
+
+void
+TimelineView::CatchUserInfo (UserBlock block)
+{
+  currentAuthor = block.Value ("screen_name");
+  followers = block.Value ("followers_count");
+  followees = block.Value ("friends_count");
+  ownMessageCount = block.Value ("statuses_count");
+  Show ();
 }
 
 void
@@ -394,14 +399,15 @@ TimelineView::Show ()
                               .arg(titleStyle)
                               .arg (tr("Public Timeline")));
   } else {
-    headlinePattern = tr(("<h3 style=\"%2\">As of %1 sent %5 updates"
+    headlinePattern = tr(("<h3 style=\"%2\">As of %1 %6 sent %5 updates"
                "<br>"      
                "following %3 others, have %4 followers</h3>"));
     html.append (headlinePattern.arg(date)
                               .arg(titleStyle)
                               .arg(followees)
                               .arg(followers)
-                              .arg (ownMessageCount));
+                              .arg (ownMessageCount)
+                              .arg (currentAuthor));
   }
   QString parHtml;
   PagePartMap::reverse_iterator para;

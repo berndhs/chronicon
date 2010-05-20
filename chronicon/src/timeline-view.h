@@ -58,6 +58,7 @@ public:
 public slots:
 
   void CatchStatusItem (StatusBlock block, TimelineKind kind);
+  void CatchUserInfo (UserBlock block);
 
 /** \brief Chronicon has internal links, the syntax is
  *                chronicon://status/item#statusid
@@ -116,6 +117,7 @@ private:
   QString followers;
   QString followees;
   QString ownMessageCount;
+  QString currentAuthor;
 
 
   QString dtd;

@@ -211,13 +211,18 @@ qDebug () << " net reply X-Ratelimit-Limit " << netReply->rawHeader ("X-Ratelimi
     TimelineKind kind (reply->Kind());
 qDebug () << " net reply is for " << timelineName (kind);
     ApiRequestKind ark (reply->ARKind());
+qDebug () << " net reply ark is " << ark;
     if (ark == A_AuthVerify) {
       if (reply->error() == 0) {
          emit TwitterAuthGood ();
       } else {
          emit TwitterAuthBad ();
       }
-    } else {
+    } else if (ark == A_UserInfo) {
+      QDomDocument userDoc;
+      userDoc.setContent (netReply);
+      ParseUserInfo (userDoc);
+    } else /* ark == something else  */ {
       QDomDocument doc;
       doc.setContent (netReply);
       switch (kind) {
@@ -562,6 +567,18 @@ NetworkIF::ParseUserBlock (QDomDocument & doc, TimelineKind kind)
 }
 
 void
+NetworkIF::ParseUserInfo (QDomDocument & userDoc)
+{
+  QDomElement root = userDoc.documentElement();
+  if (root.tagName() == "user") {
+    UserBlock userInfo (root);
+    emit NewUserInfo (userInfo);
+  } else {
+    qDebug () << " bad user block tag " << root.tagName();
+  }
+}
+
+void
 NetworkIF::ParseStatus (QDomElement & elt, TimelineKind kind)
 {
   StatusBlock  block (elt);
@@ -688,24 +705,25 @@ void
 NetworkIF::PullUserBlockBasic ()
 {
   QNetworkRequest request;
-  QUrl url  (QString(Service ("statuses/%1.xml"))
-                    .arg("user_timeline"));
+  QUrl url  (Service ("users/show.xml"));
+  url.addQueryItem ("screen_name",user);
   request.setUrl(url);
   request.setRawHeader ("User-Agent","Chronicon; WebKit");
   DebugShow (request);
   QNetworkReply *reply = Network()->get (request);
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
-                                                  R_ThisUser);
+                                                  R_None,
+                                                  A_UserInfo);
   ExpectReply (reply, chReply);
 }
 
 void
 NetworkIF::PullUserBlockOA ()
 {
-  QString urlString = OAuthService ("statuses/%1.xml")
-                              .arg("user_timeline");
+  QString urlString = OAuthService ("users/show.xml");
   QOAuth::ParamMap  args;
+  args.insert ("screen_name",QUrl::toPercentEncoding(user.toUtf8()));
   QByteArray  parms = prepareOAuthString (urlString, 
                                           QOAuth::GET,
                                           args);
@@ -719,7 +737,8 @@ NetworkIF::PullUserBlockOA ()
   QNetworkReply *reply = Network()->get (req);
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
-                                                  R_ThisUser);
+                                                  R_None,
+                                                  A_UserInfo);
   ExpectReply (reply, chReply);
   
 }
