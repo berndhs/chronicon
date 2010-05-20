@@ -779,12 +779,7 @@ NetworkIF::PushUserStatusBasic (QString status, QString refId)
 
   req.setRawHeader ("User-Agent","Chronicon WebKit");
   DebugShow (req);
-  QNetworkReply * reply = Network()->post (req,nada);
-
-  ChronNetworkReply *chReply = new ChronNetworkReply (url,
-                                                  reply, 
-                                                  chronicon::R_Update); 
-  ExpectReply (reply, chReply);
+  PostBasic (url, req, nada, R_Update);
 }
 
 void
@@ -820,15 +815,7 @@ NetworkIF::DirectMessageBasic (QString toName, QString msg)
   url.addEncodedQueryItem ("text",encoded);
   QNetworkRequest req (url);
   QByteArray nada;
-
-  req.setRawHeader ("User-Agent","Chronicon WebKit");
-  DebugShow (req);
-  QNetworkReply * reply = Network()->post (req,nada);
-
-  ChronNetworkReply *chReply = new ChronNetworkReply (url,
-                                                  reply, 
-                                                  chronicon::R_Update); 
-  ExpectReply (reply, chReply);
+  PostBasic (url, req, nada, R_Update);
 }
 
 void
@@ -860,18 +847,11 @@ NetworkIF::ChangeFollowBasic (QString otherUser, int change)
                   .arg (change < 0 ? "leave" : "follow");
   QString urlString (Service (action));
   QUrl  url (urlString);
-  url.addQueryItem ("screen_name",otherUser);
+  QByteArray encoUser = QUrl::toPercentEncoding (otherUser);
+  url.addEncodedQueryItem ("id",encoUser);
   QNetworkRequest req (url);
   QByteArray nada;
-
-  req.setRawHeader ("User-Agent","Chronicon WebKit");
-  DebugShow (req);
-  QNetworkReply * reply = Network()->post (req,nada);
-
-  ChronNetworkReply *chReply = new ChronNetworkReply (url,
-                                                  reply, 
-                                                  chronicon::R_Ignore); 
-  ExpectReply (reply, chReply);
+  PostBasic (url, req, nada, R_Ignore);
 }
 
 void
@@ -881,7 +861,7 @@ NetworkIF::ChangeFollowOA (QString otherName, int change)
     return;
   }
   QOAuth::ParamMap  paramContent;
-  paramContent.insert ("screen_name",QUrl::toPercentEncoding 
+  paramContent.insert ("id",QUrl::toPercentEncoding 
                                      (otherName.toUtf8()));
   QString action = QString("notifications/%1.xml")
                   .arg (change < 0 ? "leave" : "follow");
@@ -910,13 +890,7 @@ NetworkIF::PushDeleteBasic (QString id)
   QUrl url (urlString.arg(id));
   QNetworkRequest  req(url);
   QByteArray nada;
-
-  QNetworkReply * reply = Network()->post (req,nada);
-
-  ChronNetworkReply *chReply = new ChronNetworkReply (url,
-                                                  reply, 
-                                                  chronicon::R_Destroy); 
-  ExpectReply (reply, chReply);
+  PostBasic (url, req, nada, R_Destroy);
 }
 
 void
@@ -927,6 +901,20 @@ NetworkIF::PushDeleteOA (QString id)
   QString urlStr = OAuthService ("statuses/destroy.xml");
   PostOA (urlStr, paramContent, R_Destroy);
 }
+
+
+
+void
+NetworkIF::PostBasic (QUrl &url, 
+                      QNetworkRequest &req, 
+                      QByteArray & data,
+                      TimelineKind kind)
+{
+  QNetworkReply * reply = Network()->post (req, data);
+  ChronNetworkReply * chReply = new ChronNetworkReply (url, reply, kind);
+  ExpectReply (reply, chReply);
+}
+
 
 void 
 NetworkIF::PostOA (QString  & urlString, 

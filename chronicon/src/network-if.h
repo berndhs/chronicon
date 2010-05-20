@@ -132,6 +132,10 @@ private:
   void PostOA (QString  & urlString, 
                    QOAuth::ParamMap & paramContent,
                    TimelineKind      kind);
+  void PostBasic (QUrl &url, 
+                      QNetworkRequest &req, 
+                      QByteArray & data,
+                      TimelineKind kind);
 
   void PushUserStatusOA (QString status, QString refId);
   void PushUserStatusBasic (QString status, QString refId);
