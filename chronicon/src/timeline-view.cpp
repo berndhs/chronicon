@@ -401,7 +401,7 @@ TimelineView::Show ()
   } else {
     headlinePattern = tr(("<h3 style=\"%2\">As of %1 %6 sent %5 updates"
                "<br>"      
-               "following %3 others, have %4 followers</h3>"));
+               "following %3 others, has %4 followers</h3>"));
     html.append (headlinePattern.arg(date)
                               .arg(titleStyle)
                               .arg(followees)
