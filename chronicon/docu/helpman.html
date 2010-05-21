@@ -1,0 +1,668 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.4.5" />
+<title>Chronicon Help Manual</title>
+<style type="text/css">
+/* Debug borders */
+p, li, dt, dd, div, pre, h1, h2, h3, h4, h5, h6 {
+/*
+  border: 1px solid red;
+*/
+}
+
+body {
+  margin: 1em 5% 1em 5%;
+}
+
+a {
+  color: blue;
+  text-decoration: underline;
+}
+a:visited {
+  color: fuchsia;
+}
+
+em {
+  font-style: italic;
+  color: navy;
+}
+
+strong {
+  font-weight: bold;
+  color: #083194;
+}
+
+tt {
+  color: navy;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #527bbd;
+  font-family: sans-serif;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+h1, h2, h3 {
+  border-bottom: 2px solid silver;
+}
+h2 {
+  padding-top: 0.5em;
+}
+h3 {
+  float: left;
+}
+h3 + * {
+  clear: left;
+}
+
+div.sectionbody {
+  font-family: serif;
+  margin-left: 0;
+}
+
+hr {
+  border: 1px solid silver;
+}
+
+p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+ul, ol, li > p {
+  margin-top: 0;
+}
+
+pre {
+  padding: 0;
+  margin: 0;
+}
+
+span#author {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+span#email {
+}
+span#revnumber, span#revdate, span#revremark {
+  font-family: sans-serif;
+}
+
+div#footer {
+  font-family: sans-serif;
+  font-size: small;
+  border-top: 2px solid silver;
+  padding-top: 0.5em;
+  margin-top: 4.0em;
+}
+div#footer-text {
+  float: left;
+  padding-bottom: 0.5em;
+}
+div#footer-badges {
+  float: right;
+  padding-bottom: 0.5em;
+}
+
+div#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
+div.admonitionblock {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+div.admonitionblock {
+  margin-top: 2.5em;
+  margin-bottom: 2.5em;
+}
+
+div.content { /* Block element content. */
+  padding: 0;
+}
+
+/* Block element titles. */
+div.title, caption.title {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1.0em;
+  margin-bottom: 0.5em;
+}
+div.title + * {
+  margin-top: 0;
+}
+
+td div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content div.title:first-child {
+  margin-top: 0.0em;
+}
+div.content + div.title {
+  margin-top: 0.0em;
+}
+
+div.sidebarblock > div.content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+
+div.listingblock > div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock {
+  padding-left: 2.0em;
+  margin-right: 10%;
+}
+div.quoteblock > div.attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock {
+  padding-left: 2.0em;
+  margin-right: 10%;
+}
+div.verseblock > div.content {
+  white-space: pre;
+}
+div.verseblock > div.attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+/* DEPRECATED: Pre version 8.2.7 verse style literal block. */
+div.verseblock + div.attribution {
+  text-align: left;
+}
+
+div.admonitionblock .icon {
+  vertical-align: top;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: underline;
+  color: #527bbd;
+  padding-right: 0.5em;
+}
+div.admonitionblock td.content {
+  padding-left: 0.5em;
+  border-left: 2px solid silver;
+}
+
+div.exampleblock > div.content {
+  border-left: 2px solid silver;
+  padding: 0.5em;
+}
+
+div.imageblock div.content { padding-left: 0; }
+span.image img { border-style: none; }
+a.image:visited { color: white; }
+
+dl {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+dt {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+  font-style: normal;
+  color: navy;
+}
+dd > *:first-child {
+  margin-top: 0.1em;
+}
+
+ul, ol {
+    list-style-position: outside;
+}
+ol.arabic {
+  list-style-type: decimal;
+}
+ol.loweralpha {
+  list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead {
+  font-family: sans-serif;
+  font-weight: bold;
+}
+tfoot {
+  font-weight: bold;
+}
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+div.hdlist {
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+div.hdlist tr {
+  padding-bottom: 15px;
+}
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
+  vertical-align: top;
+  font-style: normal;
+  padding-right: 0.8em;
+  color: navy;
+}
+td.hdlist2 {
+  vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
+}
+
+@media print {
+  div#footer-badges { display: none; }
+}
+
+div#toctitle {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-top: 1.0em;
+  margin-bottom: 0.1em;
+}
+
+div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.toclevel2 {
+  margin-left: 2em;
+  font-size: 0.9em;
+}
+div.toclevel3 {
+  margin-left: 4em;
+  font-size: 0.9em;
+}
+div.toclevel4 {
+  margin-left: 6em;
+  font-size: 0.9em;
+}
+/* Workarounds for IE6's broken and incomplete CSS2. */
+
+div.sidebar-content {
+  background: #ffffee;
+  border: 1px solid silver;
+  padding: 0.5em;
+}
+div.sidebar-title, div.image-title {
+  color: #527bbd;
+  font-family: sans-serif;
+  font-weight: bold;
+  margin-top: 0.0em;
+  margin-bottom: 0.5em;
+}
+
+div.listingblock div.content {
+  border: 1px solid silver;
+  background: #f4f4f4;
+  padding: 0.5em;
+}
+
+div.quoteblock-attribution {
+  padding-top: 0.5em;
+  text-align: right;
+}
+
+div.verseblock-content {
+  white-space: pre;
+}
+div.verseblock-attribution {
+  padding-top: 0.75em;
+  text-align: left;
+}
+
+div.exampleblock-content {
+  border-left: 2px solid silver;
+  padding-left: 0.5em;
+}
+
+/* IE6 sets dynamically generated links as visited. */
+div#toc a:visited { color: blue; }
+</style>
+</head>
+<body>
+<div id="header">
+<h1>Chronicon Help Manual</h1>
+<span id="author">Bernd Stramm</span><br />
+<span id="email"><tt>&lt;<a href="mailto:bernd.stramm@gmail.com">bernd.stramm@gmail.com</a>&gt;</tt></span><br />
+<span id="revnumber">version 0.1.0,</span>
+<span id="revdate">19 May 2010</span>
+</div>
+<h2 id="_startup">Startup</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><strong>Chronicon</strong> starts by showing the public timeline of messages
+on the configured service. The default service is <a href="http://api.twitter.com">http://api.twitter.com</a>. You can
+change this to match your preferences, see the <a href="#network">Network</a> section
+of <a href="#config">Configuration</a>.</p></div>
+</div>
+<h2 id="_login">Login</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>There are two login methods available in <strong>Chronicon</strong>. Which one you use
+depends largely on your service provider. Most <a href="http://status.net">StatusNet</a>
+providers use Basic Authentication, while <a href="http://twitter.com">Twitter</a> prefers
+OAuth.</p></div>
+<h3 id="_basic_authentication">Basic Authentication</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Basic Authentication asks you for a user name and password. Enter those from
+your microblogging service. Be aware that <strong>Chronicon</strong> does not store your
+password.</p></div>
+<h3 id="_oauth">OAuth</h3><div style="clear:left"></div>
+<div class="paragraph"><p>OAuth is "An open protocol to allow secure API authorization  in a simple and standard  method from desktop and web applications", according to <a href="http://oauth.net">http://oauth.net</a>.
+How secure and how convenient it is remains for history to decide, as this is a
+fairly recent standard. It also remains to be seen how many versions of this
+standard will arise.</p></div>
+<div class="paragraph"><p><strong>Chronicon</strong> supports OAuth with the <a href="#logintype">login_type</a> configuration item.</p></div>
+<div class="paragraph"><p>When in <strong>oauth</strong> mode, selecting <strong>Login</strong> from the <strong>Start/Stop</strong> menu brings up
+a <strong>Web Login</strong> window.
+In this window, enter your user name and your password
+for the microblogging service. Check the contents of the window to make sure
+it is the right service.</p></div>
+<div class="paragraph"><p>You will need to grant access to <strong>Chronicon</strong> on the web page in the <strong>Web Login</strong> window. Read the instruction in the window, and on the web page displayed inside.</p></div>
+<div class="paragraph"><p>Note that <strong>Chronicon</strong> does not store your service password. Whatever you enter
+on the web page in the <strong>Web Login</strong> window goes to the service provider.</p></div>
+<div class="paragraph"><p>After you have authorized <strong>Chronicon</strong> to access the service, you will be given
+a PIN. <strong>Chronicon</strong> will try to read the PIN on the authorization response. You can
+also copy the PIN from the web page reply, and paste it into the <strong>Your PIN</strong> field
+on the <strong>Web Login</strong> window.</p></div>
+<h4 id="_auto_login">Auto Login</h4>
+<div class="paragraph"><p>Auto Login uses the authentication from the last successful OAuth login. Be
+aware that this information could have expired as a policy of the service
+provider. Also, if you have logged in using <strong>Chronicon</strong> from another computer,
+or from another phone, the authentication may be outdated.</p></div>
+</div>
+<h2 id="_messages">Messages</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Click on the avatar image of a message in the timeline to get the <strong>Status Item</strong>
+detail window.</p></div>
+<h3 id="_sending_messages">Sending Messages</h3><div style="clear:left"></div>
+<div class="paragraph"><p>You can send new messages by typing them in the text input field above the timeline
+list. The input field will expand when you start typing.</p></div>
+<div class="paragraph"><p>You can also click on the <strong>Type</strong> button before you start typing.</p></div>
+<div class="paragraph"><p>To send the message as typed (except for automatic link shortening, see below),
+click on the <strong>Send Update</strong> button.</p></div>
+<h4 id="_link_shortening">Link Shortening</h4>
+<div class="paragraph"><p>Microblogging services impose draconian limits on message sizes
+(typically 140 bytes) while otherwise being quite liberal with the use of bandwidth.
+Because of this, <strong>shortening links</strong> has become popular, and many services
+are available help.</p></div>
+<div class="paragraph"><p><strong>Chronicon</strong> supports automatic link shortening using one of these services
+available at <a href="http://bit.ly">http://bit.ly</a>. If you want automatic link shortening, you need
+an account there. At the time of this writing, these accounts are available
+at no cost. See the <a href="#shortening">Shortening Service</a> section below.</p></div>
+<div class="paragraph"><p>A more generic configuration, supporting arbitrary shortening services, is
+planned for a future release.</p></div>
+<h3 id="_email">Email</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Selecting <strong>email</strong> composes an email message consisting of the current message
+in the Status Item window, and hands it to your email program. You can then
+supply a destination email, and edit the message body and subject in your
+normal email client.</p></div>
+<h3 id="_retweet_and_retweet_plus">ReTweet and ReTweet Plus</h3><div style="clear:left"></div>
+<div class="paragraph"><p>You can re-tweet a message exactly as it is, or send your own message
+based on the content of the current message in the Status Item window.</p></div>
+<h3 id="_direct_message">Direct Message</h3><div style="clear:left"></div>
+<div class="paragraph"><p>You can send direct messages to the sender of the message you are viewing
+in the Status Item detail window. Note that not all users allow direct
+messages to be sent too them.</p></div>
+<h3 id="_save_message">Save Message</h3><div style="clear:left"></div>
+<div class="paragraph"><p>You can save messages as text. <strong>Chronicon</strong> makes up a file name based
+on the sender of the message and the message id. You can of course change
+that name.</p></div>
+<h3 id="_delete_message">Delete Message</h3><div style="clear:left"></div>
+<div class="paragraph"><p>You can only delete your own messages. Note also that a deleted message
+will not dissapear right away from your local timeline view - <strong>Chronicon</strong>
+shows status items as it found them, not as they are currently
+in the server databases.</p></div>
+</div>
+<h2 id="_a_id_config_a_configuration"><a id="config"></a> Configuration</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>You can change how <strong>Chronicon</strong> behaves in several ways.</p></div>
+<h3 id="_files">Files</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The <strong>savedir</strong> item contains the directory where the last saved message
+was written. You can change this so that the next time you save a message,
+the dialog will start in a particular directory. However be aware that
+saving a file will set this item, to the directory that you saved the file in.
+</p>
+</li>
+</ul></div>
+<h3 id="_a_id_network_a_network"><a id="network"></a> Network</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The <a id="logintype"></a> <strong>login_type</strong> item should be set to either "basic" or "oauth",
+depending on which authentication (login) method your service provider
+wants you to use.
+</p>
+</li>
+</ul></div>
+<h4 id="_message_service">Message Service</h4>
+<div class="ulist"><ul>
+<li>
+<p>
+The <strong>service</strong> item contains the web address of the microblogging service
+used. The default for this is <a href="http://api.twitter.com/1">http://api.twitter.com/1</a>. Note that this
+is more than just a web site address, there is a trailing <em>path</em> portion. All
+of it needs to be correct.
+</p>
+</li>
+</ul></div>
+<h4 id="_a_id_shortening_a_shortening_service"><a id="shortening"></a> Shortening Service</h4>
+<div class="paragraph"><p>The Shortening service setup is currently done by providing two
+configuration items, which you obtain from the <a href="http://bit.ly">http://bit.ly</a> service:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<strong>bitly_user</strong> is the user name at the shortening service
+</p>
+</li>
+<li>
+<p>
+<strong>bitly_key</strong> is the user identification key
+</p>
+</li>
+</ul></div>
+<h3 id="_style">Style</h3><div style="clear:left"></div>
+<div class="ulist"><ul>
+<li>
+<p>
+You can change the Qt window style used for <strong>Chronicon</strong> to match your
+taste, or to match what is available on your system.
+</p>
+</li>
+</ul></div>
+<h3 id="_timers_and_delays">Timers and Delays</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The <strong>timers</strong> section of the Configuration contains these values:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The <strong>pollperiod</strong> item allows you to change how often <strong>Chronicon</strong> checks
+for new messages. The value is expressed in milliseconds. So a value of 180000
+means that 180 seconds will pass between successive pulls of the service. Note
+that polling faster than once a minute is usually not useful, unless you have
+a special service provider that updates very fast.
+</p>
+</li>
+<li>
+<p>
+The <strong>notifydelay</strong> item allows you to change how long a notification popup
+stays on your desktop. The value is expressed in milliseconds.
+</p>
+</li>
+</ul></div>
+<h3 id="_view_html_css_style">View HTML/CSS Style</h3><div style="clear:left"></div>
+<div class="paragraph"><p>There are several configurable items in this category. Keep in mind that
+these items are used only for displaying things within <strong>Chronicon</strong>. Nothing in
+here affects messages that you send out.</p></div>
+<div class="paragraph"><p>HTML/CSS style settings can be cryptic, so be careful what you change here.
+Slight misspellings in keywords will cause CSS to ignore what you did. Forgetting
+to close brackets can affect styled text that is completely unrelated to what
+you are trying to do.</p></div>
+<h3 id="_weblogin">Weblogin</h3><div style="clear:left"></div>
+<div class="paragraph"><p>This section contains configuration items useful for the OAuth web login
+function.</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+The User Agent String field <strong>useragentstring</strong> is what tells the
+service website what kind of formatting
+to use for the authorization web page. The default setting suggests to use
+formatting for a mobile phone, which uses a conveniently small window.
+</p>
+</li>
+</ul></div>
+</div>
+<h2 id="_prerequisits">Prerequisits</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>To build and run <strong>Chronicon</strong>, the current version uses:</p></div>
+<div class="olist arabic"><ol class="arabic">
+<li>
+<p>
+C++
+</p>
+<div class="olist loweralpha"><ol class="loweralpha">
+<li>
+<p>
+Gcc
+</p>
+</li>
+</ol></div>
+</li>
+<li>
+<p>
+Qt4.6 or later , including these parts:
+</p>
+<div class="olist loweralpha"><ol class="loweralpha">
+<li>
+<p>
+Xml
+</p>
+</li>
+<li>
+<p>
+WebKit
+</p>
+</li>
+<li>
+<p>
+Network
+</p>
+</li>
+<li>
+<p>
+Gui
+</p>
+</li>
+</ol></div>
+</li>
+<li>
+<p>
+qca2&#8201;&#8212;&#8201;a Qt module providing cryptographic services
+</p>
+</li>
+<li>
+<p>
+qca-ossl&#8201;&#8212;&#8201;a plugin providing openssl support for QCA2
+</p>
+</li>
+</ol></div>
+<div class="paragraph"><p>If you are trying to build <strong>Chronicon</strong> from source, you will need the devel
+version of these modules. Some Linux distros can be very slow in making current
+versions of modules available.</p></div>
+<div class="paragraph"><p>Applicable local and export laws may affect which cryptographic tools you can use.</p></div>
+<h3 id="_how_to_build">How to Build</h3><div style="clear:left"></div>
+<div class="paragraph"><p>It&#8217;s pretty straightforward. Please read the README file that comes with
+the source code.</p></div>
+</div>
+<h2 id="_license_and_warranty">License and Warranty</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>This is free open source software, hence the usual licensing. And the
+usual warranty, or lack thereof:</p></div>
+<div class="sidebarblock">
+<div class="sidebar-content">
+<div class="paragraph"><p>These programs are distributed under the terms of the
+GNU General Public License version 2.</p></div>
+<div class="paragraph"><p>See the file <strong>LICENSE.txt</strong> for the complete text of the license. You can
+also find it on <a href="http://www.gnu.org">http://www.gnu.org</a>. Or you can select <strong>Help&#8594;License</strong> from the
+menu bar to see a copy.</p></div>
+<div class="paragraph"><p>This software is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p></div>
+</div></div>
+<div class="quoteblock">
+<div class="quoteblock-content">
+<div class="paragraph"><p><sub>Copyright &#169; 2010 <a href="http://www.bernd-stramm.com/">Bernd Stramm</a> All Rights Reserved</sub></p></div>
+</div>
+<div class="quoteblock-attribution">
+</div></div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 0.1.0<br />
+Last updated 2010-05-19 13:14:00 EDT
+</div>
+</div>
+</body>
+</html>
