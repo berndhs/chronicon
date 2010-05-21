@@ -40,13 +40,13 @@ HELP_TXT = helpman.txt
 all: manual program
 
 program: $(MAKEFILE)
-	make -f $(MAKEFILE) all
+	$(MAKE) -f $(MAKEFILE) all
 
 clean: $(MAKEFILE) FORCE
-	make -f $(MAKEFILE) clean
+	$(MAKE) -f $(MAKEFILE) clean
 
 distclean: $(MAKEFILE) FORCE
-	make -f $(MAKEFILE) distclean
+	$(MAKE) -f $(MAKEFILE) distclean
 	rm -f $(MAKEFILE)
 	rm -f $(TOP_MAKEFILE)
 	@echo
@@ -66,19 +66,19 @@ docs/$(HELP_HTML): docs/$(HELP_TXT)
 	
 debug: $(MAKEFILE) FORCE
 	for D in $(NODEBUG_SUBS) ; do \
-	   cd $$D; make -f $(MAKEFILE); \
+	   cd $$D; $(MAKE) -f $(MAKEFILE); \
 	   done
 	for D in $(DEBUG_SUBS) ; do \
-	   cd $$D; make -f $(MAKEFILE) debug ; \
+	   cd $$D; $(MAKE) -f $(MAKEFILE) debug ; \
 	   done
 
 
 release: $(MAKEFILE) FORCE
 	for D in $(NODEBUG_SUBS) ; do \
-	   cd $$D; make -f $(MAKEFILE); \
+	   cd $$D; $(MAKE) -f $(MAKEFILE); \
 	   done
 	for D in $(DEBUG_SUBS) ; do \
-	   cd $$D; make -f $(MAKEFILE) release ; \
+	   cd $$D; $(MAKE) -f $(MAKEFILE) release ; \
 	   done
 
 install: all FORCE
