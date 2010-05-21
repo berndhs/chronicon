@@ -63,11 +63,8 @@ SetStyle (QSettings &zett)
 }
 
 int
-realmain (int argc, char * argv[])
+main (int argc, char * argv[])
 {
-  return 42;
- bool doquit (true);
- if (doquit) { return (44); }
   QCoreApplication::setApplicationName ("chronicon");
   QCoreApplication::setOrganizationName ("BerndStramm");
   QCoreApplication::setOrganizationDomain ("bernd-stramm.com");
@@ -131,8 +128,3 @@ qDebug () << __FILE__ << __LINE__ << " have app object";
   return status;
 }
 
-int
-main (int argc, char* argv[])
-{
-  return 43;
-}
