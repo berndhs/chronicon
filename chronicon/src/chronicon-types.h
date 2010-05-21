@@ -21,23 +21,33 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
+#include <QString>
 
 namespace chronicon {
 
   enum TimelineKind {
          R_None = 0,
-         R_Public,
-         R_Private,
-         R_Update,
-         R_Destroy,
+         R_Public = 1,
+         R_Private = 2,
+         R_Update = 3,
+         R_Destroy = 4,
+         R_ThisUser = 5,
+         R_OtherUser = 6,
+         R_Ignore = 7,
+         R_Mentions = 8,
+         R_OwnRetweets = 9,
+         R_FriendRetweets = 10,
          R_Top
          };
 
+  QString timelineName (TimelineKind kind);
+
   enum ApiRequestKind {
          A_None = 0,
-         A_Timeline,
-         A_AuthVerify,
-         A_Logout,
+         A_Timeline = 1,
+         A_AuthVerify = 2,
+         A_Logout = 3,
+         A_UserInfo = 4,
          A_Top
   };
 

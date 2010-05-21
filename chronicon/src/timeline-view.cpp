@@ -18,6 +18,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
+
 #if USE_NOTIFY
 #include <libnotify/notify.h>
 #endif
@@ -72,7 +73,7 @@ TimelineView::HtmlStyles ()
   fontSize = "90%";
   nickStyle = "font-weight:bold;text-decoration:none;";
   titleStyle = "font-size:smaller; color:0f2f0f;";
-  titleDateForm = tr("ddd hh:mm:hh");
+  titleDateForm = tr("ddd hh:mm:ss");
   imgPattern = QString ("<div style=\"float:left;margin:3px;\">"
                     "<a href=\"chronicon://status/item#%2\" style=\"%3\">"
                     "<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" "
@@ -146,14 +147,20 @@ TimelineView::Display (TimelineKind k)
 }
 
 void
-TimelineView::ClearList ()
+TimelineView::ClearList (TimelineKind kind)
 {
-  paragraphs.clear();
+  TimelineKind k;
+  if (kind == R_None) {
+    k = currentKind;
+  } else {
+    k = kind;
+  }
+  paragraphs[k].clear();
   Show ();
 }
 
 
-/** \LinkClicked - Chronicon has internal links, the syntax is
+/** \brief Chronicon has internal links, the syntax is
  *                chronicon://status/item#statusid
  *            and chronicon://search/q#searchterm
  */
@@ -180,8 +187,8 @@ TimelineView::CustomLink (const QUrl & url)
   QString path = url.path();
   QString host = url.host();
   if (host == "status" && path == "/item") {
-     PagePartMap::iterator index = paragraphs.find (frag);
-     if (index != paragraphs.end()) {
+     PagePartMap::iterator index = paragraphs[currentKind].find (frag);
+     if (index != paragraphs[currentKind].end()) {
        QString html;
        FormatParagraph (html, index->second);
        emit ItemDialog (frag, index->second, html);
@@ -198,10 +205,9 @@ void
 TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
 {
   if (kind > R_None && kind < R_Top) {
-    if (kind == currentKind) {
-       AddCurrent (block);
-    }
-    if (kind == R_Update) {
+    if (kind != R_Update) {
+      AddCurrent (block, kind);
+    } else {
        AddOwn (block);
     }
   } else {
@@ -210,7 +216,17 @@ TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
 }
 
 void
-TimelineView::AddCurrent (StatusBlock block)
+TimelineView::CatchUserInfo (UserBlock block)
+{
+  currentAuthor = block.Value ("screen_name");
+  followers = block.Value ("followers_count");
+  followees = block.Value ("friends_count");
+  ownMessageCount = block.Value ("statuses_count");
+  Show ();
+}
+
+void
+TimelineView::AddCurrent (StatusBlock block, TimelineKind kind)
 {
   QString id = block.Id();
   if (!block.HasUserValue("screen_name")) {
@@ -219,7 +235,7 @@ TimelineView::AddCurrent (StatusBlock block)
   if (doNotify && notifyDelay > 0) {
      PopupNotify (id,block);
   }
-  paragraphs[id] = block;
+  paragraphs[kind][id] = block;
 }
 
 void
@@ -235,13 +251,13 @@ TimelineView::AddOwn (StatusBlock block)
   if (doNotify && notifyDelay > 0) {
      PopupNotify (id,block);
   }
-  paragraphs[id] = block;
+  paragraphs[currentKind][id] = block;
 }
 
 void
 TimelineView::PopupNotify (QString id, StatusBlock & block)
 {
-  if (paragraphs.find(id) != paragraphs.end()) {
+  if (paragraphs[currentKind].find(id) != paragraphs[currentKind].end()) {
     return;
   }
 #if USE_NOTIFY
@@ -338,23 +354,26 @@ TimelineView::Ago (int secs)
 }
 
 void
-TimelineView::FlushParagraphs ()
+TimelineView::FlushParagraphs (TimelineKind kind)
 {
+  if (kind == R_None) {
+    kind = currentKind;
+  }
   maxParagraphs = Settings().value ("view/maxitems",maxParagraphs).toInt();
-  if (maxParagraphs > paragraphs.size()) {
+  if (maxParagraphs > paragraphs[kind].size()) {
     return;
   }
   PagePartMap::iterator  index;
-  int toomany = paragraphs.size() - maxParagraphs;
+  int toomany = paragraphs[kind].size() - maxParagraphs;
   QStringList oldEntries;
-  for (index = paragraphs.begin(); 
-       toomany > 0 && index != paragraphs.end(); 
+  for (index = paragraphs[kind].begin(); 
+       toomany > 0 && index != paragraphs[currentKind].end(); 
        toomany--, index++) {
     oldEntries << index->first;
   }
   QStringList::iterator sindex;
   for (sindex = oldEntries.begin(); sindex != oldEntries.end(); sindex++) {
-    paragraphs.erase (*sindex);
+    paragraphs[kind].erase (*sindex);
   }
 }
 
@@ -371,12 +390,28 @@ TimelineView::Show ()
   html.append (head);
   html.append ("\n<body>\n");
 
-  QString headlinePattern = tr(("<h3 style=\"%2\">As of %1:</h3>"));
+  QString headlinePattern;
   QString date = QDateTime::currentDateTime().toString(titleDateForm);
-  html.append (headlinePattern.arg(date).arg(titleStyle));
+  if (currentKind == R_Public) {
+    headlinePattern = tr(("<h3 style=\"%2\">As of %1 %3"
+               "</h3>"));
+    html.append (headlinePattern.arg(date)
+                              .arg(titleStyle)
+                              .arg (tr("Public Timeline")));
+  } else {
+    headlinePattern = tr(("<h3 style=\"%2\">As of %1 %6 sent %5 updates"
+               "<br>"      
+               "following %3 others, has %4 followers</h3>"));
+    html.append (headlinePattern.arg(date)
+                              .arg(titleStyle)
+                              .arg(followees)
+                              .arg(followers)
+                              .arg (ownMessageCount)
+                              .arg (currentAuthor));
+  }
   QString parHtml;
   PagePartMap::reverse_iterator para;
-  for (para = paragraphs.rbegin(); para != paragraphs.rend(); para++) {
+  for (para = paragraphs[currentKind].rbegin(); para != paragraphs[currentKind].rend(); para++) {
      FormatParagraph (parHtml, para->second);
      html.append (parHtml);
   }

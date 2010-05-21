@@ -1,6 +1,5 @@
-
-#ifndef DIRECT_DIALOG_H
-#define DIRECT_DIALOG_H
+#ifndef FOLLOW_DIALOG_H
+#define FOLLOW_DIALOG_H
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -22,52 +21,50 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
-
 #include <QDialog>
-#include "ui_directmsg.h"
-#include "shortener.h"
+#include <QString>
+#include "ui_follow.h"
+#include "status-block.h"
 
 namespace chronicon {
 
-class NetworkIF;
 
-
-/** \brief Dialog for sending a direct message
-  */
-
-class DirectDialog : public QDialog {
+class FollowDialog : public QDialog, public Ui_FollowDialog {
 Q_OBJECT
 
 public:
 
-  DirectDialog (QWidget * parent);
+  FollowDialog (QWidget *parent);
 
-  void SetNetwork (NetworkIF *net);
+  QString User () { return fuser; }
+
+  /** \brief ShallFollow 1=change to yes, -1=change to no, 0=unchanged
+   */
+  int    ShallFollow () { return dofollow; }
 
 public slots:
 
-  void WriteMessage (QString toName);
-  void CatchShort   (QString shortMsg);
+  void Exec (QString user = QString());
+  void Exec (StringBlock  userData);
 
 private slots:
 
-  void SendMessage ();
+  void DoFollow ();
+  void UnFollow ();
 
 signals:
   
-  void SendDirect (QString toName, QString msg);
+  void Follow (QString user, int change);
 
 private:
 
-  NetworkIF  *network;
-  Shortener  shortener;
+  QString fuser;
+  int    dofollow;
 
-  QString    destUserName;
-
-  Ui_DirectMessage   ui;
 
 };
 
 } // namespace
+
 
 #endif

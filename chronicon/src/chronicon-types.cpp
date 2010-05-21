@@ -1,6 +1,5 @@
 
-#ifndef DIRECT_DIALOG_H
-#define DIRECT_DIALOG_H
+#include "chronicon-types.h"
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -23,51 +22,40 @@
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
 
-#include <QDialog>
-#include "ui_directmsg.h"
-#include "shortener.h"
-
 namespace chronicon {
 
-class NetworkIF;
-
-
-/** \brief Dialog for sending a direct message
-  */
-
-class DirectDialog : public QDialog {
-Q_OBJECT
-
-public:
-
-  DirectDialog (QWidget * parent);
-
-  void SetNetwork (NetworkIF *net);
-
-public slots:
-
-  void WriteMessage (QString toName);
-  void CatchShort   (QString shortMsg);
-
-private slots:
-
-  void SendMessage ();
-
-signals:
-  
-  void SendDirect (QString toName, QString msg);
-
-private:
-
-  NetworkIF  *network;
-  Shortener  shortener;
-
-  QString    destUserName;
-
-  Ui_DirectMessage   ui;
-
-};
+QString
+timelineName (TimelineKind kind)
+{
+  QString name;
+  switch (kind) {
+  case R_Public:
+    name = "public_timeline";
+    break;
+  case R_Private:
+    name = "home_timeline";
+    break;
+  case R_ThisUser:
+    name = "user_timeline";
+    break;
+  case R_OtherUser:
+    name = "user_timeline";
+    break;
+  case R_Mentions:
+    name = "mentions";
+    break;
+  case R_OwnRetweets:
+    name = "retweeted_by_me";
+    break;
+  case R_FriendRetweets:
+    name = "retweeted_to_me";
+    break;
+  default:
+    name = "public_timeline";
+    break;
+  }
+  return name;
+}
 
 } // namespace
 
-#endif

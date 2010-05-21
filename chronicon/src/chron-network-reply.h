@@ -30,6 +30,12 @@
 
 namespace chronicon {
 
+/** \brief Encapsulate a QNetworkReply and provide additional info
+  *
+  * Used for connection a QNetworkReply signal (e.g. finished() )
+  * to a particular object that knows what the reply object is,
+  * and has additional information about what to do with the reply.
+  */
 
 class ChronNetworkReply : public QObject {
 

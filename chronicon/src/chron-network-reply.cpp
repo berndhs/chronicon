@@ -48,6 +48,8 @@ ChronNetworkReply::~ChronNetworkReply ()
 void
 ChronNetworkReply::handleReturn ()
 {
+qDebug () << " ch reply for  " << kind;
+qDebug () << " ch reply from " << url;
   if (expireTimer) {
     expireTimer->stop();
   }

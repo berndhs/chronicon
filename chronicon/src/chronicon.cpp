@@ -56,6 +56,8 @@ Chronicon::Chronicon (QWidget *parent)
  configEdit (this),
  shortener (this),
  directDialog (this),
+ switchDialog (this),
+ followDialog (this),
  pApp(0),
  rerun (false)
 {
@@ -98,6 +100,8 @@ Chronicon::Connect ()
 
   connect (&network, SIGNAL (NewStatusItem (StatusBlock, TimelineKind)),
            &theView, SLOT (CatchStatusItem (StatusBlock, TimelineKind)));
+  connect (&network, SIGNAL (NewUserInfo (UserBlock)),
+           &theView, SLOT (CatchUserInfo (UserBlock)));
   connect (&network, SIGNAL (ClearList()),
            &theView, SLOT (ClearList()));
   connect (&network, SIGNAL (ReplyComplete(TimelineKind)),
@@ -113,9 +117,17 @@ Chronicon::Connect ()
            this, SLOT (startMessage (QString,QString)));
   connect (&itemDialog, SIGNAL (MakeDirect (QString)),
            &directDialog, SLOT (WriteMessage (QString)));
+  connect (&itemDialog, SIGNAL (MaybeFollow (StringBlock)),
+           &followDialog, SLOT (Exec (StringBlock)));
 
   connect (&directDialog, SIGNAL (SendDirect (QString, QString)),
            &network, SLOT (DirectMessage (QString, QString)));
+
+  connect (&switchDialog, SIGNAL (TimelineSwitch (int, QString)),
+            this, SLOT (ChangeTimeline (int, QString)));
+
+  connect (&followDialog, SIGNAL (Follow (QString, int)),
+            this, SLOT (ChangeFollow (QString, int)));
 
   connect (&shortener, SIGNAL (DoneShortening (QString )),
            this, SLOT (ReallyFinishMessage (QString)));
@@ -154,6 +166,10 @@ Chronicon::SetupMenus ()
 
   menubar->addAction (tr("Actions..."), this, SLOT (startActionMenu()));
   actionMenu.addAction (tr("New Update"), this, SLOT (startMessage()));
+  actionMenu.addAction (tr("(Un-) Follow"), 
+                       &followDialog, SLOT (Exec()));
+  actionMenu.addAction (tr("Choose Timeline"), 
+                       &switchDialog, SLOT (Exec()));
 
 
   /** Help Menu */
@@ -161,6 +177,18 @@ Chronicon::SetupMenus ()
   helpMenu.addAction (tr("About"), this, SLOT (About()));
   helpMenu.addAction (tr("Manual"), this, SLOT (Manual()));
   helpMenu.addAction (tr("License"), this, SLOT (License()));
+}
+
+void
+Chronicon::SetupDefaults ()
+{
+  QString bitly_user ("");
+  bitly_user = Settings().value("network/bitly_user",bitly_user).toString();
+  Settings().setValue ("network/bitly_user",bitly_user);
+  QString bitly_key ("");
+  bitly_key = Settings().value ("network/bitly_key",bitly_key).toString();
+  Settings().setValue ("network/bitly_key", bitly_key);
+  Settings().sync();
 }
 
 void
@@ -227,6 +255,7 @@ qDebug () << " starting private ";
     currentView = R_Public;
 qDebug () << " starting public ";
   }
+  SetupDefaults ();
   network.SetTimeline (currentView);
   network.Init ();
 }
@@ -304,7 +333,11 @@ Chronicon::finishMessage ()
   ownMessage->extractPlain (msg);
   bool wait (false);
   if (Settings().contains ("network/bitly_user")) {
-    shortener.ShortenHttp (msg, wait);
+    QString bitly_user = Settings().value("network/bitly_user",QString())
+                                   .toString();
+    if (bitly_user.length() > 0) {
+      shortener.ShortenHttp (msg, wait);
+    }
   } 
   if (!wait) {
     ReallyFinishMessage (msg);
@@ -317,6 +350,7 @@ Chronicon::ReallyFinishMessage (QString msg)
   msg = msg.trimmed();
   int len = msg.length();
   bool sendit(true);
+  bool didsend (false);
   if (len > 0) {
     QByteArray data = msg.toUtf8();
     int datalen = data.size();
@@ -330,9 +364,14 @@ Chronicon::ReallyFinishMessage (QString msg)
     }
     if (sendit) {
       network.PushUserStatus (msg,inReplyTo);
+       didsend = true;
+    } else {
+      startMessage (msg, inReplyTo);
     }
   }
-  SmallEdit ();
+  if (didsend) {
+    SmallEdit ();
+  }
 }
 
 void
@@ -371,7 +410,11 @@ Chronicon::Poll ()
 {
   pollRemain -= pollTick;
   if (pollRemain <= 0) {
-    network.PullTimeline ();
+    if (currentView == R_OtherUser) {
+      network.PullTimeline (otherUser);
+    } else {
+      network.PullTimeline ();
+    }
     loadLabel->setText (tr("load..."));
     pollRemain = pollPeriod;
   } else {
@@ -399,16 +442,58 @@ Chronicon::RePoll (TimelineKind kind)
   pollRemain = pollPeriod;
   pollTimer.start (pollTick);
   theView.Display (currentView);
-  network.PullTimeline ();
+  if (currentView == R_OtherUser) {
+    network.PullTimeline (otherUser);
+  } else {
+    network.PullTimeline ();
+  }
   loadLabel->setText (tr("reload..."));
 }
+
+// \brief PollComplete - start the redisplay
 
 void
 Chronicon::PollComplete (TimelineKind kind)
 {
   LabelSecs (pollRemain/1000);
-  theView.Display (kind);
+  if (kind == R_Public || kind == R_Private) {
+    theView.Display (kind);
+  }
   theView.Show ();
+  if (kind == R_Private) {
+    QTimer::singleShot (pollTick - 1,&network, SLOT(PullUserBlock ()));
+  }
+}
+
+void
+Chronicon::ChangeFollow (QString user, int change)
+{
+  qDebug () << " they want to change follow of " << user << " by " << change;
+  network.ChangeFollow (user, change);
+}
+
+void
+Chronicon::ChangeTimeline (int timeline, QString user)
+{
+  TimelineKind tl;
+  if (timeline <= R_None || timeline >= R_Top) {  
+    tl = R_None;
+  } else {
+    tl = static_cast <TimelineKind>(timeline);
+  }
+  currentView = tl;
+  if (currentView != R_Public) {
+    if (!network.HaveUser()) {
+      AutoLogin();
+    }
+  }
+  if (currentView == R_OtherUser) {
+    otherUser = user;
+    theView.Display (currentView);
+  }
+  network.SetTimeline (currentView);
+  theView.ClearList (currentView);
+  RePoll (currentView);
 }
 
 void
@@ -444,10 +529,18 @@ Chronicon::AutoLogin ()
   user = Settings().value ("oauth/screen_name",user).toByteArray();
   key1 = Settings().value ("oauth/token",key1).toByteArray();
   key2 = Settings().value ("oauth/secret",key2).toByteArray();
-  network.AutoLogin (user, key1, key2, true);
-  network.SetTimeline (R_Private);
+  QString mode = Settings().value ("network/login_type",QString("basic")).toString();
+  if (mode == "oauth") {
+    network.AutoLogin (user, key1, key2, true);
+  } else {
+    network.login ();
+  }
+  if (currentView == R_Public) {
+    currentView = R_Private;
+  }
+  network.SetTimeline (currentView);
   theView.ClearList ();
-  RePoll (R_Private);
+  RePoll (currentView);
 }
 
 void

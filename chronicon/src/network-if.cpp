@@ -43,13 +43,13 @@ NetworkIF::NetworkIF (QWidget *parent)
  pass (QString()),
  authRetries (0),
  insideLogin (false),
+ haveUser (false),
  numItems (25),
  myName ("Chronicon"),
  acc_token (""),
  acc_secret ("")
 {
   serverRoot = QString ("http://api.twitter.com/1/");
-  SwitchTimeline();
 }
 
 QNetworkAccessManager *
@@ -136,7 +136,6 @@ void
 NetworkIF::SetTimeline (TimelineKind kind)
 {
   serviceKind = kind;
-  SwitchTimeline ();
 }
 
 void
@@ -150,19 +149,7 @@ NetworkIF::Init ()
   webAuth.Init ();
 }
 
-void
-NetworkIF::SwitchTimeline ()
-{
-  switch (serviceKind) {
-    case R_Private:
-      timelineName = "home_timeline";
-      break;
-    case R_Public:
-    default:
-      timelineName = "public_timeline";
-      break;
-  }
-}
+
 
 QByteArray 
 NetworkIF::prepareOAuthString( const QString &requestUrl, 
@@ -216,25 +203,57 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
 {
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
+qDebug () << " net reply at " << __FILE__ << __LINE__ ;
+qDebug () << " net reply Status header " << netReply->rawHeader ("Status");
+qDebug () << " net reply Content-Type " << netReply->rawHeader ("Content-Type");
+qDebug () << " net reply X-Ratelimit-Remaining " << netReply->rawHeader ("X-Ratelimit-Remaining");
+qDebug () << " net reply X-Ratelimit-Limit " << netReply->rawHeader ("X-Ratelimit-Limit");
     TimelineKind kind (reply->Kind());
+qDebug () << " net reply is for " << timelineName (kind);
     ApiRequestKind ark (reply->ARKind());
+qDebug () << " net reply ark is " << ark;
     if (ark == A_AuthVerify) {
       if (reply->error() == 0) {
          emit TwitterAuthGood ();
       } else {
          emit TwitterAuthBad ();
       }
-    } else if (kind == R_Public || kind == R_Private) {
+    } else if (ark == A_UserInfo) {
+      QDomDocument userDoc;
+      userDoc.setContent (netReply);
+      ParseUserInfo (userDoc);
+    } else /* ark == something else  */ {
       QDomDocument doc;
       doc.setContent (netReply);
-      ParseTwitterDoc (doc, kind);
-      emit ReplyComplete (kind);
-    } else if (kind == R_Update) {
-      QDomDocument update;
-      update.setContent (netReply);
-      ParseUpdate (update, kind);
-      emit ReplyComplete (kind);
+      switch (kind) {
+      case R_Public:
+      case R_Private:
+      case R_Mentions:
+      case R_OwnRetweets:
+      case R_FriendRetweets:
+        ParseTwitterDoc (doc, kind);
+        emit ReplyComplete (kind);
+        break;
+      case R_Update:
+        ParseUpdate (doc, kind);
+        emit ReplyComplete (kind);
+        break;
+      case R_ThisUser:
+      case R_OtherUser:
+        ParseUserBlock (doc, kind);
+        emit ReplyComplete (kind);
+        break;
+      case R_Ignore:
+        qDebug () << " ignoring reply from " << netReply->url();
+        qDebug () << " net error " << netReply->error ();
+        qDebug () << " xml content " << doc.toString();
+        break;
+      default:
+        // ignore
+        break;
+      }
     }
+
     ReplyMapType::iterator index;
     index = twitterReplies.find (netReply);
     if (index != twitterReplies.end()) {
@@ -330,6 +349,7 @@ NetworkIF::login (int * reply)
     badconfig.setText (message.arg(plain).arg(oauth));
     badconfig.exec ();
     reply = 0;
+    user = "";
   }
 }
 
@@ -344,6 +364,7 @@ NetworkIF::AutoLogin (QByteArray u, QByteArray key1, QByteArray key2, bool oauth
   } else {
     pass = QString (key1);
   }
+  haveUser = true;
 }
 
 void
@@ -364,7 +385,6 @@ NetworkIF::webLogin (int * reply)
       *reply = 1;
     }
     serviceKind = R_Private;
-    SwitchTimeline ();
     emit ClearList ();
     emit RePoll (serviceKind);
   }
@@ -376,9 +396,9 @@ NetworkIF::plainLogin (int * reply)
 {
   insideLogin = true;
   emit StopPoll (true);
-  int response = plainLoginDialog.Exec (user);
   QString oldUser (user);
   QString oldPass (pass);
+  int response = plainLoginDialog.Exec (user);
   switch (response) {
   case 1:
      ResetNetwork ();
@@ -394,11 +414,11 @@ NetworkIF::plainLogin (int * reply)
        serviceKind = R_Private;
      }
      authRetries = 1;
-     SwitchTimeline ();
      emit ClearList ();
      emit RePoll (serviceKind);
      deliberate::Settings().setValue ("network/lastuser", user);
      Settings().sync();
+     haveUser = true;
      break;
   case -1:
      PushTwitterLogout ();
@@ -406,11 +426,11 @@ NetworkIF::plainLogin (int * reply)
      user = "";
      pass = "";
      serviceKind = R_Public;
-     SwitchTimeline ();
      emit ClearList ();
      emit RePoll (serviceKind);
      deliberate::Settings().setValue ("network/lastuser",user);
      Settings().sync ();
+     haveUser = false;
      break;
   case 0:
   default:
@@ -534,6 +554,31 @@ NetworkIF::ParseUpdate (QDomDocument & doc, TimelineKind kind)
 }
 
 void
+NetworkIF::ParseUserBlock (QDomDocument & doc, TimelineKind kind)
+{
+  QDomElement root = doc.documentElement();
+  QDomElement child;
+  for (child = root.firstChildElement(); !child.isNull(); 
+       child = child.nextSiblingElement()) {
+    if (child.tagName() == "status") {
+       ParseStatus (child, kind);
+    }
+  }
+}
+
+void
+NetworkIF::ParseUserInfo (QDomDocument & userDoc)
+{
+  QDomElement root = userDoc.documentElement();
+  if (root.tagName() == "user") {
+    UserBlock userInfo (root);
+    emit NewUserInfo (userInfo);
+  } else {
+    qDebug () << " bad user block tag " << root.tagName();
+  }
+}
+
+void
 NetworkIF::ParseStatus (QDomElement & elt, TimelineKind kind)
 {
   StatusBlock  block (elt);
@@ -583,11 +628,26 @@ NetworkIF::PullTimeline ()
 }
 
 void
-NetworkIF::PullTimelineBasic ()
+NetworkIF::PullTimeline (QString otherUser)
+{
+  if (oauthMode) {
+    PullTimelineOA (otherUser);
+  } else {
+    PullTimelineBasic (otherUser);
+  }
+}
+
+void
+NetworkIF::PullTimelineBasic (QString otherUser)
 {
   QNetworkRequest request;
-  QUrl url  (QString(Service ("statuses/%1.xml?count=%2"))
-                    .arg(timelineName).arg(numItems));
+  QUrl url  (QString(Service ("statuses/%1.xml"))
+                    .arg(timelineName (serviceKind)));
+  url.addQueryItem ("count",QString::number (numItems));
+  if (otherUser.length() > 0 ) {
+    url.addQueryItem ("screen_name",otherUser);
+  }
+
   request.setUrl(url);
   request.setRawHeader ("User-Agent","Chronicon; WebKit");
   DebugShow (request);
@@ -596,15 +656,20 @@ NetworkIF::PullTimelineBasic ()
                                                   reply, 
                                                   serviceKind);
   ExpectReply (reply, chReply);
+qDebug () << " basic pull timeline GET " << timelineName (serviceKind);
+qDebug () << " GET for " << reply->url();
 }
 
 void
-NetworkIF::PullTimelineOA ()
+NetworkIF::PullTimelineOA (QString otherUser)
 {
   QString urlString = OAuthService ("statuses/%1.xml")
-                              .arg(timelineName);
+                              .arg(timelineName (serviceKind));
   QOAuth::ParamMap  args;
   args.insert ("count",QString::number(numItems).toUtf8());
+  if (otherUser.length() > 0) {
+    args.insert ("screen_name",otherUser.toUtf8());
+  }
   QByteArray  parms = prepareOAuthString (urlString, 
                                           QOAuth::GET,
                                           args);
@@ -619,6 +684,61 @@ NetworkIF::PullTimelineOA ()
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
                                                   serviceKind);
+  ExpectReply (reply, chReply);
+qDebug () << " oauth pull timeline GET " << timelineName (serviceKind);
+qDebug () << " GET for " << reply->url();
+  
+}
+
+
+void
+NetworkIF::PullUserBlock ()
+{
+  if (oauthMode) {
+    PullUserBlockOA ();
+  } else {
+    PullUserBlockBasic ();
+  }
+}
+
+void
+NetworkIF::PullUserBlockBasic ()
+{
+  QNetworkRequest request;
+  QUrl url  (Service ("users/show.xml"));
+  url.addQueryItem ("screen_name",user);
+  request.setUrl(url);
+  request.setRawHeader ("User-Agent","Chronicon; WebKit");
+  DebugShow (request);
+  QNetworkReply *reply = Network()->get (request);
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  R_None,
+                                                  A_UserInfo);
+  ExpectReply (reply, chReply);
+}
+
+void
+NetworkIF::PullUserBlockOA ()
+{
+  QString urlString = OAuthService ("users/show.xml");
+  QOAuth::ParamMap  args;
+  args.insert ("screen_name",QUrl::toPercentEncoding(user.toUtf8()));
+  QByteArray  parms = prepareOAuthString (urlString, 
+                                          QOAuth::GET,
+                                          args);
+  QNetworkRequest req;
+  req.setRawHeader ("Authorization", parms);
+  urlString.append (webAuth.QOAuth()->inlineParameters 
+                      (args, QOAuth::ParseForInlineQuery));
+  QUrl url (urlString);
+  req.setUrl (url);
+  DebugShow (req);
+  QNetworkReply *reply = Network()->get (req);
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  R_None,
+                                                  A_UserInfo);
   ExpectReply (reply, chReply);
   
 }
@@ -668,12 +788,7 @@ NetworkIF::PushUserStatusBasic (QString status, QString refId)
 
   req.setRawHeader ("User-Agent","Chronicon WebKit");
   DebugShow (req);
-  QNetworkReply * reply = Network()->post (req,nada);
-
-  ChronNetworkReply *chReply = new ChronNetworkReply (url,
-                                                  reply, 
-                                                  chronicon::R_Update); 
-  ExpectReply (reply, chReply);
+  PostBasic (url, req, nada, R_Update);
 }
 
 void
@@ -709,15 +824,7 @@ NetworkIF::DirectMessageBasic (QString toName, QString msg)
   url.addEncodedQueryItem ("text",encoded);
   QNetworkRequest req (url);
   QByteArray nada;
-
-  req.setRawHeader ("User-Agent","Chronicon WebKit");
-  DebugShow (req);
-  QNetworkReply * reply = Network()->post (req,nada);
-
-  ChronNetworkReply *chReply = new ChronNetworkReply (url,
-                                                  reply, 
-                                                  chronicon::R_Update); 
-  ExpectReply (reply, chReply);
+  PostBasic (url, req, nada, R_Update);
 }
 
 void
@@ -729,6 +836,58 @@ NetworkIF::DirectMessageOA (QString toName, QString msg)
   paramContent.insert ("text",update);
   QString urlString (OAuthService ("direct_messages/new.xml"));
   PostOA (urlString, paramContent, R_Update);
+}
+
+void
+NetworkIF::ChangeFollow (QString otherUser, int change)
+{
+qDebug () << " NetworkIF::ChangeFollow " << otherUser << " by " << change;
+  if (oauthMode) {
+    ChangeFollowOA (otherUser, change);
+  } else {
+    ChangeFollowBasic (otherUser, change);
+  }
+}
+
+void
+NetworkIF::ChangeFollowBasic (QString otherUser, int change)
+{
+  QString action;
+  if (change < 0) {
+    action = QString ("friendships/destroy.xml");
+  } else if (change > 0) {
+    action = QString ("friendships/create/twitterapi.xml");
+  } else {
+    return;
+  }
+  QString urlString (Service (action));
+  QUrl  url (urlString);
+  QByteArray encoUser = QUrl::toPercentEncoding (otherUser);
+  url.addEncodedQueryItem ("screen_name",encoUser);
+  QNetworkRequest req (url);
+  QByteArray nada;
+  PostBasic (url, req, nada, R_Ignore);
+}
+
+void
+NetworkIF::ChangeFollowOA (QString otherName, int change)
+{
+  QString action;
+  if (change < 0) {
+    action = QString ("friendships/destroy.xml");
+  } else if (change > 0) {
+    action = QString ("friendships/create/twitterapi.xml");
+  } else {
+    return;
+  }
+  QOAuth::ParamMap  paramContent;
+  paramContent.insert ("screen_name",QUrl::toPercentEncoding 
+                                     (otherName.toUtf8()));
+
+  QString urlString (OAuthService (action));
+qDebug () << " Change url " << urlString;
+qDebug () << " Change parms " << paramContent;
+  PostOA (urlString, paramContent, R_Ignore);
 }
 
 void
@@ -750,13 +909,7 @@ NetworkIF::PushDeleteBasic (QString id)
   QUrl url (urlString.arg(id));
   QNetworkRequest  req(url);
   QByteArray nada;
-
-  QNetworkReply * reply = Network()->post (req,nada);
-
-  ChronNetworkReply *chReply = new ChronNetworkReply (url,
-                                                  reply, 
-                                                  chronicon::R_Destroy); 
-  ExpectReply (reply, chReply);
+  PostBasic (url, req, nada, R_Destroy);
 }
 
 void
@@ -768,6 +921,22 @@ NetworkIF::PushDeleteOA (QString id)
   PostOA (urlStr, paramContent, R_Destroy);
 }
 
+
+
+void
+NetworkIF::PostBasic (QUrl &url, 
+                      QNetworkRequest &req, 
+                      QByteArray & data,
+                      TimelineKind kind)
+{
+qDebug () << " debug for post basic: " ;
+  DebugShow (req);
+  QNetworkReply * reply = Network()->post (req, data);
+  ChronNetworkReply * chReply = new ChronNetworkReply (url, reply, kind);
+  ExpectReply (reply, chReply);
+}
+
+
 void 
 NetworkIF::PostOA (QString  & urlString, 
                    QOAuth::ParamMap & paramContent,
@@ -776,9 +945,10 @@ NetworkIF::PostOA (QString  & urlString,
   QNetworkRequest req;
   oauthForPost (req, urlString, paramContent);
 
-  DebugShow (req);
   QUrl url (urlString);
   req.setUrl (url);
+qDebug () << " debug for post OA: ";
+  DebugShow (req);
   QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
   QNetworkReply * reply = Network()->post (req, content);  
   ChronNetworkReply *chReply = new ChronNetworkReply (url,

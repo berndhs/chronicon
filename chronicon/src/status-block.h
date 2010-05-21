@@ -46,12 +46,19 @@ public:
   friend QDebug & operator << (QDebug & out, const StringBlock & data);
 
   friend class StatusBlock;
+  friend class UserBlock;
 
 private:
 
   std::map <QString, QString>   values;
 
 };
+
+/** \brief Our internal representation of a status message.
+  *
+  * Anything found in the XML document about the status message itself,
+  * and the user part is stored in a StatusBlock.
+  */
 
 class StatusBlock {
 public:
@@ -63,12 +70,15 @@ public:
 
   void Domify (QDomElement & dom);
 
+  /// \brief Id() is the status id, not the user
   QString   Id () const { return ident; } 
   QString   Value (const QString & key) const;
   QString   UserValue (const QString & key) const;
 
-  bool  HasValue (const QString & key) const { return statusValues.HasValue (key); }
-  bool  HasUserValue (const QString & key) const { return userValues.HasValue (key); }
+  bool  HasValue (const QString & key) const 
+                 { return statusValues.HasValue (key); }
+  bool  HasUserValue (const QString & key) const 
+                 { return userValues.HasValue (key); }
 
   void  SetValue (const QString & key, const QString & value);
   void  SetUserValue (const QString & key, const QString & value);
@@ -92,8 +102,49 @@ private:
   
 };
 
+/** \brief Our internal representation of a user information block.
+  *
+  */
+
+class UserBlock {
+public:
+
+  UserBlock  ();
+  UserBlock (const QDomElement & dom);
+
+  void SetContent (const QDomElement & dom);
+
+  void Domify (QDomElement & dom);
+
+  /// \brief Id () is the user id (not status)
+
+  QString   Id () const { return ident; } 
+  QString   Value (const QString & key) const;
+
+  bool  HasValue (const QString & key) const 
+                 { return userValues.HasValue (key); }
+
+  void  SetValue (const QString & key, const QString & value);
+
+  StringBlock &   User   () { return userValues; }
+
+  void SetUser   (const StringBlock & user)   { userValues = user; }
+
+private:
+
+  void ParseContent (StringBlock & block, const QDomElement & dom);
+
+  QString   ident; 
+
+  StringBlock   userValues;
+ 
+  friend QDebug & operator << (QDebug & out, const UserBlock & data);
+  
+};
+
 QDebug & operator << (QDebug & out, const StringBlock & data);
 QDebug & operator << (QDebug & out, const StatusBlock & data);
+QDebug & operator << (QDebug & out, const UserBlock & data);
 
 } // namespace
 

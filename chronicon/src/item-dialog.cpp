@@ -64,6 +64,7 @@ ItemDialog::SetupMenus ()
   actionMenu.addAction (tr("Save Message"), this, SLOT (Save()));
   actionMenu.addAction (tr("Delete My Message"), this, SLOT (Delete()));
   actionMenu.addAction (tr("Send Direct Message"), this, SLOT (Direct()));
+  actionMenu.addAction (tr("(Un-) Follow"), this, SLOT (Follow()));
 }
 
 void
@@ -91,7 +92,7 @@ ItemDialog::HtmlStyles ()
   fontSize = "90%";
   nickStyle = "font-weight:bold;text-decoration:none;";
   titleStyle = "font-size:smaller; color:0f2f0f;";
-  titleDateForm = tr("ddd hh:mm:hh");
+  titleDateForm = tr("ddd hh:mm:ss");
   imgPattern = QString ("<div style=\"float:left;margin:3px;\">"
                     "<a href=\"chronicon://status/item#%2\" style=\"%3\">"
                     "<img border=\"0\"src=\"%1\" width=\"48\" height=\"48\" "
@@ -152,7 +153,6 @@ ItemDialog::Exec  (QString id, StatusBlock  block, QString itemHtml)
   html.append ("</body>");
   html.append ("</html>");
   itemView->setHtml (html);
-qDebug () << __FILE__ << __LINE__ << block;
   exec ();
 }
 
@@ -218,9 +218,9 @@ ItemDialog::Mailto ()
   subject.append (itemBlock.UserValue("screen_name"));
   QString plainText;
   PlainText (plainText, itemBlock);
-  QUrl url(QString("mailto:?subject=")
-                   + subject
-                   + "&body=" + plainText);
+  QUrl url(QString("mailto:?"));
+  url.addQueryItem ("subject",subject);
+  url.addQueryItem ("body",plainText);
   QDesktopServices::openUrl (url);
   accept ();
 }
@@ -315,6 +315,14 @@ ItemDialog::LinkClicked (const QUrl & url)
   if (url.isValid()) {
     QDesktopServices::openUrl (url);
   }
+}
+
+void
+ItemDialog::Follow ()
+{
+  StringBlock userData = itemBlock.User();
+  emit MaybeFollow (userData);
+  accept ();
 }
 
 

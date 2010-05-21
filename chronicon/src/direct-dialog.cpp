@@ -26,6 +26,9 @@
 
 namespace chronicon {
 
+/*! \brief Dialog for sending a direct message
+  */
+
 DirectDialog::DirectDialog (QWidget *parent)
 :QDialog (parent),
  network (0),

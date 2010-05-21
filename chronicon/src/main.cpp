@@ -44,9 +44,19 @@ SetStyle (QSettings &zett)
   QStringList avail = QStyleFactory::keys();
   QString     normal("oxygen");
   normal = zett.value ("style/windowstyle",normal).toString();
+  if (normal == "gtk+") {
+    qDebug () << "Windows style " << normal << " is broken, not supported";
+    return;
+  }
   if (avail.contains (normal, Qt::CaseInsensitive)) {
     QApplication::setStyle (normal);
     zett.setValue ("style/windowstyle",normal);
+  } else {
+    QStyle * pSt = QApplication::style();
+    if (pSt) {
+      QString defaultname = pSt->objectName();
+      zett.setValue ("style/windowstyle",defaultname);
+    }
   }
 }
 

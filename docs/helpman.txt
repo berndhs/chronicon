@@ -1,11 +1,11 @@
 Chronicon Help Manual
 =====================
 Bernd Stramm <bernd.stramm@gmail.com>
-Version 0.1.0,  17 May 2010
+Version 0.1.0,  19 May 2010
 
 == Startup
 
-By default, *Chronicon* starts by showing the public timeline of messages
+*Chronicon* starts by showing the public timeline of messages
 on the configured service. The default service is http://api.twitter.com. You can
 change this to match your preferences, see the xref:network[Network] section
 of xref:config[Configuration].
@@ -154,14 +154,17 @@ configuration items, which you obtain from the http://bit.ly service:
 === Style
 
 * You can change the Qt window style used for *Chronicon* to match your
-taste, or to match what is available on your system.
+taste, or to match what is available on your system. 
 
 === Timers and Delays
 
 The *timers* section of the Configuration contains these values:
 
 * The *pollperiod* item allows you to change how often *Chronicon* checks
-for new messages. The value is expressed in milliseconds.
+for new messages. The value is expressed in milliseconds. So a value of 180000
+means that 180 seconds will pass between successive pulls of the service. Note
+that polling faster than once a minute is usually not useful, unless you have
+a special service provider that updates very fast.
 
 * The *notifydelay* item allows you to change how long a notification popup
 stays on your desktop. The value is expressed in milliseconds.

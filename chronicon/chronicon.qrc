@@ -2,7 +2,7 @@
 <qresource>
   <file alias="ch.png">images/ch.png</file>
   <file alias="LICENSE.txt">LICENSE</file>
-  <file alias="helpman.html">helpman.html</file>
+  <file alias="helpman.html">docu/helpman.html</file>
 </qresource>
 </RCC>
 

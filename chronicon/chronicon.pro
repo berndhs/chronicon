@@ -64,6 +64,8 @@ unix: {
 INCLUDEPATH += temp/ui
 
 HEADERS = src/chronicon.h \
+          src/chronicon-types.h \
+          src/chronicon-global.h \
           src/chron-textedit.h \
           src/delib-debug.h \
           src/cmdoptions.h \
@@ -78,6 +80,8 @@ HEADERS = src/chronicon.h \
           src/shortener.h \
           src/login-dialog.h \
           src/link-mangle.h \
+          src/switch-dialog.h \
+          src/follow-dialog.h \
           src/ch-menu.h \
           src/weblogin.h \
           src/webauth.h \
@@ -94,6 +98,7 @@ HEADERS = src/chronicon.h \
 SOURCES = src/main.cpp \
           src/version.cpp \
           src/chronicon.cpp \
+          src/chronicon-types.cpp \
           src/chron-textedit.cpp  \
           src/delib-debug.cpp \
           src/cmdoptions.cpp \
@@ -105,6 +110,8 @@ SOURCES = src/main.cpp \
           src/deliberate.cpp \
           src/item-dialog.cpp \
           src/direct-dialog.cpp \
+          src/switch-dialog.cpp \
+          src/follow-dialog.cpp \
           src/shortener.cpp \
           src/login-dialog.cpp \
           src/link-mangle.cpp \
@@ -125,7 +132,8 @@ FORMS = ui/chronicon.ui \
         ui/helpwin.ui \
         ui/config-edit.ui \
         ui/directmsg.ui \
-
+        ui/pick-timeline.ui \
+        ui/follow.ui \
 
 
 

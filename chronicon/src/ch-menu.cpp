@@ -32,7 +32,8 @@ ChMenu::ChMenu (QWidget *parent)
 void
 ChMenu::SetPos (QPoint globalPos)
 { 
-  position = globalPos; 
+  QPoint toTheLeft (globalPos.x() - 6, globalPos.y());
+  position = toTheLeft; 
 }
 
 QAction*
