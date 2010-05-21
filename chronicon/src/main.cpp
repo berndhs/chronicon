@@ -106,7 +106,6 @@ qDebug () << __FILE__ << __LINE__ << " have app object";
   }
   bool showDebug = opts.SeenOpt ("debug");
 
-  deliberate::UseMyOwnMessageHandler ();
   deliberate::StartDebugLog (showDebug);
   deliberate::SetQuietDebug (!showDebug);
   bool runit (true);
