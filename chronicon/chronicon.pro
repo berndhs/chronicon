@@ -38,7 +38,8 @@ unix:{
 
 win32: {
   DEFINES += USE_NOTIFY=0
-  INCLUDEPATH += C:\Qt\qca-2.0.1-mingw\include\QtCrypto
+  INCLUDEPATH += C:/Qt/qca-2.0.1-mingw/include/QtCrypto
+  LIBS += C:/Qt/qca-2.0.1-mingw/lib/libqca2.a
 }
 
 DEFINES += DELIBERATE_DEBUG=1
@@ -57,13 +58,11 @@ RESOURCES += chronicon.qrc
 INCLUDEPATH += src 
 INCLUDEPATH += qoa-src
 unix: {
-INCLUDEPATH += /usr/include/QtCrypto
+  INCLUDEPATH += /usr/include/QtCrypto
+  LIBS += -lqca
 }
 INCLUDEPATH += temp/ui
 
-unix:{
-  LIBS += -lqca
-}
 HEADERS = src/chronicon.h \
           src/chron-textedit.h \
           src/delib-debug.h \

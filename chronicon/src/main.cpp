@@ -53,8 +53,11 @@ SetStyle (QSettings &zett)
 }
 
 int
-main (int argc, char * argv[])
+realmain (int argc, char * argv[])
 {
+  return 42;
+ bool doquit (true);
+ if (doquit) { return (44); }
   QCoreApplication::setApplicationName ("chronicon");
   QCoreApplication::setOrganizationName ("BerndStramm");
   QCoreApplication::setOrganizationDomain ("bernd-stramm.com");
@@ -63,14 +66,14 @@ main (int argc, char * argv[])
   QSettings  settings;
   deliberate::SetSettings (settings);
   settings.setValue ("program",pv.MyName());
-
+qDebug () << __FILE__ << __LINE__;
 #if USE_NOTIFY
   notify_init (chronicon::ChroniconName);
 #endif
 
   deliberate::SetStyle (settings);
   QApplication App (argc, argv);
-
+qDebug () << __FILE__ << __LINE__ << " have app object";
   deliberate::CmdOptions  opts ("Chronicon");
   opts.AddSoloOption ("debug","D","show Debug log window");
   opts.AddIntOption ("maxitems","M","maximum length of timeline shown");
@@ -117,4 +120,10 @@ main (int argc, char * argv[])
     runit = chron.RunAgain();
   }
   return status;
+}
+
+int
+main (int argc, char* argv[])
+{
+  return 43;
 }
