@@ -26,6 +26,7 @@
 #include <QDateTime>
 #include <QAbstractNetworkCache>
 #include <QMessageBox>
+#include <qjson/parser.h>
 
 using namespace deliberate;
 
@@ -50,6 +51,7 @@ NetworkIF::NetworkIF (QWidget *parent)
  acc_secret ("")
 {
   serverRoot = QString ("http://api.twitter.com/1/");
+  searchRoot = QString ("http://search.twitter.com/");
 }
 
 QNetworkAccessManager *
@@ -93,11 +95,29 @@ NetworkIF::ServiceUrl (QString path)
   return QUrl (Service(path));
 }
 
+QString
+NetworkIF::SearchService (QString path)
+{
+  static QString slash ('/');
+  if (searchRoot.endsWith ('/') || path.startsWith('/')) {
+    return searchRoot + path;
+  } else {
+    return searchRoot + slash + path;
+  }
+}
+
 void
 NetworkIF::SetServiceRoot (QString root)
 {
   serverRoot = root;
   Settings().setValue ("network/service",serverRoot);
+}
+
+void
+NetworkIF::SetSearchRoot (QString sroot)
+{
+  searchRoot = sroot;
+  Settings().setValue ("network/searchservice",searchRoot);
 }
 
 void
@@ -145,6 +165,8 @@ NetworkIF::Init ()
   Settings ().setValue ("network/numitems",numItems);
   serverRoot = Settings().value ("network/service",serverRoot).toString();
   Settings ().setValue ("network/service",serverRoot);
+  searchRoot = Settings().value ("network/searchservice",searchRoot).toString();
+  Settings ().setValue("network/searchservice",searchRoot);
   myName = Settings().value ("program",myName).toString();
   webAuth.Init ();
 }
@@ -212,18 +234,26 @@ qDebug () << " net reply X-Ratelimit-Limit " << netReply->rawHeader ("X-Ratelimi
 qDebug () << " net reply is for " << timelineName (kind);
     ApiRequestKind ark (reply->ARKind());
 qDebug () << " net reply ark is " << ark;
-    if (ark == A_AuthVerify) {
+
+    QDomDocument doc;
+    switch (ark) {
+    case A_AuthVerify:
       if (reply->error() == 0) {
          emit TwitterAuthGood ();
       } else {
          emit TwitterAuthBad ();
       }
-    } else if (ark == A_UserInfo) {
-      QDomDocument userDoc;
-      userDoc.setContent (netReply);
-      ParseUserInfo (userDoc);
-    } else /* ark == something else  */ {
-      QDomDocument doc;
+      break;
+    case A_UserInfo:
+      doc.setContent (netReply);
+      ParseUserInfo (doc);
+      break;
+    case A_Search:
+      ParseSearchResult (netReply);
+      emit ReplyComplete (R_SearchResults);
+      break;
+    case A_Timeline:
+    default:
       doc.setContent (netReply);
       switch (kind) {
       case R_Public:
@@ -252,12 +282,7 @@ qDebug () << " net reply ark is " << ark;
         // ignore
         break;
       }
-    }
-
-    ReplyMapType::iterator index;
-    index = twitterReplies.find (netReply);
-    if (index != twitterReplies.end()) {
-      twitterReplies.erase(index);
+      break;
     }
     CleanupReply (netReply, reply);    
   }
@@ -567,6 +592,49 @@ NetworkIF::ParseUserBlock (QDomDocument & doc, TimelineKind kind)
 }
 
 void
+NetworkIF::ParseSearchResult (QNetworkReply * reply)
+{
+  StatusBlock block;
+  QJson::Parser pars;
+  bool good (false);
+  QVariant parts = pars.parse (reply, &good);
+  
+  if (good) {
+    if (parts.type() == QMetaType::QVariantMap) {
+      QVariantMap partsMap = parts.toMap();
+      QVariantMap::const_iterator mit;
+      for (mit = partsMap.begin(); mit != partsMap.end(); mit++) {
+         if (mit.key() == "results") {
+           ParseSearchResultList (mit.value());
+         } else {
+         qDebug () << "map entry [" << mit.key() << " => " << mit.value() << "]";
+         }
+      }
+    }
+  }
+  emit SearchComplete ();
+}
+
+void
+NetworkIF::ParseSearchResultList (const QVariant & resList)
+{
+  if (resList.type() != QMetaType::QVariantList) {
+    qDebug () << __FILE__ << __LINE__ << " bad result type";
+    return;
+  }
+  const QVariantList & res = resList.toList();
+  QVariantList::const_iterator lit;
+  for (lit = res.begin(); lit != res.end(); lit++) {
+    if (lit->type() == QMetaType::QVariantMap) {
+      StatusBlock  block;
+      block.SetSearchContent (lit->toMap());
+      emit NewStatusItem (block, R_SearchResults);
+    }
+  }
+}
+
+
+void
 NetworkIF::ParseUserInfo (QDomDocument & userDoc)
 {
   QDomElement root = userDoc.documentElement();
@@ -654,7 +722,8 @@ NetworkIF::PullTimelineBasic (QString otherUser)
   QNetworkReply *reply = Network()->get (request);
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
-                                                  serviceKind);
+                                                  serviceKind,
+                                                  A_Timeline);
   ExpectReply (reply, chReply);
 qDebug () << " basic pull timeline GET " << timelineName (serviceKind);
 qDebug () << " GET for " << reply->url();
@@ -683,11 +752,32 @@ NetworkIF::PullTimelineOA (QString otherUser)
   QNetworkReply *reply = Network()->get (req);
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
-                                                  serviceKind);
+                                                  serviceKind,
+                                                  A_Timeline);
   ExpectReply (reply, chReply);
 qDebug () << " oauth pull timeline GET " << timelineName (serviceKind);
 qDebug () << " GET for " << reply->url();
   
+}
+
+void
+NetworkIF::PullSearch (QString needle)
+{
+qDebug () << " pull search for " << needle;
+  QString urlString = SearchService ("search.json");
+  QUrl url(urlString);
+  url.addQueryItem ("q",needle);
+  QNetworkRequest req (url);
+  req.setRawHeader ("User-Agent","Chronicon; WebKit");
+  DebugShow (req);
+  QNetworkReply *reply = Network()->get (req);
+  ChronNetworkReply *chReply = new ChronNetworkReply (url,
+                                                  reply, 
+                                                  R_None,
+                                                  A_Search);
+  ExpectReply (reply, chReply);
+qDebug () << " basic Search GET " << timelineName (serviceKind);
+qDebug () << " GET for " << reply->url();
 }
 
 
@@ -932,7 +1022,7 @@ NetworkIF::PostBasic (QUrl &url,
 qDebug () << " debug for post basic: " ;
   DebugShow (req);
   QNetworkReply * reply = Network()->post (req, data);
-  ChronNetworkReply * chReply = new ChronNetworkReply (url, reply, kind);
+  ChronNetworkReply * chReply = new ChronNetworkReply (url, reply, kind, A_Post);
   ExpectReply (reply, chReply);
 }
 
@@ -953,7 +1043,7 @@ qDebug () << " debug for post OA: ";
   QNetworkReply * reply = Network()->post (req, content);  
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
-                                                  kind); 
+                                                  kind, A_Post); 
   ExpectReply (reply, chReply);
 }
 
@@ -986,7 +1076,7 @@ NetworkIF::ReTweetBasic (QString id)
   QNetworkReply * reply = Network()->post (req, nada);
   ChronNetworkReply * chReply = new ChronNetworkReply (url,
                                         reply,
-                                        chronicon::R_Update);
+                                        chronicon::R_Update, A_Post);
   ExpectReply (reply, chReply);
 }
 

@@ -37,6 +37,7 @@ namespace chronicon {
          R_Mentions = 8,
          R_OwnRetweets = 9,
          R_FriendRetweets = 10,
+         R_SearchResults = 11,
          R_Top
          };
 
@@ -48,6 +49,8 @@ namespace chronicon {
          A_AuthVerify = 2,
          A_Logout = 3,
          A_UserInfo = 4,
+         A_Search = 5,
+         A_Post = 6,
          A_Top
   };
 

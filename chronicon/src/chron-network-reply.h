@@ -47,7 +47,7 @@ public:
   ChronNetworkReply (QUrl &theUrl, 
                     QNetworkReply * qnr, 
                     TimelineKind req,
-                    ApiRequestKind ark = A_None);
+                    ApiRequestKind ark);
   ~ChronNetworkReply ();
 
   QNetworkReply * NetReply() { return reply; }

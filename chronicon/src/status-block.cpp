@@ -20,6 +20,10 @@
  ****************************************************************/
 
 #include "status-block.h"
+#include <QVariant>
+#include <QVariantMap>
+#include <QDateTime>
+#include <QTextDocument>
 
 
 namespace chronicon {
@@ -51,6 +55,43 @@ StatusBlock::SetContent (const QDomElement & dom)
   userValues.Clear ();
   ParseContent (statusValues, dom);
   ident = statusValues.Value ("id");
+}
+
+void
+StatusBlock::SetSearchContent (const QVariantMap & data)
+{
+  QVariantMap::const_iterator mit;
+  QString  tag;
+  for (mit = data.begin(); mit != data.end(); mit++) {
+    tag = mit.key();
+
+    if (tag == "from_user") {
+       userValues.SetValue ("screen_name", mit.value().toString());
+    } else if (tag == "from_user_id") {
+       userValues.SetValue ("id", QString::number (mit.value().toULongLong()));
+    } else if (tag == "id") {
+       qulonglong val = mit.value().toULongLong();
+       QString stval = QString::number (val);
+       statusValues.SetValue ("id", stval);
+       ident = stval;
+    } else if (tag == "text") {
+       statusValues.SetValue ("text", mit.value().toString());
+    } else if (tag == "profile_image_url") {
+       userValues.SetValue (tag, mit.value().toString());
+    } else if (tag == "created_at") {
+       QString searchData = mit.value().toString();
+       QDateTime t = QDateTime::fromString (searchData,
+                              "ddd, dd MMM yyyy HH:mm:ss +0000");
+       statusValues.SetValue (tag,t.toString 
+                              ("ddd MMM dd HH:mm:ss +0000 yyyy"));
+    } else if (tag == "source") {
+       QTextDocument tmp;
+       tmp.setHtml (mit.value().toString());
+       statusValues.SetValue (tag, tmp.toPlainText());
+    } else {
+       statusValues.SetValue (tag, mit.value().toString());
+    }
+  }
 }
 
 void

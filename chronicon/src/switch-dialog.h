@@ -57,12 +57,12 @@ private slots:
 
 signals:
 
-  void TimelineSwitch (int timeline, QString user);
+  void TimelineSwitch (int timeline, QString data);
 
 private:
 
   int        timelineChoice;
-  QString    userChoice;
+  QString    textChoice;
 
   std::map <QAbstractButton*, int>  choiceMap;
 

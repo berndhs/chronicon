@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>365</width>
-    <height>274</height>
+    <width>370</width>
+    <height>406</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -80,6 +80,10 @@
        </attribute>
       </widget>
      </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <widget class="QRadioButton" name="otherUserButton">
        <property name="text">
@@ -93,9 +97,22 @@
      <item>
       <widget class="QLineEdit" name="otherName"/>
      </item>
+     <item>
+      <widget class="QRadioButton" name="searchButton">
+       <property name="text">
+        <string>Search For:</string>
+       </property>
+       <attribute name="buttonGroup">
+        <string>buttonChoice</string>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="searchNeedle"/>
+     </item>
     </layout>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="chooseButton">

@@ -26,6 +26,7 @@
 #include <QString>
 #include <map>
 #include <QDebug>
+#include <QVariantMap>
 
 namespace chronicon {
 
@@ -67,6 +68,7 @@ public:
   StatusBlock (const QDomElement & dom);
 
   void SetContent (const QDomElement & dom);
+  void SetSearchContent (const QVariantMap & data);
 
   void Domify (QDomElement & dom);
 

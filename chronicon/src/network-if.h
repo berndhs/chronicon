@@ -77,6 +77,7 @@ public:
   void PushTwitterLogout ();
   void SetUserAgent (QString ua) { userAgent = ua; }
   void SetServiceRoot (QString root);
+  void SetSearchRoot (QString sroot);
 
   void AutoLogin (QByteArray u, QByteArray key1, QByteArray key2, bool oauth);
   bool HaveUser () { return haveUser; }
@@ -84,6 +85,7 @@ public:
   QString Service (QString path=QString());
   QUrl    ServiceUrl (QString path=QString());
   QString OAuthService (QString path=QString());
+  QString SearchService (QString path=QString());
 
   void ShortenHttp (QUuid tag, QStringList httpList);
 
@@ -106,12 +108,15 @@ public slots:
                      QAuthenticator * authenticator);
   void DirectMessage (QString toName, QString msg);
   void PullUserBlock ();
+  void PullSearch  (QString needle);
 
 signals:
 
   void NewStatusItem (StatusBlock item, TimelineKind kind);
   void NewUserInfo (UserBlock userInfo);
   void ReplyComplete (TimelineKind kind);
+  void SearchResultItem (StatusBlock item);
+  void SearchComplete ();
   void RePoll (TimelineKind kind);
   void ShortenReply (QUuid tag, QString shortUrl, QString longUrl, bool good);
   void ClearList ();
@@ -154,6 +159,8 @@ private:
   void ReTweetBasic (QString id);
   void ParseTwitterDoc (QDomDocument &doc, TimelineKind kind);
   void ParseUserInfo (QDomDocument &doc);
+  void ParseSearchResult (QNetworkReply * reply);
+  void ParseSearchResultList (const QVariant & resList);
   void ParseUpdate (QDomDocument &doc, TimelineKind kind);
   void ParseUserBlock (QDomDocument &doc, TimelineKind kind);
   void ParseStatus (QDomElement &elt, TimelineKind kind);
@@ -183,6 +190,7 @@ private:
   QNetworkAccessManager   *nam;
 
   QString                 serverRoot;
+  QString                 searchRoot;
 
   TimelineKind            serviceKind;
   LoginDialog             plainLoginDialog;

@@ -87,8 +87,6 @@ Chronicon::RunAgain ()
 void
 Chronicon::Connect ()
 {
-
-
   connect (typeButton, SIGNAL (clicked()), this, SLOT (startMessage()));
   connect (updateButton, SIGNAL (clicked()), this, SLOT (RePoll()));
   connect (sendButton, SIGNAL (clicked()), this, SLOT (finishMessage()));
@@ -356,7 +354,9 @@ Chronicon::ReallyFinishMessage (QString msg)
     int datalen = data.size();
     if (datalen > 140) {
        QMessageBox toolong;
-       toolong.setText (tr("Message too long for Twitter, send anyway?"));
+       int toomany = datalen - 140;
+       QString msgpattern (tr("Message %1 characters too long, send anyway?"));
+       toolong.setText (msgpattern.arg(toomany));
        QAbstractButton * yesBut = toolong.addButton (QMessageBox::Ok);
        toolong.addButton (QMessageBox::Cancel);
        toolong.exec ();
@@ -456,7 +456,7 @@ void
 Chronicon::PollComplete (TimelineKind kind)
 {
   LabelSecs (pollRemain/1000);
-  if (kind == R_Public || kind == R_Private) {
+  if (kind == R_Public || kind == R_Private || kind == R_SearchResults) {
     theView.Display (kind);
   }
   theView.Show ();
@@ -468,7 +468,6 @@ Chronicon::PollComplete (TimelineKind kind)
 void
 Chronicon::ChangeFollow (QString user, int change)
 {
-  qDebug () << " they want to change follow of " << user << " by " << change;
   network.ChangeFollow (user, change);
 }
 
@@ -481,7 +480,12 @@ Chronicon::ChangeTimeline (int timeline, QString user)
   } else {
     tl = static_cast <TimelineKind>(timeline);
   }
+  if (tl == R_SearchResults) {
+    network.PullSearch (user);
+    theView.Display (tl);
+  }
   currentView = tl;
+ 
   if (currentView != R_Public) {
     if (!network.HaveUser()) {
       AutoLogin();

@@ -28,7 +28,7 @@ namespace chronicon {
 SwitchDialog::SwitchDialog (QWidget *parent)
 :QDialog(parent),
  timelineChoice (R_None),
- userChoice ("")
+ textChoice ("")
 {
   setupUi (this);
 
@@ -41,6 +41,7 @@ SwitchDialog::SwitchDialog (QWidget *parent)
   choiceMap[mentionsButton]  = R_Mentions;
   choiceMap[retweetMineButton] = R_OwnRetweets;
   choiceMap[retweetFriendsButton] = R_FriendRetweets;
+  choiceMap[searchButton] = R_SearchResults;
 
 }
 
@@ -48,7 +49,7 @@ void
 SwitchDialog::Cancel ()
 {
   timelineChoice = R_None;
-  userChoice = QString();
+  textChoice = QString();
   reject ();
 }
 
@@ -56,26 +57,26 @@ void
 SwitchDialog::Choose ()
 {
   QAbstractButton * picked = buttonChoice-> checkedButton();
+  textChoice = QString();
   if (choiceMap.find (picked) != choiceMap.end()) {
     timelineChoice = choiceMap[picked];
-    if (timelineChoice == R_OtherUser) {
-       userChoice = otherName->text();
-    } else {
-       userChoice = QString();
-    }
   } else {
     timelineChoice = R_None;
-    userChoice = QString();
   }
-  emit TimelineSwitch (timelineChoice, userChoice);
+  if (timelineChoice == R_OtherUser) {
+     textChoice = otherName->text();
+  } if (timelineChoice == R_SearchResults) {
+     textChoice = searchNeedle->text();
+  }
+  emit TimelineSwitch (timelineChoice, textChoice);
   done (timelineChoice);
 }
 
 int
 SwitchDialog::Exec ()
 {
-  userChoice = QString();
-  otherName->setText (userChoice);
+  textChoice = QString();
+  publicButton->setChecked (true);
   return exec ();
 }
 
@@ -88,7 +89,7 @@ SwitchDialog::Choice ()
 QString
 SwitchDialog::OtherUser ()
 {
-  return userChoice;
+  return textChoice;
 }
 
 

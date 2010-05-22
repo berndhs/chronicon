@@ -34,6 +34,7 @@ unix:{
   CONFIG += link_pkgconfig
   PKGCONFIG += libnotify
   DEFINES += USE_NOTIFY=1
+  LIBS += -lqjson
 }
 
 win32: {
