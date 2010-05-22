@@ -14,4 +14,6 @@ version 0.1.3:
 
 - add search option to timeline switch display
 - need qjson library for search (no xml results available)
+- libnotify usage is optional in "configure" script,
+  use chronicon/options.pri to tell qmake about it
 
