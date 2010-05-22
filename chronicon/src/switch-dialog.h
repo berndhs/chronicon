@@ -46,6 +46,8 @@ public:
   int     Choice ();
   QString OtherUser ();
 
+  void SetCurrent (TimelineKind k) { timelineChoice = k; }
+
 public slots:
 
   int Exec ();

@@ -248,9 +248,11 @@ Chronicon::Start ()
   Settings().setValue ("network/start_private",startPrivate);
   if (startPrivate) {
     currentView = R_Private;
+    switchDialog.SetCurrent (currentView);
 qDebug () << " starting private ";
   } else {
     currentView = R_Public;
+    switchDialog.SetCurrent (currentView);
 qDebug () << " starting public ";
   }
   SetupDefaults ();
@@ -437,6 +439,7 @@ Chronicon::RePoll (TimelineKind kind)
 {
   if (kind != R_None) {
     currentView = kind; 
+    switchDialog.SetCurrent (currentView);
   }
   pollTimer.stop();
   pollRemain = pollPeriod;
@@ -485,6 +488,7 @@ Chronicon::ChangeTimeline (int timeline, QString user)
     theView.Display (tl);
   }
   currentView = tl;
+  switchDialog.SetCurrent (currentView);
  
   if (currentView != R_Public) {
     if (!network.HaveUser()) {
@@ -541,6 +545,7 @@ Chronicon::AutoLogin ()
   }
   if (currentView == R_Public) {
     currentView = R_Private;
+    switchDialog.SetCurrent (currentView);
   }
   network.SetTimeline (currentView);
   theView.ClearList ();

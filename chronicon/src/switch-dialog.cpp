@@ -76,7 +76,13 @@ int
 SwitchDialog::Exec ()
 {
   textChoice = QString();
-  publicButton->setChecked (true);
+  std::map <QAbstractButton*,int>::const_iterator mit;
+  for (mit = choiceMap.begin(); mit != choiceMap.end(); mit++) {
+    QAbstractButton * but = mit->first;
+    if (mit->second == timelineChoice && but != 0) {
+      but->setChecked(true);
+    }
+  }
   return exec ();
 }
 
