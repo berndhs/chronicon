@@ -1,0 +1,17 @@
+version 0.1.2 adds:
+
+- more timeline distplays, such as:
+  - mentions
+  - retweets
+  - own updates
+  - specified other users updates
+
+- follow/unfollow
+
+- some bug fixes
+
+version 0.1.3:
+
+- add search option to timeline switch display
+- need qjson library for search (no xml results available)
+
