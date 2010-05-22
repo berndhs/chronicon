@@ -65,7 +65,6 @@ public:
   void Init ();
 
   void PullTimeline ();
-  void PullTimeline (QString otherUser);
   void ChangeFollow (QString otherUser, int change);
   void PushUserStatus (QString status, QString refId);
   void ReTweet (QString id);
@@ -109,6 +108,7 @@ public slots:
   void DirectMessage (QString toName, QString msg);
   void PullUserBlock ();
   void PullSearch  (QString needle);
+  void PullTimeline (QString otherUser);
 
 signals:
 

@@ -60,12 +60,14 @@ private slots:
   void Direct   ();
   void ActionMenu ();
   void Follow ();
+  void GetMore ();
 
 signals:
 
   void SendMessage (QString msg, QString refId);
   void MakeDirect  (QString toName);
   void MaybeFollow (StringBlock userData);
+  void GetTimeline (int timeline, QString otherUser);
 
 private:
 

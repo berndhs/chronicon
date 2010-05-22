@@ -22,6 +22,7 @@
 #include "item-dialog.h"
 #include "deliberate.h"
 #include "link-mangle.h"
+#include "chronicon-types.h"
 #include <QDesktopServices>
 #include <QWebPage>
 #include <QFile>
@@ -64,6 +65,7 @@ ItemDialog::SetupMenus ()
   actionMenu.addAction (tr("Save Message"), this, SLOT (Save()));
   actionMenu.addAction (tr("Delete My Message"), this, SLOT (Delete()));
   actionMenu.addAction (tr("Send Direct Message"), this, SLOT (Direct()));
+  actionMenu.addAction (tr("Get Author's Updates"), this, SLOT (GetMore()));
   actionMenu.addAction (tr("(Un-) Follow"), this, SLOT (Follow()));
 }
 
@@ -208,6 +210,14 @@ ItemDialog::AddMessage ()
   newmsg.append (": ");
   newmsg.append (itemBlock.Value("text"));
   emit SendMessage (newmsg,itemBlock.Id());
+  accept ();
+}
+
+void
+ItemDialog::GetMore ()
+{
+  QString otherUser = itemBlock.UserValue("screen_name");
+  emit GetTimeline (R_OtherUser, otherUser);
   accept ();
 }
 

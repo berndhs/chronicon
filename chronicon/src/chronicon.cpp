@@ -111,12 +111,16 @@ Chronicon::Connect ()
 
   connect (&theView, SIGNAL (ItemDialog (QString, StatusBlock, QString)),
            &itemDialog, SLOT (Exec(QString , StatusBlock, QString)));
+  connect (&theView, SIGNAL (Search (QString)), 
+           &network, SLOT (PullSearch (QString)));
   connect (&itemDialog, SIGNAL (SendMessage (QString,QString)), 
            this, SLOT (startMessage (QString,QString)));
   connect (&itemDialog, SIGNAL (MakeDirect (QString)),
            &directDialog, SLOT (WriteMessage (QString)));
   connect (&itemDialog, SIGNAL (MaybeFollow (StringBlock)),
            &followDialog, SLOT (Exec (StringBlock)));
+  connect (&itemDialog, SIGNAL (GetTimeline (int, QString)),
+           this, SLOT (ChangeTimeline (int, QString)));
 
   connect (&directDialog, SIGNAL (SendDirect (QString, QString)),
            &network, SLOT (DirectMessage (QString, QString)));

@@ -71,6 +71,7 @@ public slots:
 signals:
 
   void ItemDialog (QString id, StatusBlock block, QString itemHtml);
+  void Search (QString needle);
 
 private:
 

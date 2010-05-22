@@ -194,9 +194,7 @@ TimelineView::CustomLink (const QUrl & url)
        emit ItemDialog (frag, index->second, html);
      }
   } else if (host == "search" && path == "/q") {
-    QString urlString ("http://search.twitter.com/search.xml?q=%1");
-    QUrl url (urlString.arg(frag.mid(1,-1)));
-    QDesktopServices::openUrl (url);
+    emit Search (frag);
   }
 }
 
