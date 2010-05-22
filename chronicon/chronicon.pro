@@ -31,9 +31,12 @@ TARGET = chronicon
 CONFIG += qt
 
 unix:{
-  CONFIG += link_pkgconfig
-  PKGCONFIG += libnotify
-  DEFINES += USE_NOTIFY=1
+  !include (options.pri) {
+    message ("no options.pri, using defaults")
+    DEFINES += USE_NOTIFY=1
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libnotify
+  }
   LIBS += -lqjson
 }
 

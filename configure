@@ -13,11 +13,14 @@ usage () {
    echo
    echo "Options:"
    echo "--prefix=PREFIX   Install into PREFIX [${PREFIX}]"
+   echo "--nonotify        do not use libnotify"
    echo
 }
 
 COPYRIGHT=" Copyright (C) 2010 Bernd Stramm"
 PREFIX=/usr
+USE_NOTIFY=yes
+OPTIONS_FILE=chronicon/options.pri
 # see if they said anything about prefix
 while test $# != 0
 do
@@ -43,6 +46,9 @@ case $ac_option in
    PREFIX=$ac_optarg
    $ac_shift
    ;;
+  --nonotify)
+   USE_NOTIFY=no
+   ;;
   *)
    echo "Bad option " $ac_option " " $ac_optarg
    usage
@@ -54,7 +60,7 @@ shift
 done 
 
 QM=`sh ./findqmake.sh`
-if [ ! $? == 0 ] ; then
+if [ ! $? -eq 0 ] ; then
   echo 
   echo "Error: Cannot find qmake"
   echo
@@ -68,6 +74,15 @@ if [ $OSLEN -gt 5 ] ; then
   MAKE_PROGRAM="mingw32-make.exe"
 else
   MAKE_PROGRAM="make"
+fi
+
+
+if [ ${USE_NOTIFY} == "no" ] ; then
+  echo "CONFIG += USE_NOTIFY=0" > ${OPTIONS_FILE}
+else
+  echo "CONFIG += USE_NOTIFY=1" > ${OPTIONS_FILE}
+  echo "CONFIG += link_pkgconfig" >> ${OPTIONS_FILE}
+  echo "PKGCONFIG += libnotify" >> ${OPTIONS_FILE}
 fi
 
 echo "#" > Makefile
