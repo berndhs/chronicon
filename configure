@@ -12,6 +12,7 @@ usage () {
    echo "$0 [OPTIONS]"
    echo
    echo "Options:"
+   echo "--help            Show this help message and quit"
    echo "--prefix=PREFIX   Install into PREFIX [${PREFIX}]"
    echo "--nonotify        do not use libnotify"
    echo
