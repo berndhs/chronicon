@@ -67,6 +67,7 @@ public:
   void PullTimeline ();
   void ChangeFollow (QString otherUser, int change);
   void PushUserStatus (QString status, QString refId);
+  void PushPicOA (QString picname, QString msg);
   void ReTweet (QString id);
   void PushDelete (QString id);
 
@@ -184,6 +185,11 @@ private:
   void oauthForPost (QNetworkRequest & reg,
                          const QString   & urlString,
                          const QOAuth::ParamMap & params);
+  void oauthForPicPost (QNetworkRequest & reg,
+                         const QString   & urlString,
+                         const QOAuth::ParamMap & params,
+                         const QByteArray & realm,
+                         const QString  & authUrl);
   void DebugShow (const QNetworkRequest &req );
 
   

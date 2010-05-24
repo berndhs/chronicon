@@ -108,6 +108,8 @@ private slots:
   void Poll ();
   void RePoll (TimelineKind kind=R_None);
 
+  void TestTwitPic ();
+
   void DebugCheck ();
 
 protected:

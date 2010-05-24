@@ -684,14 +684,23 @@ QByteArray QOAuth::Interface::createParametersString( const QString &requestUrl,
     // copy parameters to a writeable object
     ParamMap parameters = params;
     // calculate the signature
+qDebug () <<  "original PARAM Map";
+qDebug () << parameters;
+    QList<QByteArray> oldKeys = parameters.keys();
     QByteArray signature = d->createSignature( requestUrl, httpMethod, signatureMethod,
                                                token, tokenSecret, &parameters );
 
+qDebug () << "PARAM Map";
+qDebug () << parameters;
     // return an empty bytearray when signature wasn't created
     if ( d->error != NoError ) {
         return QByteArray();
     }
-
+    // we want ONLY the oauth parameters in the string, so remove the rest
+    QList<QByteArray>::iterator lit;
+    for (lit = oldKeys.begin(); lit != oldKeys.end(); lit++) {
+       parameters.remove (*lit);
+    }
     // append it to parameters
     parameters.insert( InterfacePrivate::ParamSignature, signature );
     // convert the map to bytearray, according to requested mode

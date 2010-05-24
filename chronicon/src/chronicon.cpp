@@ -172,6 +172,7 @@ Chronicon::SetupMenus ()
                        &followDialog, SLOT (Exec()));
   actionMenu.addAction (tr("Choose Timeline"), 
                        &switchDialog, SLOT (Exec()));
+  actionMenu.addAction (tr("Test Twitpic Upload"), this, SLOT (TestTwitPic()));
 
 
   /** Help Menu */
@@ -584,6 +585,14 @@ Chronicon::showEvent (QShowEvent *event)
 {
   theView.SetNotify (false);
   QMainWindow::showEvent (event);
+}
+
+void
+Chronicon::TestTwitPic ()
+{
+  QString filename ("/home/bernd/pics/Lope_de_Aguirre_2.jpg");
+  QString msg ("test pic, please ignore");
+  network.PushPicOA (filename, msg);
 }
 
 } // namespace
