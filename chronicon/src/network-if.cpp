@@ -864,7 +864,7 @@ NetworkIF::PushUserStatusOA (QString status, QString refId)
      paramContent.insert ("in_reply_to_status_id",refId.toUtf8());
   }
   QString urlStr = OAuthService ("statuses/update.xml");
-  PostOA (urlStr, paramContent, R_Update);
+  PostOA (urlStr, paramContent, QByteArray(), R_Update);
 }
 
 void
@@ -898,7 +898,7 @@ NetworkIF::DirectMessageOA (QString toName, QString msg)
   QByteArray update = QUrl::toPercentEncoding (msg.toUtf8());
   paramContent.insert ("text",update);
   QString urlString (OAuthService ("direct_messages/new.xml"));
-  PostOA (urlString, paramContent, R_Update);
+  PostOA (urlString, paramContent, QByteArray (), R_Update);
 }
 
 void
@@ -950,7 +950,7 @@ NetworkIF::ChangeFollowOA (QString otherName, int change)
   QString urlString (OAuthService (action));
 qDebug () << " Change url " << urlString;
 qDebug () << " Change parms " << paramContent;
-  PostOA (urlString, paramContent, R_Ignore);
+  PostOA (urlString, paramContent, QByteArray(), R_Ignore);
 }
 
 void
@@ -981,7 +981,7 @@ NetworkIF::PushDeleteOA (QString id)
   QOAuth::ParamMap  paramContent;
   paramContent.insert ("id",id.toUtf8());
   QString urlStr = OAuthService ("statuses/destroy.xml");
-  PostOA (urlStr, paramContent, R_Destroy);
+  PostOA (urlStr, paramContent, QByteArray(), R_Destroy);
 }
 
 
@@ -1000,7 +1000,7 @@ NetworkIF::ReTweetOA (QString id)
 {
   QOAuth::ParamMap  paramContent;
   QString urlStr = OAuthService ("statuses/retweet/%1.xml").arg(id);
-  PostOA (urlStr, paramContent, R_Update);
+  PostOA (urlStr, paramContent, QByteArray (), R_Update);
 }
 
 
@@ -1024,7 +1024,7 @@ NetworkIF::ReTweetBasic (QString id)
 void
 NetworkIF::PostBasic (QUrl &url, 
                       QNetworkRequest &req, 
-                      QByteArray & data,
+                      QByteArray   data,
                       TimelineKind kind)
 {
 qDebug () << " debug for post basic: " ;
@@ -1053,7 +1053,7 @@ qDebug () << "!!!!!!!! PushPicOA";
   QByteArray boundary ("BownTarriex");
   QOAuth::ParamMap params;
   params.insert ("realm","https://api.twitter.com");
-  oauthForPicPost (req, urlString, params, boundary, twiturl);
+  fakeOauthForEcho (req, urlString, params, boundary, twiturl);
 
   QByteArray content;
   boundary.prepend ("--");
@@ -1101,17 +1101,18 @@ qDebug () << " url from req " << req.url();
 void 
 NetworkIF::PostOA (QString  & urlString, 
                    QOAuth::ParamMap & paramContent,
+                   QByteArray         postBody,
                    TimelineKind      kind)
 {
   QNetworkRequest req;
   oauthForPost (req, urlString, paramContent);
 
-  QUrl url (urlString);
-  req.setUrl (url);
 qDebug () << " debug for post OA: ";
   DebugShow (req);
   QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
-  QNetworkReply * reply = Network()->post (req, content);  
+  QUrl url (urlString + "?" + content);
+  req.setUrl (url);
+  QNetworkReply * reply = Network()->post (req, postBody);  
   ChronNetworkReply *chReply = new ChronNetworkReply (url,
                                                   reply, 
                                                   kind, A_Post); 
@@ -1123,18 +1124,12 @@ NetworkIF::prepareOAuthString( const QString &requestUrl,
                                      QOAuth::HttpMethod method,
                                const QOAuth::ParamMap &params )
 {
-qDebug () << "----------------------- param map";
-qDebug () << params;
-qDebug () << "........................ call ";
   QByteArray content = 
          webAuth.QOAuth()->createParametersString( requestUrl, method, 
                                 acc_token, acc_secret,
                                 QOAuth::HMAC_SHA1, 
                                 params, 
                                 QOAuth::ParseForHeaderArguments );
-qDebug () << "vvvvvvvvvvvvvvvvvvvvvv OAUTH STRING " ;
-qDebug () << content;
-qDebug () << ">>>>>>>>>>>>>>>>>>>>>>>";
   return content;
 }
 
@@ -1143,20 +1138,20 @@ NetworkIF::oauthForPost (QNetworkRequest & req,
                          const QString   & urlString,
                          const QOAuth::ParamMap & params)
 {
-  QByteArray parmdata = prepareOAuthString (urlString, QOAuth::GET, params);
+  QByteArray parmdata = prepareOAuthString (urlString, QOAuth::POST, params);
   req.setRawHeader ("Authorization", parmdata);
   req.setHeader (QNetworkRequest::ContentTypeHeader,
                  "application/x-www-form-urlencoded");
 }
 
 void
-NetworkIF::oauthForPicPost (QNetworkRequest & req,
+NetworkIF::fakeOauthForEcho (QNetworkRequest & req,
                          const QString   & urlString,
                          const QOAuth::ParamMap & params,
                          const QByteArray & boundary,
                          const QString & authUrl)
 {
-  QByteArray parmData = prepareOAuthString (urlString, QOAuth::POST, params);
+  QByteArray parmData = prepareOAuthString (urlString, QOAuth::GET, params);
   parmData.insert (6,QByteArray("realm=\"http://api.twitter.com\""));
 qDebug () << " OAuth string is " << parmData;
   req.setRawHeader ("X-Verify-Credentials-Authorization", parmData);

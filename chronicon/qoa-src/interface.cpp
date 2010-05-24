@@ -690,8 +690,8 @@ qDebug () << parameters;
     QByteArray signature = d->createSignature( requestUrl, httpMethod, signatureMethod,
                                                token, tokenSecret, &parameters );
 
-qDebug () << "PARAM Map";
-qDebug () << parameters;
+qDebug () << __FILE__ << __LINE__ << " signature "<< signature;
+qDebug () << __FILE__ << __LINE__ << " from parameters "<< parameters;
     // return an empty bytearray when signature wasn't created
     if ( d->error != NoError ) {
         return QByteArray();
@@ -699,13 +699,15 @@ qDebug () << parameters;
     // we want ONLY the oauth parameters in the string, so remove the rest
     QList<QByteArray>::iterator lit;
     for (lit = oldKeys.begin(); lit != oldKeys.end(); lit++) {
-       parameters.remove (*lit);
+      parameters.remove (*lit);
     }
     // append it to parameters
     parameters.insert( InterfacePrivate::ParamSignature, signature );
     // convert the map to bytearray, according to requested mode
     QByteArray parametersString = d->paramsToString( parameters, mode );
-
+qDebug () << __FILE__ << __LINE__ << " using mode " << mode;
+qDebug () << __FILE__ << __LINE__ << " param string " << parametersString;
+qDebug () << __FILE__ << __LINE__ << " from parameters " << parameters;
     return parametersString;
 }
 

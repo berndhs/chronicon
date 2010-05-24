@@ -138,10 +138,11 @@ private:
 
   void PostOA (QString  & urlString, 
                    QOAuth::ParamMap & paramContent,
+                   QByteArray         postBody,
                    TimelineKind      kind);
   void PostBasic (QUrl &url, 
                       QNetworkRequest &req, 
-                      QByteArray & data,
+                      QByteArray   data,
                       TimelineKind kind);
 
   void PushUserStatusOA (QString status, QString refId);
@@ -185,7 +186,7 @@ private:
   void oauthForPost (QNetworkRequest & reg,
                          const QString   & urlString,
                          const QOAuth::ParamMap & params);
-  void oauthForPicPost (QNetworkRequest & reg,
+  void fakeOauthForEcho (QNetworkRequest & reg,
                          const QString   & urlString,
                          const QOAuth::ParamMap & params,
                          const QByteArray & realm,
