@@ -573,7 +573,7 @@ NetworkIF::ParseSearchResult (QNetworkReply * reply)
   QVariant parts = pars.parse (reply, &good);
   
   if (good) {
-    if (parts.type() == QMetaType::QVariantMap) {
+    if ((QMetaType::Type) parts.type() == QMetaType::QVariantMap) {
       QVariantMap partsMap = parts.toMap();
       QVariantMap::const_iterator mit;
       for (mit = partsMap.begin(); mit != partsMap.end(); mit++) {
@@ -591,14 +591,14 @@ NetworkIF::ParseSearchResult (QNetworkReply * reply)
 void
 NetworkIF::ParseSearchResultList (const QVariant & resList)
 {
-  if (resList.type() != QMetaType::QVariantList) {
+  if ( (QMetaType::Type) resList.type() != QMetaType::QVariantList) {
     qDebug () << __FILE__ << __LINE__ << " bad result type";
     return;
   }
   const QVariantList & res = resList.toList();
   QVariantList::const_iterator lit;
   for (lit = res.begin(); lit != res.end(); lit++) {
-    if (lit->type() == QMetaType::QVariantMap) {
+    if ((QMetaType::Type)lit->type() == QMetaType::QVariantMap) {
       StatusBlock  block;
       block.SetSearchContent (lit->toMap());
       emit NewStatusItem (block, R_SearchResults);
