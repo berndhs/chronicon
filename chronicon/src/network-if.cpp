@@ -80,6 +80,18 @@ NetworkIF::OAuthService (QString path)
 }
 
 QString
+NetworkIF::TwitPicService (QString path)
+{
+  static QString twitpicServerRoot ("http://api.twitpic.com/2");
+  static QString slash ('/');
+  if (twitpicServerRoot.endsWith ('/') || path.startsWith('/')) {
+    return twitpicServerRoot + path;
+  } else {
+    return twitpicServerRoot + slash + path;
+  }
+}
+
+QString
 NetworkIF::Service (QString path)
 {
   static QString slash ('/');
@@ -1017,10 +1029,8 @@ qDebug () << " debug for post basic: " ;
 void
 NetworkIF::PushPicOA (QString picname, QString msg)
 {
-qDebug () << "!!!!!!!! PushPicOA";
-  msg = "testing3";
   QByteArray twitPicKey ("20e7048922bdd9a6c41ef2a79c828d53");
-  QString picurl ("http://api.twitpic.com/2/uploadAndPost.json");
+  QString picurl = TwitPicService ("uploadAndPost.json");
   QString twiturl = OAuthService ("account/verify_credentials.json");
   QFile file (picname);
   file.open (QFile::ReadOnly);
@@ -1034,7 +1044,6 @@ qDebug () << "!!!!!!!! PushPicOA";
   QString realm ("https://api.twitter.com");
   QNetworkRequest treq = req;
   QByteArray nada;
- // GetOA (urlString, params, R_None, A_DumpEcho);
   fakeOauthForEcho (req, urlString, params, boundary, twiturl, realm);
 
   QByteArray content;
@@ -1046,27 +1055,22 @@ qDebug () << "!!!!!!!! PushPicOA";
   content.append (boundary);
   content.append ("Content-Disposition: form-data; name=\"key\"\r\n");
   content.append (eol);
-  content.append (twitPicKey.toPercentEncoding());
+  content.append (twitPicKey);
   content.append (eol);
-  //content.append (twitPicKey + "\r\n");
   content.append (boundary);
 
   content.append ("Content-Disposition: form-data; name=\"message\"\r\n");
   content.append (eol);
-  content.append (msg.toUtf8().toPercentEncoding());
+  content.append (msg.toUtf8());
   content.append (eol);
-  //content.append (msg.toUtf8() + "\r\n");
 
   content.append (boundary);
  
   content.append ("Content-Disposition: form-data; name=\"media\"; filename=\""
                   + picname.toUtf8() + "\"\r\n");
-  content.append ("Content-Type: image/PNG\r\n");
   content.append (eol);
   content.append (data);
   content.append (eol);
-qDebug () << " appended " << data.size() << " bytes";
-  //content.append ("\r\n");
   content.append (endbound);
 
   QUrl url (picurl);
@@ -1132,7 +1136,12 @@ NetworkIF::PostOA (QString  & urlString,
 qDebug () << " debug for post OA: ";
   DebugShow (req);
   QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
-  QUrl url (urlString + "?" + content);
+  QString dest (urlString);
+  if (content.size() > 0) {
+    dest.append ('?');
+    dest.append (content);
+  }
+  QUrl url (dest);
   req.setUrl (url);
   QNetworkReply * reply = Network()->post (req, postBody);  
   ChronNetworkReply *chReply = new ChronNetworkReply (Network(), url,

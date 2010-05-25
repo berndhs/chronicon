@@ -85,6 +85,7 @@ public:
   QString Service (QString path=QString());
   QUrl    ServiceUrl (QString path=QString());
   QString OAuthService (QString path=QString());
+  QString TwitPicService (QString path=QString());
   QString SearchService (QString path=QString());
 
   void ShortenHttp (QUuid tag, QStringList httpList);

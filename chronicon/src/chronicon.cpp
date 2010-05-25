@@ -29,6 +29,7 @@
 #include <QLineEdit>
 #include <QByteArray>
 #include <QDesktopServices>
+#include <QFileDialog>
 #include <QRegExp>
 #include <QTextCursor>
 
@@ -590,8 +591,16 @@ Chronicon::showEvent (QShowEvent *event)
 void
 Chronicon::TestTwitPic ()
 {
-  QString filename ("/home/bernd/pics/icons/ch-white.png");
-  QString msg ("test pic, please ignore");
+  QString filename = QFileDialog::getOpenFileName (this,
+                     tr("Image to Upload"),
+                     QDesktopServices::storageLocation
+                           (QDesktopServices::PicturesLocation),
+                     tr("Images ( *.gif *.png *.jpg )"));
+  if (filename.length () < 1) {
+    return;
+  }
+  QFileInfo info (filename);
+  QString msg = info.fileName(); // without the path
   network.PushPicOA (filename, msg);
 }
 
