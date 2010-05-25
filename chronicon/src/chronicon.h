@@ -88,7 +88,7 @@ private slots:
   void startActionMenu ();
 
   void startMessage ();
-  void startMessage (QString msg, QString oldId);
+  void startMessage (QString msg, QString oldId = QString());
   void finishMessage ();
   void discardMessage ();
   void AutoLogin ();

@@ -232,6 +232,9 @@ qDebug () << " net reply ark is " << ark;
       ParseSearchResult (netReply);
       emit ReplyComplete (R_SearchResults);
       break;
+    case A_PicUpload:
+      ParsePicUpload (netReply);
+      break;
     case A_Timeline:
     default:
       doc.setContent (netReply);
@@ -575,9 +578,9 @@ void
 NetworkIF::ParseSearchResult (QNetworkReply * reply)
 {
   StatusBlock block;
-  QJson::Parser pars;
+  QJson::Parser Jpars;
   bool good (false);
-  QVariant parts = pars.parse (reply, &good);
+  QVariant parts = Jpars.parse (reply, &good);
   
   if (good) {
     if ((QMetaType::Type) parts.type() == QMetaType::QVariantMap) {
@@ -593,6 +596,37 @@ NetworkIF::ParseSearchResult (QNetworkReply * reply)
     }
   }
   emit SearchComplete ();
+}
+
+void
+NetworkIF::ParsePicUpload (QNetworkReply * reply)
+{
+  QJson::Parser Jpars;
+  bool good (false);
+  QVariant parts = Jpars.parse (reply, &good);
+  QString  picUrl;
+  QString  msgText;
+  QString  key;
+  int  haveParts (0);
+  if (good) {
+    if ((QMetaType::Type) parts.type() == QMetaType::QVariantMap) {
+      QVariantMap partsMap = parts.toMap();
+      QVariantMap::const_iterator mit;
+      for (mit = partsMap.begin(); mit != partsMap.end(); mit++) {
+         key = mit.key();
+         if (key == "url") {
+           picUrl = mit.value().toString();
+           haveParts ++;
+         } if (key == "text") {
+           msgText = mit.value().toString();
+           haveParts ++;
+         }
+      }
+    }
+  }
+  if (haveParts > 0) {
+    emit SecondaryMessage (msgText + " " + picUrl);
+  }
 }
 
 void
@@ -818,8 +852,10 @@ void
 NetworkIF::PushUserStatus (QString status, QString refId)
 {
   if (oauthMode) {
+qDebug () << " push user to OA";
     PushUserStatusOA (status, refId);
   } else {
+qDebug () << " push user to BASIC ";
     PushUserStatusBasic (status, refId);
   }
 }
@@ -1030,7 +1066,7 @@ void
 NetworkIF::PushPicOA (QString picname, QString msg)
 {
   QByteArray twitPicKey ("20e7048922bdd9a6c41ef2a79c828d53");
-  QString picurl = TwitPicService ("uploadAndPost.json");
+  QString picurl = TwitPicService ("upload.json");
   QString twiturl = OAuthService ("account/verify_credentials.json");
   QFile file (picname);
   file.open (QFile::ReadOnly);
@@ -1079,7 +1115,7 @@ NetworkIF::PushPicOA (QString picname, QString msg)
   QNetworkReply * reply = Network()->post (req, content);  
   ChronNetworkReply *chReply = new ChronNetworkReply (Network(), url,
                                                   reply, 
-                                                  R_Ignore, A_PicUpload); 
+                                                  R_None, A_PicUpload); 
   ExpectReply (reply, chReply);
 #if 0 
   QNetworkRequest pirxReq = req;

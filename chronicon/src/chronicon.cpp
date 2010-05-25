@@ -109,6 +109,8 @@ Chronicon::Connect ()
            this, SLOT (RePoll(TimelineKind)));
   connect (&network, SIGNAL (StopPoll (bool)),
            this, SLOT (SuspendPoll (bool)));
+  connect (&network, SIGNAL (SecondaryMessage (QString)),
+           this, SLOT (startMessage (QString)));
 
   connect (&theView, SIGNAL (ItemDialog (QString, StatusBlock, QString)),
            &itemDialog, SLOT (Exec(QString , StatusBlock, QString)));
@@ -325,7 +327,11 @@ Chronicon::startMessage ()
 void
 Chronicon::startMessage (QString msg, QString oldId)
 {
-  inReplyTo = oldId;
+  if (oldId.length() > 0) {
+    inReplyTo = oldId;
+  } else {
+    inReplyTo = QString();
+  }
   ownMessage->setText (msg);
   ownMessage->moveCursor (QTextCursor::Start);
   BigEdit();

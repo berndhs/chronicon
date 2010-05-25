@@ -125,6 +125,7 @@ signals:
   void TwitterAuthGood ();
   void TwitterAuthBad ();
   void StopPoll (bool stopit);
+  void SecondaryMessage (QString msg);
   
 
 private:
@@ -167,9 +168,11 @@ private:
   void PushDeleteBasic (QString id);
   void ReTweetOA (QString id);
   void ReTweetBasic (QString id);
+
   void ParseTwitterDoc (QDomDocument &doc, TimelineKind kind);
   void ParseUserInfo (QDomDocument &doc);
   void ParseSearchResult (QNetworkReply * reply);
+  void ParsePicUpload (QNetworkReply * reply);
   void ParseSearchResultList (const QVariant & resList);
   void ParseUpdate (QDomDocument &doc, TimelineKind kind);
   void ParseUserBlock (QDomDocument &doc, TimelineKind kind);
@@ -182,6 +185,7 @@ private:
                       QString & shortUrl,
                       QString & longUrl,
                       bool    & good);
+
   void ExpectReply (QNetworkReply *reply, 
                     ChronNetworkReply *chReply);
   void CleanupReply (QNetworkReply * reply, ChronNetworkReply *chReply);
