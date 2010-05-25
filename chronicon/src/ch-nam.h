@@ -60,8 +60,10 @@ private:
   void FixUserAgent ( QNetworkRequest & req);
 
   void DumpHeader (const QNetworkRequest & request, QString msg = QString());
+  void CheckSignature (QByteArray authHeader);
 
   QTime  lifetime;
+  int    requestCount;
 
 };
 

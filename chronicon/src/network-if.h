@@ -202,8 +202,7 @@ private:
   void fakeOauthForEcho (QNetworkRequest & reg,
                          const QString   & urlString,
                          const QOAuth::ParamMap & params,
-                         const QByteArray & boundary,
-                         const QString  & authUrl,
+                         const QByteArray & authUrl,
                          const QString    realm);
   void DebugShow (const QNetworkRequest &req , QString msg = QString());
 

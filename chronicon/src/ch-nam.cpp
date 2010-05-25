@@ -87,12 +87,16 @@ ChNam::DumpHeader (const QNetworkRequest & request, QString msg)
   qDebug () << " ____ start ChNam Info for request " << msg << " at lifetime " << Elapsed();
   
   qDebug () << " request to " << request.url();
-  QList<QByteArray>::iterator  hit;
   QList<QByteArray>  hdrs = request.rawHeaderList();
+  QList<QByteArray>::iterator  hit;
   for (hit = hdrs.begin(); hit != hdrs.end(); hit++) {
+    QByteArray header = request.rawHeader(*hit);
     qDebug () << " header " << *hit
               << ": "
-              << request.rawHeader (*hit);
+              << header;
+    if (*hit == "Authorization") {
+      CheckSignature (header);
+    }
   }
   qDebug () << " ____ end ChNam Info";
 }
@@ -101,6 +105,15 @@ void
 ChNam::FixUserAgent (QNetworkRequest & req)
 {
   req.setRawHeader ("User-Agent","Chronicon; WebKit");
+}
+
+void 
+ChNam::CheckSignature (QByteArray authHeader)
+{
+  QString header (authHeader);
+  if (!header.contains ("oauth_signature=")) {
+    qDebug () << ">>>>>>>>> NO SIGNATURE";
+  }
 }
 
 } // namespace

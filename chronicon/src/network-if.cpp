@@ -625,7 +625,9 @@ NetworkIF::ParsePicUpload (QNetworkReply * reply)
     }
   }
   if (haveParts > 0) {
-    emit SecondaryMessage (msgText + " " + picUrl);
+    picUrl.remove ('\\');
+    QString all = msgText + " " + picUrl;
+    emit SecondaryMessage (all);
   }
 }
 
@@ -1068,26 +1070,30 @@ NetworkIF::PushPicOA (QString picname, QString msg)
   QByteArray twitPicKey ("20e7048922bdd9a6c41ef2a79c828d53");
   QString picurl = TwitPicService ("upload.json");
   QString twiturl = OAuthService ("account/verify_credentials.json");
+  QString realm ("https://api.twitter.com");
+  QOAuth::ParamMap params;
+  QNetworkRequest req;
+  QByteArray boundary ("BownTarriex");
+  QString urlString (twiturl);
+  fakeOauthForEcho (req, urlString, params, twiturl.toUtf8(), realm);
+
+  QByteArray contentType ("multipart/form-data; boundary=");
+  contentType.append (boundary);
+  req.setHeader (QNetworkRequest::ContentTypeHeader,
+                 contentType);
+
   QFile file (picname);
   file.open (QFile::ReadOnly);
   QByteArray data = file.readAll ();
   file.close();
   QByteArray mediaData = data.toPercentEncoding();
-  QString urlString (twiturl);
-  QNetworkRequest req;
-  QByteArray boundary ("BownTarriex");
-  QOAuth::ParamMap params;
-  QString realm ("https://api.twitter.com");
-  QNetworkRequest treq = req;
-  QByteArray nada;
-  fakeOauthForEcho (req, urlString, params, boundary, twiturl, realm);
 
   QByteArray content;
   boundary.prepend ("--");
   QByteArray endbound = boundary;
-  QByteArray eol ("\r\n");
   endbound.append ("--\r\n");
   boundary.append ("\r\n");
+  QByteArray eol ("\r\n");
   content.append (boundary);
   content.append ("Content-Disposition: form-data; name=\"key\"\r\n");
   content.append (eol);
@@ -1167,18 +1173,25 @@ NetworkIF::PostOA (QString  & urlString,
                    ApiRequestKind    ark)
 {
   QNetworkRequest req;
+qDebug () << "POST for OA ";
+qDebug () << " orig param content " << paramContent;
   oauthForPost (req, urlString, paramContent);
 
-qDebug () << " debug for post OA: ";
+qDebug () << " params after oauth " << paramContent;
+qDebug () << " req url after oauth " << req.url();
   DebugShow (req);
   QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
-  QString dest (urlString);
+qDebug () << " inline content to append " << content;
+  QByteArray dest (urlString.toUtf8());
   if (content.size() > 0) {
     dest.append ('?');
     dest.append (content);
   }
-  QUrl url (dest);
+qDebug () << " dest after append " << dest;
+  QUrl url;
+  url.setEncodedUrl (dest);
   req.setUrl (url);
+qDebug () << " req url before network post " << req.url();
   QNetworkReply * reply = Network()->post (req, postBody);  
   ChronNetworkReply *chReply = new ChronNetworkReply (Network(), url,
                                                   reply, 
@@ -1217,8 +1230,7 @@ void
 NetworkIF::fakeOauthForEcho (QNetworkRequest & req,
                          const QString   & urlString,
                          const QOAuth::ParamMap & params,
-                         const QByteArray & boundary,
-                         const QString & authUrl,
+                         const QByteArray & authUrl,
                          const QString   realm)
 {
 qDebug () << " fakeOauthForEcho";
@@ -1229,11 +1241,7 @@ qDebug () << " fakeOauthForEcho";
 qDebug () << " OAuth string is " << parmData;
   req.setRawHeader ("X-Verify-Credentials-Authorization", parmData);
   req.setRawHeader ("X-Auth-Service-Provider",
-                        authUrl.toUtf8().toPercentEncoding());
-  QByteArray contentType ("multipart/form-data; boundary=");
-  contentType.append (boundary);
-  req.setHeader (QNetworkRequest::ContentTypeHeader,
-                 contentType);
+                        authUrl.toPercentEncoding());
 }
 void
 NetworkIF::ExpectReply (QNetworkReply *reply, ChronNetworkReply * chReply)

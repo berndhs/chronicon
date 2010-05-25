@@ -330,7 +330,7 @@ Chronicon::startMessage (QString msg, QString oldId)
   if (oldId.length() > 0) {
     inReplyTo = oldId;
   } else {
-    inReplyTo = QString();
+    inReplyTo = "";
   }
   ownMessage->setText (msg);
   ownMessage->moveCursor (QTextCursor::Start);

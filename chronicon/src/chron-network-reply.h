@@ -57,6 +57,7 @@ public:
   QUrl            Url () { return url; }
   ApiRequestKind  ARKind () { return arKind; }
 
+  int  IfNum () { return repNumber; }
   void Abort();
   void Close ();
   void SetTimeout (int msec);
@@ -87,6 +88,8 @@ private:
   ApiRequestKind  arKind;
   QTimer         *expireTimer;
   bool            hasExpired;
+  int             repNumber;
+  static int      repCounter;
 
 
 };

@@ -26,6 +26,8 @@
 
 namespace chronicon {
 
+int ChronNetworkReply::repCounter (1);
+
 ChronNetworkReply::ChronNetworkReply (ChNam* nam,
                                       QUrl & theUrl, 
                                       QNetworkReply * qnr, 
@@ -38,7 +40,10 @@ ChronNetworkReply::ChronNetworkReply (ChNam* nam,
  arKind (ark),
  expireTimer (0),
  hasExpired (false)
-{}
+{
+  repNumber = repCounter++;
+  qDebug () << " reply number " << repNumber << " target " << url;
+}
 
 ChronNetworkReply::~ChronNetworkReply ()
 {
@@ -53,7 +58,8 @@ ChronNetworkReply::handleReturn ()
 {
 qDebug () << " ____ start ChronNetworkReply reply at " << netMgr->Elapsed() << "for  " << kind << " from " << url;
 qDebug () << " for timeline " << kind << " ARK " << arKind;
-  QList<QByteArray>::iterator  hit;
+qDebug () << " reply id " << repNumber;
+  QList<QByteArray>::const_iterator  hit;
   QList<QByteArray>  hdrs = reply->rawHeaderList();
   for (hit = hdrs.begin(); hit != hdrs.end(); hit++) {
     qDebug () << " header " << *hit
