@@ -429,7 +429,6 @@ NetworkIF::plainLogin (int * reply)
      haveUser = true;
      break;
   case -1:
-     PushTwitterLogout ();
      ResetNetwork ();
      user = "";
      pass = "";
@@ -753,10 +752,7 @@ NetworkIF::PullTimelineOA (QString otherUser)
   if (otherUser.length() > 0) {
     args.insert ("screen_name",otherUser.toUtf8());
   }
-  ChronNetworkReply * chr = GetOA (urlString, args, serviceKind, A_Timeline);
-qDebug () << " oauth pull timeline GET " << timelineName (serviceKind);
-qDebug () << " GET for " << chr->NetReply()->url();
-  
+  GetOA (urlString, args, serviceKind, A_Timeline);
 }
 
 void
@@ -813,51 +809,16 @@ NetworkIF::PullUserBlockOA ()
   QString urlString = OAuthService ("users/show.xml");
   QOAuth::ParamMap  args;
   args.insert ("screen_name",QUrl::toPercentEncoding(user.toUtf8()));
-  QByteArray  parms = prepareOAuthString (urlString, 
-                                          QOAuth::GET,
-                                          args);
-  QNetworkRequest req;
-  req.setRawHeader ("Authorization", parms);
-  urlString.append (webAuth.QOAuth()->inlineParameters 
-                      (args, QOAuth::ParseForInlineQuery));
-  QUrl url (urlString);
-  req.setUrl (url);
-  DebugShow (req);
-  QNetworkReply *reply = Network()->get (req);
-  ChronNetworkReply *chReply = new ChronNetworkReply (Network(), url,
-                                                  reply, 
-                                                  R_None,
-                                                  A_UserInfo);
-  ExpectReply (reply, chReply);
-  
+  GetOA (urlString, args, R_None, A_UserInfo);
 }
 
-
-void
-NetworkIF::PushTwitterLogout ()
-{
-  if (oauthMode) {
-    return;
-  }
-  QNetworkRequest request;
-  QUrl url (Service("account/end_session.xml"));
-  request.setUrl (url);
-  QByteArray nada;
-  QNetworkReply * reply = Network()->post (request, nada);
-  ChronNetworkReply *chReply = new ChronNetworkReply (Network(), url,
-                                  reply, chronicon::R_None,
-                                  A_Logout);
-  ExpectReply (reply, chReply);
-}
 
 void
 NetworkIF::PushUserStatus (QString status, QString refId)
 {
   if (oauthMode) {
-qDebug () << " push user to OA";
     PushUserStatusOA (status, refId);
   } else {
-qDebug () << " push user to BASIC ";
     PushUserStatusBasic (status, refId);
   }
 }
@@ -976,8 +937,6 @@ NetworkIF::ChangeFollowOA (QString otherName, int change)
                                      (otherName.toUtf8()));
 
   QString urlString (OAuthService (action));
-qDebug () << " Change url " << urlString;
-qDebug () << " Change parms " << paramContent;
   PostOA (urlString, paramContent, QByteArray(), R_Ignore);
 }
 
@@ -1173,25 +1132,18 @@ NetworkIF::PostOA (QString  & urlString,
                    ApiRequestKind    ark)
 {
   QNetworkRequest req;
-qDebug () << "POST for OA ";
-qDebug () << " orig param content " << paramContent;
   oauthForPost (req, urlString, paramContent);
 
-qDebug () << " params after oauth " << paramContent;
-qDebug () << " req url after oauth " << req.url();
   DebugShow (req);
   QByteArray content = webAuth.QOAuth()->inlineParameters (paramContent);
-qDebug () << " inline content to append " << content;
   QByteArray dest (urlString.toUtf8());
   if (content.size() > 0) {
     dest.append ('?');
     dest.append (content);
   }
-qDebug () << " dest after append " << dest;
   QUrl url;
   url.setEncodedUrl (dest);
   req.setUrl (url);
-qDebug () << " req url before network post " << req.url();
   QNetworkReply * reply = Network()->post (req, postBody);  
   ChronNetworkReply *chReply = new ChronNetworkReply (Network(), url,
                                                   reply, 
@@ -1233,12 +1185,10 @@ NetworkIF::fakeOauthForEcho (QNetworkRequest & req,
                          const QByteArray & authUrl,
                          const QString   realm)
 {
-qDebug () << " fakeOauthForEcho";
   QOAuth::ParamMap extra;
   extra.insert ("realm", realm.toUtf8());
   QByteArray parmData = prepareOAuthString (urlString, QOAuth::GET, 
                                              params, extra);
-qDebug () << " OAuth string is " << parmData;
   req.setRawHeader ("X-Verify-Credentials-Authorization", parmData);
   req.setRawHeader ("X-Auth-Service-Provider",
                         authUrl.toPercentEncoding());

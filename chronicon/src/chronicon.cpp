@@ -597,10 +597,12 @@ Chronicon::showEvent (QShowEvent *event)
 void
 Chronicon::TestTwitPic ()
 {
+  QString tryfile = QDesktopServices::storageLocation
+                           (QDesktopServices::PicturesLocation)
+                    + QDir::separator() + QString ("image.jpg");
   QString filename = QFileDialog::getOpenFileName (this,
                      tr("Image to Upload"),
-                     QDesktopServices::storageLocation
-                           (QDesktopServices::PicturesLocation),
+                     tryfile,
                      tr("Images ( *.gif *.png *.jpg )"));
   if (filename.length () < 1) {
     return;
