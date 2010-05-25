@@ -686,14 +686,10 @@ QByteArray QOAuth::Interface::createParametersString( const QString &requestUrl,
     // copy parameters to a writeable object
     ParamMap parameters = params;
     // calculate the signature
-qDebug () <<  "original PARAM Map";
-qDebug () << parameters;
     QList<QByteArray> oldKeys = parameters.keys();
     QByteArray signature = d->createSignature( requestUrl, httpMethod, signatureMethod,
                                                token, tokenSecret, &parameters );
 
-qDebug () << __FILE__ << __LINE__ << " signature "<< signature;
-qDebug () << __FILE__ << __LINE__ << " from parameters "<< parameters;
     // return an empty bytearray when signature wasn't created
     if ( d->error != NoError ) {
         return QByteArray();
@@ -712,9 +708,6 @@ qDebug () << __FILE__ << __LINE__ << " from parameters "<< parameters;
     parameters.insert( InterfacePrivate::ParamSignature, signature );
     // convert the map to bytearray, according to requested mode
     QByteArray parametersString = d->paramsToString( parameters, mode );
-qDebug () << __FILE__ << __LINE__ << " using mode " << mode;
-qDebug () << __FILE__ << __LINE__ << " param string " << parametersString;
-qDebug () << __FILE__ << __LINE__ << " from parameters " << parameters;
     return parametersString;
 }
 
