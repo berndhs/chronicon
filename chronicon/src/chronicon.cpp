@@ -59,6 +59,7 @@ Chronicon::Chronicon (QWidget *parent)
  directDialog (this),
  switchDialog (this),
  followDialog (this),
+ picPreview (this),
  pApp(0),
  rerun (false)
 {
@@ -116,6 +117,7 @@ Chronicon::Connect ()
            &itemDialog, SLOT (Exec(QString , StatusBlock, QString)));
   connect (&theView, SIGNAL (Search (QString)), 
            &network, SLOT (PullSearch (QString)));
+
   connect (&itemDialog, SIGNAL (SendMessage (QString,QString)), 
            this, SLOT (startMessage (QString,QString)));
   connect (&itemDialog, SIGNAL (MakeDirect (QString)),
@@ -133,6 +135,9 @@ Chronicon::Connect ()
 
   connect (&followDialog, SIGNAL (Follow (QString, int)),
             this, SLOT (ChangeFollow (QString, int)));
+
+  connect (&picPreview, SIGNAL (SendPic (QString, QString)),
+            &network, SLOT (PushPicOA (QString, QString)));
 
   connect (&shortener, SIGNAL (DoneShortening (QString )),
            this, SLOT (ReallyFinishMessage (QString)));
@@ -175,7 +180,8 @@ Chronicon::SetupMenus ()
                        &followDialog, SLOT (Exec()));
   actionMenu.addAction (tr("Choose Timeline"), 
                        &switchDialog, SLOT (Exec()));
-  actionMenu.addAction (tr("Test Twitpic Upload"), this, SLOT (TestTwitPic()));
+  actionMenu.addAction (tr("Twitpic Image Upload"), 
+                       &picPreview, SLOT (Exec ()));
 
 
   /** Help Menu */
@@ -592,24 +598,6 @@ Chronicon::showEvent (QShowEvent *event)
 {
   theView.SetNotify (false);
   QMainWindow::showEvent (event);
-}
-
-void
-Chronicon::TestTwitPic ()
-{
-  QString tryfile = QDesktopServices::storageLocation
-                           (QDesktopServices::PicturesLocation)
-                    + QDir::separator() + QString ("image.jpg");
-  QString filename = QFileDialog::getOpenFileName (this,
-                     tr("Image to Upload"),
-                     tryfile,
-                     tr("Images ( *.gif *.png *.jpg )"));
-  if (filename.length () < 1) {
-    return;
-  }
-  QFileInfo info (filename);
-  QString msg = info.fileName(); // without the path
-  network.PushPicOA (filename, msg);
 }
 
 } // namespace

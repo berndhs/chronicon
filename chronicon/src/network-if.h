@@ -67,7 +67,6 @@ public:
   void PullTimeline ();
   void ChangeFollow (QString otherUser, int change);
   void PushUserStatus (QString status, QString refId);
-  void PushPicOA (QString picname, QString msg);
   void ReTweet (QString id);
   void PushDelete (QString id);
 
@@ -110,6 +109,7 @@ public slots:
   void PullUserBlock ();
   void PullSearch  (QString needle);
   void PullTimeline (QString otherUser);
+  void PushPicOA (QString picname, QString msg);
 
 signals:
 

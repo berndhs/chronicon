@@ -40,6 +40,7 @@
 #include "direct-dialog.h"
 #include "switch-dialog.h"
 #include "follow-dialog.h"
+#include "pic-preview.h"
 #include "ch-menu.h"
 
 using namespace deliberate;
@@ -108,8 +109,6 @@ private slots:
   void Poll ();
   void RePoll (TimelineKind kind=R_None);
 
-  void TestTwitPic ();
-
   void DebugCheck ();
 
 protected:
@@ -152,6 +151,7 @@ private:
   DirectDialog  directDialog;
   SwitchDialog  switchDialog;
   FollowDialog  followDialog;
+  PicPreview    picPreview;
 
   QApplication * pApp;
 
