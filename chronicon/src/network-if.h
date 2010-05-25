@@ -22,11 +22,11 @@
 #ifndef NETWORK_IF_H
 #define NETWORK_IF_H
 
-#include <QNetworkAccessManager>
 #include <QAuthenticator>
 #include <QTimer>
 #include <QUuid>
 #include "delib-debug.h"
+#include "ch-nam.h"
 #include <map>
 #include "chronicon-types.h"
 #include "chron-network-reply.h"
@@ -129,21 +129,28 @@ signals:
 private:
 
   QWidget   *parentWidget;
-  QNetworkAccessManager *Network ();
+  ChNam     *Network ();
 
   void ConnectNetwork ();
   void AskBitly (QUuid tag, QString http);
   void plainLogin (int *reply);
   void webLogin   (int *reply);
 
+  ChronNetworkReply * GetOA  (QString           & urlString, 
+                  QOAuth::ParamMap  & args,
+                  TimelineKind      serviceKind,
+                  ApiRequestKind    ark
+                  );
   void PostOA (QString  & urlString, 
                    QOAuth::ParamMap & paramContent,
                    QByteArray         postBody,
-                   TimelineKind      kind);
+                   TimelineKind      kind,
+                   ApiRequestKind    ark = A_Post);
   void PostBasic (QUrl &url, 
                       QNetworkRequest &req, 
                       QByteArray   data,
-                      TimelineKind kind);
+                      TimelineKind kind,
+                      ApiRequestKind    ark = A_Post);
 
   void PushUserStatusOA (QString status, QString refId);
   void PushUserStatusBasic (QString status, QString refId);
@@ -182,19 +189,21 @@ private:
   void CleanupReply (QNetworkReply * reply, BitlyNetworkReply *bitReply);
   QByteArray prepareOAuthString( const QString &requestUrl, 
                                      QOAuth::HttpMethod method,
-                               const QOAuth::ParamMap &params );
+                               const QOAuth::ParamMap &params,
+                                     QOAuth::ParamMap  extraParams = QOAuth::ParamMap() );
   void oauthForPost (QNetworkRequest & reg,
                          const QString   & urlString,
                          const QOAuth::ParamMap & params);
   void fakeOauthForEcho (QNetworkRequest & reg,
                          const QString   & urlString,
                          const QOAuth::ParamMap & params,
-                         const QByteArray & realm,
-                         const QString  & authUrl);
-  void DebugShow (const QNetworkRequest &req );
+                         const QByteArray & boundary,
+                         const QString  & authUrl,
+                         const QString    realm);
+  void DebugShow (const QNetworkRequest &req , QString msg = QString());
 
   
-  QNetworkAccessManager   *nam;
+  ChNam   *nam;
 
   QString                 serverRoot;
   QString                 searchRoot;
@@ -222,7 +231,7 @@ private:
   ReplyMapType  twitterReplies;
   BitlyMapType  bitlyReplies;
 
-  QList <QNetworkAccessManager*> oldNAMs;
+  QList <ChNam*> oldNAMs;
 
 };
 

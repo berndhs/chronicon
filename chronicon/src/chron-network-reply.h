@@ -27,6 +27,7 @@
 #include <QUrl>
 #include <QTimer>
 #include "chronicon-types.h"
+#include "ch-nam.h"
 
 namespace chronicon {
 
@@ -44,7 +45,8 @@ Q_OBJECT
 public:
 
 
-  ChronNetworkReply (QUrl &theUrl, 
+  ChronNetworkReply (ChNam* nam,
+                    QUrl &theUrl, 
                     QNetworkReply * qnr, 
                     TimelineKind req,
                     ApiRequestKind ark);
@@ -78,7 +80,7 @@ signals:
 
 private:
 
-
+  ChNam          *netMgr;
   QUrl           url;
   QNetworkReply  *reply;  
   TimelineKind    kind;

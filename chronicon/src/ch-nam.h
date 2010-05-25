@@ -1,5 +1,5 @@
-#ifndef CHRONICON_TYPES_H
-#define CHRONICON_TYPES_H
+#ifndef CH_NAM_H
+#define CH_NAM_H
 
 /****************************************************************
  * This file is distributed under the following license:
@@ -21,47 +21,49 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, 
  *  Boston, MA  02110-1301, USA.
  ****************************************************************/
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include <QString>
+#include <QTime>
+#include <QByteArray>
+#include <QIODevice>
 
 namespace chronicon {
 
-  enum TimelineKind {
-         R_None = 0,
-         R_Public = 1,
-         R_Private = 2,
-         R_Update = 3,
-         R_Destroy = 4,
-         R_ThisUser = 5,
-         R_OtherUser = 6,
-         R_Ignore = 7,
-         R_Mentions = 8,
-         R_OwnRetweets = 9,
-         R_FriendRetweets = 10,
-         R_SearchResults = 11,
-         R_Top
-         };
+class ChNam : public QNetworkAccessManager {
+Q_OBJECT
 
-  QString timelineName (TimelineKind kind);
+public:
 
-  enum ApiRequestKind {
-         A_None = 0,
-         A_Timeline = 1,
-         A_AuthVerify = 2,
-         A_Logout = 3,
-         A_UserInfo = 4,
-         A_Search = 5,
-         A_Post = 6,
-         A_PicUpload = 7,
-         A_DumpEcho = 8,
-         A_Top
-  };
+  ChNam ( QObject * parent = 0 );
+ 
+QNetworkReply * get (  QNetworkRequest & request );
+QNetworkReply * post (   QNetworkRequest & request, 
+                       const QByteArray & data );
+QNetworkReply * post (  QNetworkRequest & request,
+                            QIODevice * data);
 
-  enum ChronNetworkError {
-        CHERR_None = 0,
-        CHERR_Timeout = 9000,
-        CHERR_Internal = 9999
-  };
-  
+  int Elapsed ();
+
+public slots:
+ 
+  void	needAuthentication ( QNetworkReply * reply, 
+                              QAuthenticator * authenticator );
+
+signals:
+
+  void	authRequired ( QNetworkReply * reply, QAuthenticator * authenticator );
+
+private:
+
+  void FixUserAgent ( QNetworkRequest & req);
+
+  void DumpHeader (const QNetworkRequest & request, QString msg = QString());
+
+  QTime  lifetime;
+
+};
 
 } // namespace
 

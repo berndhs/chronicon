@@ -60,7 +60,7 @@ SetStyle (QSettings &zett)
   }
 }
 
-}
+} // namespace
 
 int
 main (int argc, char * argv[])
@@ -73,14 +73,12 @@ main (int argc, char * argv[])
   QSettings  settings;
   deliberate::SetSettings (settings);
   settings.setValue ("program",pv.MyName());
-qDebug () << __FILE__ << __LINE__;
 #if USE_NOTIFY
   notify_init (chronicon::ChroniconName);
 #endif
 
   deliberate::SetStyle (settings);
   QApplication App (argc, argv);
-qDebug () << __FILE__ << __LINE__ << " have app object";
   deliberate::CmdOptions  opts ("Chronicon");
   opts.AddSoloOption ("debug","D","show Debug log window");
   opts.AddIntOption ("maxitems","M","maximum length of timeline shown");

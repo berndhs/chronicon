@@ -590,7 +590,7 @@ Chronicon::showEvent (QShowEvent *event)
 void
 Chronicon::TestTwitPic ()
 {
-  QString filename ("/home/bernd/pics/Lope_de_Aguirre_2.jpg");
+  QString filename ("/home/bernd/pics/icons/ch-white.png");
   QString msg ("test pic, please ignore");
   network.PushPicOA (filename, msg);
 }

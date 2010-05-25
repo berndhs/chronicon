@@ -78,9 +78,14 @@ public:
                           const QByteArray &tokenSecret, SignatureMethod signatureMethod = HMAC_SHA1,
                           const ParamMap &params = ParamMap() );
 
-    QByteArray createParametersString( const QString &requestUrl, HttpMethod httpMethod,
-                                       const QByteArray &token, const QByteArray &tokenSecret,
-                                       SignatureMethod signatureMethod, const ParamMap &params, ParsingMode mode );
+    QByteArray createParametersString( const QString &requestUrl, 
+                                             HttpMethod httpMethod,
+                                       const QByteArray &token, 
+                                       const QByteArray &tokenSecret,
+                                       SignatureMethod signatureMethod, 
+                                       const ParamMap &params, 
+                                             ParsingMode mode,
+                                             ParamMap extraParams = ParamMap() );
 
     QByteArray inlineParameters( const ParamMap &params, ParsingMode mode = ParseForRequestContent );
 

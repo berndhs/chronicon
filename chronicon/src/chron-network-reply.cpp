@@ -21,15 +21,18 @@
 
 #include "chron-network-reply.h"
 #include "delib-debug.h"
+#include "ch-nam.h"
 
 
 namespace chronicon {
 
-ChronNetworkReply::ChronNetworkReply (QUrl & theUrl, 
+ChronNetworkReply::ChronNetworkReply (ChNam* nam,
+                                      QUrl & theUrl, 
                                       QNetworkReply * qnr, 
                                       TimelineKind req,
                                        ApiRequestKind ark)
-:url(theUrl),
+:netMgr(nam),
+ url(theUrl),
  reply(qnr),
  kind (req),
  arKind (ark),
@@ -48,12 +51,23 @@ ChronNetworkReply::~ChronNetworkReply ()
 void
 ChronNetworkReply::handleReturn ()
 {
-qDebug () << " ch reply for  " << kind;
-qDebug () << " ch reply from " << url;
+qDebug () << " ____ start ChronNetworkReply reply at " << netMgr->Elapsed() << "for  " << kind << " from " << url;
+qDebug () << " for timeline " << kind << " ARK " << arKind;
+  QList<QByteArray>::iterator  hit;
+  QList<QByteArray>  hdrs = reply->rawHeaderList();
+  for (hit = hdrs.begin(); hit != hdrs.end(); hit++) {
+    qDebug () << " header " << *hit
+              << ": "
+              << reply->rawHeader (*hit);
+  }
   if (expireTimer) {
     expireTimer->stop();
   }
-  if (arKind == A_AuthVerify) {
+  if (arKind == A_DumpEcho) {  // dump content to qDebug and ignore
+     QByteArray content = reply->readAll();
+     qDebug () << " A_DumpEcho reply data to be ignored:";
+     qDebug () << content;
+  } else if (arKind == A_AuthVerify) {
     if (error() == 0) {
       emit AuthVerifyGood (this);
     } else {
@@ -62,6 +76,7 @@ qDebug () << " ch reply from " << url;
   } else {
     emit Finished (this);
   }
+  qDebug () << " ____ end ChronNetworkReply reply";
 }
 
 int
@@ -83,11 +98,12 @@ ChronNetworkReply::handleError (QNetworkReply::NetworkError err)
     expireTimer->stop();
   }
   qDebug () << __FILE__ << __LINE__ << " Chron network error " << err << " for reply " << reply;
+  qDebug () << " for timeline " << kind << " ARK " << arKind;
   if ((arKind == A_AuthVerify)) {
-qDebug () << " emit AVE " << err;
+  qDebug () << " emit AVE " << err;
     emit AuthVerifyError (this, err);
   } else {
-qDebug () << " emit NetErr " << err;
+  qDebug () << " emit NetErr " << err;
 QByteArray data;
     data = reply->readAll();
 qDebug () << " reply data " << QString (data);

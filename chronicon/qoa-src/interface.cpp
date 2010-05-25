@@ -675,7 +675,9 @@ QOAuth::ParamMap QOAuth::Interface::accessToken( const QString &requestUrl, Http
 
 QByteArray QOAuth::Interface::createParametersString( const QString &requestUrl, HttpMethod httpMethod, const QByteArray &token,
                                                       const QByteArray &tokenSecret, SignatureMethod signatureMethod,
-                                                      const ParamMap &params, ParsingMode mode )
+                                                      const ParamMap &params, 
+                                                      ParsingMode mode,
+                                                      ParamMap extraParams )
 {
     Q_D(Interface);
 
@@ -701,7 +703,12 @@ qDebug () << __FILE__ << __LINE__ << " from parameters "<< parameters;
     for (lit = oldKeys.begin(); lit != oldKeys.end(); lit++) {
       parameters.remove (*lit);
     }
-    // append it to parameters
+    // add the extra parameters 
+    ParamMap::const_iterator pit;
+    for (pit = extraParams.begin(); pit != extraParams.end(); pit++) {
+      parameters.insert (pit.key(), pit.value());
+    }
+    // append signature to parameters
     parameters.insert( InterfacePrivate::ParamSignature, signature );
     // convert the map to bytearray, according to requested mode
     QByteArray parametersString = d->paramsToString( parameters, mode );

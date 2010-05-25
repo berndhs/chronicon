@@ -75,6 +75,7 @@ HEADERS = src/chronicon.h \
           src/cmdoptions.h \
           src/chron-network-reply.h \
           src/bitly-network-reply.h \
+          src/ch-nam.h \
           src/network-if.h \
           src/timeline-view.h \
           src/status-block.h \
@@ -108,6 +109,7 @@ SOURCES = src/main.cpp \
           src/cmdoptions.cpp \
           src/chron-network-reply.cpp \
           src/bitly-network-reply.cpp \
+          src/ch-nam.cpp \
           src/network-if.cpp \
           src/timeline-view.cpp \
           src/status-block.cpp \
