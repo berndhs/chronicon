@@ -35,12 +35,12 @@ PicPreview::PicPreview (QWidget * parent)
 :QDialog (parent)
 {
   setupUi (this);
+  picArea->setScaledContents (true);
 
-  connect (cancelButton, SIGNAL (clicked()), this, SLOT (hide ()));
+  connect (cancelButton, SIGNAL (clicked()), this, SLOT (Close ()));
   connect (backButton, SIGNAL (clicked()), this, SLOT (GetFilename()));
   connect (sendButton, SIGNAL (clicked()), this, SLOT (Send ()));
   hide ();
-qDebug () << " picpreview constructed ";
 }
 
 
@@ -64,13 +64,11 @@ PicPreview::GetFilename ()
                      tryfile,
                      tr("Images ( *.gif *.png *.jpg )"));
   if (fullName.length () < 1) {
+    Close ();
     return;
   }
   QFileInfo info (fullName);
   QString shortname = info.fileName(); // without the path
-qDebug () << " full name " << fullName ;
-qDebug () << " short name " << shortname;
-qDebug () << " this " << this;
   message = shortname;
   messageEdit->setPlainText (shortname);
   imageName->setText (fullName);
@@ -87,8 +85,17 @@ PicPreview::Send ()
   if (fullName.length() > 0) {
     emit SendPic (fullName, message);
   } 
+  Close ();
+}
+
+void
+PicPreview::Close ()
+{
+  picpix.fill (Qt::white);
+  picArea->setPixmap (picpix);
   hide ();
 }
+
 
 
 } // namespace

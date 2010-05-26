@@ -40,10 +40,12 @@ public slots:
   void Exec ();
   void GetFilename ();
   void Send ();
+  void Close ();
 
 signals:
 
   void SendPic (QString picname, QString msg);
+
 
 private:
 

@@ -37,6 +37,8 @@ unix:{
     CONFIG += link_pkgconfig
     PKGCONFIG += libnotify
   }
+  INCLUDEPATH += /usr/include/QtCrypto
+  LIBS += -lqca
   LIBS += -lqjson
 }
 
@@ -61,10 +63,6 @@ RESOURCES += chronicon.qrc
 
 INCLUDEPATH += src 
 INCLUDEPATH += qoa-src
-unix: {
-  INCLUDEPATH += /usr/include/QtCrypto
-  LIBS += -lqca
-}
 INCLUDEPATH += temp/ui
 
 HEADERS = src/chronicon.h \
