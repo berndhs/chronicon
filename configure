@@ -79,9 +79,9 @@ fi
 
 
 if [ ${USE_NOTIFY} == "no" ] ; then
-  echo "CONFIG += USE_NOTIFY=0" > ${OPTIONS_FILE}
+  echo "DEFINES += USE_NOTIFY=0" > ${OPTIONS_FILE}
 else
-  echo "CONFIG += USE_NOTIFY=1" > ${OPTIONS_FILE}
+  echo "DEFINES += USE_NOTIFY=1" > ${OPTIONS_FILE}
   echo "CONFIG += link_pkgconfig" >> ${OPTIONS_FILE}
   echo "PKGCONFIG += libnotify" >> ${OPTIONS_FILE}
 fi

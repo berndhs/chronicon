@@ -44,7 +44,7 @@ TimelineView::TimelineView (QWidget *parent)
 :QObject (parent),
  parentWidget (parent),
  currentKind (R_Public),
- doNotify (false),
+ doNotify (true),
  notifyDelay (10*1000),
  view(0),
  mypage(0),
@@ -409,7 +409,9 @@ TimelineView::Show ()
   }
   QString parHtml;
   PagePartMap::reverse_iterator para;
-  for (para = paragraphs[currentKind].rbegin(); para != paragraphs[currentKind].rend(); para++) {
+  for (para = paragraphs[currentKind].rbegin(); 
+       para != paragraphs[currentKind].rend(); 
+       para++) {
      FormatParagraph (parHtml, para->second);
      html.append (parHtml);
   }
