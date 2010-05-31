@@ -179,9 +179,11 @@ Chronicon::SetupMenus ()
   /** action menu */
 
   menubar->addAction (tr("Actions..."), this, SLOT (startActionMenu()));
-  actionMenu.addAction (tr("New Update"), this, SLOT (startMessage()));
-  actionMenu.addAction (tr("(Un-) Follow"), 
+  actionMenu.addAction (tr("Start New Update"), this, SLOT (startMessage()));
+  actionMenu.addAction (tr("(Un-) Follow Someone"), 
                        &followDialog, SLOT (Exec()));
+  actionMenu.addAction (tr("My Timeline"),
+                        this, SLOT (PollUserPrivate()));
   actionMenu.addAction (tr("Choose Timeline"), 
                        &switchDialog, SLOT (Exec()));
   actionMenu.addAction (tr("Twitpic Image Upload"), 
@@ -454,6 +456,15 @@ Chronicon::LabelSecs (int secs)
   QString pattern ("%1:%2");
   QChar zero ('0');
   loadLabel->setText (pattern.arg(mins,2,10,zero).arg(secs,2,10,zero));
+}
+
+void
+Chronicon::PollUserPrivate ()
+{
+qDebug () << " poll private, was " << currentView;
+  network.SetTimeline (R_Private);
+  RePoll (R_Private);
+qDebug () << " did repoll now for " << currentView;
 }
 
 void

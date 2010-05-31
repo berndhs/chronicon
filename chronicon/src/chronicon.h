@@ -109,6 +109,7 @@ private slots:
 
   void Poll ();
   void RePoll (TimelineKind kind=R_None);
+  void PollUserPrivate ();
 
   void DebugCheck ();
 
