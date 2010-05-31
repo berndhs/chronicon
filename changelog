@@ -28,4 +28,6 @@ version 0.1.4:
 - add links to see followers summary and followees summary.
 - add convenient way to get back to user's home timeline
 - add link to own posts list from headline
+- suspend polling when viewing special timelines, like search results
+- remove non-word characters from links for # and @
 
