@@ -38,6 +38,7 @@ namespace chronicon {
          R_OwnRetweets = 9,
          R_FriendRetweets = 10,
          R_SearchResults = 11,
+         R_MixedUsers = 12,
          R_Top
          };
 

@@ -73,6 +73,7 @@ signals:
   void ItemDialog (QString id, StatusBlock block, QString itemHtml);
   void Search (QString needle);
   void TimelineSwitch (int timeline, QString user);
+  void GetMixedUsers  (QString whatOthers);
 
 private:
 

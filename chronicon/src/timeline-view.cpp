@@ -197,12 +197,13 @@ TimelineView::CustomLink (const QUrl & url)
     emit Search (frag);
   } else if (host == "lookup") {
     if (path == "/own") {
-       qDebug () << " check own posts";
       emit TimelineSwitch (R_ThisUser, currentAuthor);
     } else if (path == "/idols") {
        qDebug () << " check followees (friends)";
+      emit GetMixedUsers (QString ("friends"));
     } else if (path == "/fans") {
        qDebug () << " check followers";
+      emit GetMixedUsers (QString ("followers"));
     }
   }
 }
@@ -428,7 +429,7 @@ TimelineView::AddHeadline (QString & html, TimelineKind kind)
                "sent "
                "<a href=\"chronicon://lookup/own\">%5 updates</a>"
                "<br>"      
-               #if 0
+               #if 1
                "following "
                "<a href=\"chronicon://lookup/idols\">%3 others</a>"
                ", has "

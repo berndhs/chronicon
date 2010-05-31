@@ -119,6 +119,8 @@ Chronicon::Connect ()
            &network, SLOT (PullSearch (QString)));
   connect (&theView, SIGNAL (TimelineSwitch (int, QString)),
             this, SLOT (ChangeTimeline (int, QString)));
+  connect (&theView, SIGNAL (GetMixedUsers (QString)),
+            this, SLOT (ChangeMixedView (QString)));
 
   connect (&itemDialog, SIGNAL (SendMessage (QString,QString)), 
            this, SLOT (startMessage (QString,QString)));
@@ -479,7 +481,10 @@ void
 Chronicon::PollComplete (TimelineKind kind)
 {
   LabelSecs (pollRemain/1000);
-  if (kind == R_Public || kind == R_Private || kind == R_SearchResults) {
+  if (kind == R_Public 
+      || kind == R_Private 
+      || kind == R_SearchResults
+      || kind == R_MixedUsers) {
     theView.Display (kind);
   }
   theView.Show ();
@@ -522,6 +527,15 @@ Chronicon::ChangeTimeline (int timeline, QString user)
   network.SetTimeline (currentView);
   theView.ClearList (currentView);
   RePoll (currentView);
+}
+
+void
+Chronicon::ChangeMixedView (QString otherUsers)
+{
+  currentView = R_MixedUsers;
+  switchDialog.SetCurrent (currentView);
+  network.PullMixedUsers (currentView, otherUsers);
+  theView.ClearList (currentView);
 }
 
 void

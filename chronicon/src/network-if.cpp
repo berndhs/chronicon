@@ -211,7 +211,7 @@ NetworkIF::handleReply (ChronNetworkReply * reply)
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
     TimelineKind kind (reply->Kind());
-qDebug () << " net reply is for " << timelineName (kind);
+qDebug () << " net reply is for kind " << kind;
     ApiRequestKind ark (reply->ARKind());
 qDebug () << " net reply ark is " << ark;
 
@@ -254,6 +254,10 @@ qDebug () << " net reply ark is " << ark;
       case R_ThisUser:
       case R_OtherUser:
         ParseUserBlock (doc, kind);
+        emit ReplyComplete (kind);
+        break;
+      case R_MixedUsers:
+        ParseMixed (doc, kind);
         emit ReplyComplete (kind);
         break;
       case R_Ignore:
@@ -552,6 +556,21 @@ NetworkIF::ParseTwitterDoc (QDomDocument & doc, TimelineKind kind)
 }
 
 void
+NetworkIF::ParseMixed (QDomDocument & doc, TimelineKind kind)
+{
+  QDomElement root = doc.documentElement();
+  QDomElement child;
+  for (child = root.firstChildElement(); !child.isNull(); 
+       child = child.nextSiblingElement()) {
+    if (child.tagName() == "user") {
+      StatusBlock status;
+      status.SetFromUser (child);
+      emit NewStatusItem (status, kind);
+    }
+  }
+}
+
+void
 NetworkIF::ParseUpdate (QDomDocument & doc, TimelineKind kind)
 {
   QDomElement root = doc.documentElement();
@@ -718,6 +737,43 @@ NetworkIF::PullTimeline (QString otherUser)
   } else {
     PullTimelineBasic (otherUser);
   }
+}
+
+void
+NetworkIF::PullMixedUsers (TimelineKind kind, QString otherUsers)
+{
+  serviceKind = kind;
+  if (oauthMode) {
+    PullMixedUsersOA (otherUsers);
+  } else {
+    PullMixedUsersBasic (otherUsers);
+  }
+}
+
+void
+NetworkIF::PullMixedUsersBasic (QString otherUsers)
+{
+  QNetworkRequest request;
+  QUrl url (QString(Service ("statuses/%1.xml")).
+                       arg (otherUsers));
+  url.addQueryItem ("screen_name",user);
+  request.setUrl (url);
+  request.setRawHeader ("User-Agent","Chronicon; WebKit");
+  DebugShow (request);
+  QNetworkReply *reply = Network()->get (request);
+  ChronNetworkReply * chReply = new ChronNetworkReply (Network(),
+                       url, reply, serviceKind, A_Timeline);
+  ExpectReply (reply, chReply);
+}
+
+void
+NetworkIF::PullMixedUsersOA (QString otherUsers)
+{
+  QString urlString = OAuthService ("statuses/%1.xml")
+                        .arg (otherUsers);
+  QOAuth::ParamMap args;
+  args.insert ("screen_name",user.toUtf8());
+  GetOA (urlString, args, serviceKind, A_Timeline);
 }
 
 void

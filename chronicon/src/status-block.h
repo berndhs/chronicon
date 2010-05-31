@@ -68,6 +68,7 @@ public:
   StatusBlock (const QDomElement & dom);
 
   void SetContent (const QDomElement & dom);
+  void SetFromUser (const QDomElement & dom);
   void SetSearchContent (const QVariantMap & data);
 
   void Domify (QDomElement & dom);
@@ -93,7 +94,8 @@ public:
 
 private:
 
-  void ParseContent (StringBlock & block, const QDomElement & dom);
+  void ParseFromStatus (StringBlock & block, const QDomElement & dom);
+  void ParseFromUser   (StringBlock & block, const QDomElement & dom);
 
   QString   ident;
 

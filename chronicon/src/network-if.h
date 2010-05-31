@@ -69,6 +69,7 @@ public:
   void PushUserStatus (QString status, QString refId);
   void ReTweet (QString id);
   void PushDelete (QString id);
+  void PullMixedUsers (TimelineKind k, QString otherUsers);
 
   void SetTimeline (TimelineKind k);
   void SetBasicAuth (QString us, QString pa=QString());
@@ -163,12 +164,15 @@ private:
   void PullTimelineBasic (QString otherUser = QString());
   void PullUserBlockOA ();
   void PullUserBlockBasic ();
+  void PullMixedUsersOA (QString otherUsers);
+  void PullMixedUsersBasic (QString otherUsers);
   void PushDeleteOA (QString id);
   void PushDeleteBasic (QString id);
   void ReTweetOA (QString id);
   void ReTweetBasic (QString id);
 
   void ParseTwitterDoc (QDomDocument &doc, TimelineKind kind);
+  void ParseMixed (QDomDocument & doc, TimelineKind kind);
   void ParseUserInfo (QDomDocument &doc);
   void ParseSearchResult (QNetworkReply * reply);
   void ParsePicUpload (QNetworkReply * reply);

@@ -78,6 +78,7 @@ public slots:
   void PollComplete (TimelineKind kind);
   void ReallyFinishMessage (QString msg);
   void ChangeTimeline (int timeline, QString user);
+  void ChangeMixedView (QString otherUsers);
   void ChangeFollow (QString user, int change);
 
 private slots:

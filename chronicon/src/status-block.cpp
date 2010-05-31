@@ -41,7 +41,7 @@ StringBlock::Value (const QString & key) const
 
 StatusBlock::StatusBlock (const QDomElement & dom)
 {
-  ParseContent (statusValues, dom);
+  ParseFromStatus (statusValues, dom);
   ident = statusValues.Value("id");
 }
 
@@ -53,7 +53,16 @@ StatusBlock::SetContent (const QDomElement & dom)
 {
   statusValues.Clear ();
   userValues.Clear ();
-  ParseContent (statusValues, dom);
+  ParseFromStatus (statusValues, dom);
+  ident = statusValues.Value ("id");
+}
+
+void
+StatusBlock::SetFromUser (const QDomElement & dom)
+{
+  statusValues.Clear ();
+  userValues.Clear ();
+  ParseFromUser (userValues, dom);
   ident = statusValues.Value ("id");
 }
 
@@ -127,7 +136,7 @@ StatusBlock::UserValue (const QString & key) const
 }
 
 void
-StatusBlock::ParseContent (StringBlock & block, const QDomElement & dom)
+StatusBlock::ParseFromStatus (StringBlock & block, const QDomElement & dom)
 {
   QDomElement child;
   for (child = dom.firstChildElement (); !child.isNull();
@@ -135,7 +144,23 @@ StatusBlock::ParseContent (StringBlock & block, const QDomElement & dom)
   {
     QString tag = child.tagName();
     if (tag == "user") {
-      ParseContent (userValues, child);
+      ParseFromUser (userValues, child);
+    } else {
+      block.SetValue (tag,child.text());
+    }
+  }
+}
+
+void
+StatusBlock::ParseFromUser (StringBlock & block, const QDomElement & dom)
+{
+  QDomElement child;
+  for (child = dom.firstChildElement (); !child.isNull();
+       child = child.nextSiblingElement())
+  {
+    QString tag = child.tagName();
+    if (tag == "status") {
+      ParseFromStatus (statusValues, child);
     } else {
       block.SetValue (tag,child.text());
     }
