@@ -230,7 +230,7 @@ qDebug () << " net reply ark is " << ark;
       break;
     case A_Search:
       ParseSearchResult (netReply);
-      emit ReplyComplete (R_SearchResults);
+      emit ReplyComplete (R_SearchResults, false);
       break;
     case A_PicUpload:
       ParsePicUpload (netReply);
@@ -245,20 +245,20 @@ qDebug () << " net reply ark is " << ark;
       case R_OwnRetweets:
       case R_FriendRetweets:
         ParseTwitterDoc (doc, kind);
-        emit ReplyComplete (kind);
+        emit ReplyComplete (kind, true);
         break;
       case R_Update:
         ParseUpdate (doc, kind);
-        emit ReplyComplete (kind);
+        emit ReplyComplete (kind, true);
         break;
       case R_ThisUser:
       case R_OtherUser:
         ParseUserBlock (doc, kind);
-        emit ReplyComplete (kind);
+        emit ReplyComplete (kind, true);
         break;
       case R_MixedUsers:
         ParseMixed (doc, kind);
-        emit ReplyComplete (kind);
+        emit ReplyComplete (kind, false);
         break;
       case R_Ignore:
         qDebug () << " ignoring reply from " << netReply->url();
@@ -743,6 +743,7 @@ void
 NetworkIF::PullMixedUsers (TimelineKind kind, QString otherUsers)
 {
   serviceKind = kind;
+  emit StopPoll (true);
   if (oauthMode) {
     PullMixedUsersOA (otherUsers);
   } else {

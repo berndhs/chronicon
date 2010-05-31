@@ -116,7 +116,7 @@ signals:
 
   void NewStatusItem (StatusBlock item, TimelineKind kind);
   void NewUserInfo (UserBlock userInfo);
-  void ReplyComplete (TimelineKind kind);
+  void ReplyComplete (TimelineKind kind, bool resumePoll);
   void SearchResultItem (StatusBlock item);
   void SearchComplete ();
   void RePoll (TimelineKind kind);

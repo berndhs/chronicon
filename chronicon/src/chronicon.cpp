@@ -45,6 +45,7 @@ Chronicon::Chronicon (QWidget *parent)
  pollPeriod (5*60*1000),
  pollRemain (0),
  pollTick  (1000),
+ polling (true),
  debugTimer (this),
  network (this),
  theView (this),
@@ -104,8 +105,8 @@ Chronicon::Connect ()
            &theView, SLOT (CatchUserInfo (UserBlock)));
   connect (&network, SIGNAL (ClearList()),
            &theView, SLOT (ClearList()));
-  connect (&network, SIGNAL (ReplyComplete(TimelineKind)),
-           this, SLOT (PollComplete(TimelineKind)));
+  connect (&network, SIGNAL (ReplyComplete(TimelineKind, bool)),
+           this, SLOT (PollComplete(TimelineKind, bool)));
   connect (&network, SIGNAL (RePoll(TimelineKind)),
            this, SLOT (RePoll(TimelineKind)));
   connect (&network, SIGNAL (StopPoll (bool)),
@@ -429,11 +430,15 @@ Chronicon::SuspendPoll (bool stopit)
     pollTimer.start (pollTick);
     LabelSecs (pollRemain/1000);
   }
+  polling = !stopit;
 }
 
 void
 Chronicon::Poll ()
 {
+  if (!polling) {
+    return;
+  }
   pollRemain -= pollTick;
   if (pollRemain <= 0) {
     if (currentView == R_OtherUser) {
@@ -489,9 +494,11 @@ Chronicon::RePoll (TimelineKind kind)
 // \brief PollComplete - start the redisplay
 
 void
-Chronicon::PollComplete (TimelineKind kind)
+Chronicon::PollComplete (TimelineKind kind, bool resumePoll)
 {
-  LabelSecs (pollRemain/1000);
+  if (polling) {
+    LabelSecs (pollRemain/1000);
+  }
   if (kind == R_Public 
       || kind == R_Private 
       || kind == R_SearchResults
@@ -501,6 +508,9 @@ Chronicon::PollComplete (TimelineKind kind)
   theView.Show ();
   if (kind == R_Private) {
     QTimer::singleShot (pollTick - 1,&network, SLOT(PullUserBlock ()));
+  }
+  if (resumePoll && !polling) {
+    SuspendPoll (false);
   }
 }
 

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Direct Message</string>
+   <string>Change Following</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../chronicon.qrc">

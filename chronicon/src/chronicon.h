@@ -75,7 +75,7 @@ void SetupDefaults ();
 public slots:
 
   void quit ();
-  void PollComplete (TimelineKind kind);
+  void PollComplete (TimelineKind kind, bool resumePoll);
   void ReallyFinishMessage (QString msg);
   void ChangeTimeline (int timeline, QString user);
   void ChangeMixedView (QString otherUsers);
@@ -134,6 +134,7 @@ private:
   int     pollPeriod;
   int     pollRemain;
   int     pollTick;
+  bool    polling;
 
   QTimer  debugTimer;
 
