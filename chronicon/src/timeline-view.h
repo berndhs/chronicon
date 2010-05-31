@@ -72,9 +72,11 @@ signals:
 
   void ItemDialog (QString id, StatusBlock block, QString itemHtml);
   void Search (QString needle);
+  void TimelineSwitch (int timeline, QString user);
 
 private:
 
+  void AddHeadline (QString & html, TimelineKind kind);
   void PopupNotify (QString id, StatusBlock & block);
   void CustomLink (const QUrl & url);
   QString FormatTextBlock (const QString & text);

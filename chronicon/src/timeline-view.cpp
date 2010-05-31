@@ -195,6 +195,15 @@ TimelineView::CustomLink (const QUrl & url)
      }
   } else if (host == "search" && path == "/q") {
     emit Search (frag);
+  } else if (host == "lookup") {
+    if (path == "/own") {
+       qDebug () << " check own posts";
+      emit TimelineSwitch (R_ThisUser, currentAuthor);
+    } else if (path == "/idols") {
+       qDebug () << " check followees (friends)";
+    } else if (path == "/fans") {
+       qDebug () << " check followers";
+    }
   }
 }
 
@@ -388,25 +397,8 @@ TimelineView::Show ()
   html.append (head);
   html.append ("\n<body>\n");
 
-  QString headlinePattern;
-  QString date = QDateTime::currentDateTime().toString(titleDateForm);
-  if (currentKind == R_Public) {
-    headlinePattern = tr(("<h3 style=\"%2\">As of %1 %3"
-               "</h3>"));
-    html.append (headlinePattern.arg(date)
-                              .arg(titleStyle)
-                              .arg (tr("Public Timeline")));
-  } else {
-    headlinePattern = tr(("<h3 style=\"%2\">As of %1 %6 sent %5 updates"
-               "<br>"      
-               "following %3 others, has %4 followers</h3>"));
-    html.append (headlinePattern.arg(date)
-                              .arg(titleStyle)
-                              .arg(followees)
-                              .arg(followers)
-                              .arg (ownMessageCount)
-                              .arg (currentAuthor));
-  }
+  AddHeadline (html, currentKind);
+
   QString parHtml;
   PagePartMap::reverse_iterator para;
   for (para = paragraphs[currentKind].rbegin(); 
@@ -418,6 +410,43 @@ TimelineView::Show ()
   html.append ("\n</body>\n</html>");
   view->setHtml (html);
   view->update ();
+}
+
+void
+TimelineView::AddHeadline (QString & html, TimelineKind kind)
+{
+  QString headlinePattern;
+  QString date = QDateTime::currentDateTime().toString(titleDateForm);
+  if (kind == R_Public) {
+    headlinePattern = tr(("<h3 style=\"%2\">As of %1 %3"
+               "</h3>"));
+    html.append (headlinePattern.arg(date)
+                              .arg(titleStyle)
+                              .arg (tr("Public Timeline")));
+  } else {
+    headlinePattern = tr(("<h3 style=\"%2\">As of %1 user %6 "
+               "sent "
+               "<a href=\"chronicon://lookup/own\">%5 updates</a>"
+               "<br>"      
+               #if 0
+               "following "
+               "<a href=\"chronicon://lookup/idols\">%3 others</a>"
+               ", has "
+               "<a href=\"chronicon://lookup/fans\">%4 followers</a></h3>"
+               #else 
+               "following "
+               "%3 others "
+               ", has "
+               " %4 followers</h3>"
+               #endif
+               ));
+    html.append (headlinePattern.arg(date)
+                              .arg(titleStyle)
+                              .arg(followees)
+                              .arg(followers)
+                              .arg (ownMessageCount)
+                              .arg (currentAuthor));
+  }
 }
 
 

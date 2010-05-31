@@ -117,6 +117,8 @@ Chronicon::Connect ()
            &itemDialog, SLOT (Exec(QString , StatusBlock, QString)));
   connect (&theView, SIGNAL (Search (QString)), 
            &network, SLOT (PullSearch (QString)));
+  connect (&theView, SIGNAL (TimelineSwitch (int, QString)),
+            this, SLOT (ChangeTimeline (int, QString)));
 
   connect (&itemDialog, SIGNAL (SendMessage (QString,QString)), 
            this, SLOT (startMessage (QString,QString)));
