@@ -830,6 +830,7 @@ qDebug () << " pull search for " << needle;
   ExpectReply (reply, chReply);
 qDebug () << " basic Search GET " << timelineName (serviceKind);
 qDebug () << " GET for " << reply->url();
+  emit StopPoll (true);
 }
 
 

@@ -53,6 +53,16 @@ TimelineView::TimelineView (QWidget *parent)
  maxParagraphs (100)
 {
   HtmlStyles ();
+  for (int t=R_None; t<R_Top; t++) {
+    timelineDisplayName[t] = tr("Special");
+  }
+  timelineDisplayName [R_Public] = tr("Public Timeline");
+  timelineDisplayName [R_Private] = tr("Private Timeline");
+  timelineDisplayName [R_SearchResults] = tr ("Search Results");
+  timelineDisplayName [R_Mentions] = tr ("My Mentions");
+  timelineDisplayName [R_OwnRetweets] = tr ("My ReTweets");
+  timelineDisplayName [R_FriendRetweets] = tr ("Other's ReTweets");
+  timelineDisplayName [R_ThisUser] = tr ("My Updates");
 }
 
 void
@@ -329,10 +339,10 @@ TimelineView::FormatTextBlock (const QString & text)
                              QRegExp ("(https?://)(\\S*)"), 
                              chronicon::LinkMangle::HttpAnchor);
   QString subAt = LinkMangle::Anchorize (subHttp, 
-                             QRegExp ("@(\\S*)"),
+                             QRegExp ("@(\\w*)"),
                              chronicon::LinkMangle::TwitAtAnchor);
   QString subHash = LinkMangle::Anchorize (subAt, 
-                             QRegExp ("#(\\S*)"),
+                             QRegExp ("#(\\w*)"),
                              chronicon::LinkMangle::TwitHashAnchor);
   QString span  ("<span style=\"font-size:%2;\">%1</span>");
   return span.arg(subHash).arg(fontSize);
@@ -425,28 +435,21 @@ TimelineView::AddHeadline (QString & html, TimelineKind kind)
                               .arg(titleStyle)
                               .arg (tr("Public Timeline")));
   } else {
-    headlinePattern = tr(("<h3 style=\"%2\">As of %1 user %6 "
+    headlinePattern = tr(("<h3 style=\"%2\"><i>%7</i>: as of %1 user %6 "
                "sent "
                "<a href=\"chronicon://lookup/own\">%5 updates</a>"
-               "<br>"      
-               #if 1
-               "following "
+               " following "
                "<a href=\"chronicon://lookup/idols\">%3 others</a>"
                ", has "
                "<a href=\"chronicon://lookup/fans\">%4 followers</a></h3>"
-               #else 
-               "following "
-               "%3 others "
-               ", has "
-               " %4 followers</h3>"
-               #endif
                ));
     html.append (headlinePattern.arg(date)
                               .arg(titleStyle)
                               .arg(followees)
                               .arg(followers)
                               .arg (ownMessageCount)
-                              .arg (currentAuthor));
+                              .arg (currentAuthor)
+                              .arg (timelineDisplayName[kind]));
   }
 }
 

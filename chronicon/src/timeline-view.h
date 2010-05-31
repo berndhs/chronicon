@@ -114,9 +114,11 @@ private:
 
   typedef  std::map <QString, StatusBlock>   PagePartMap;
   typedef  std::map <int, PagePartMap>       TimelineMap;
+  typedef  std::map <int, QString>           StringMap;
 
   uint           maxParagraphs;
   TimelineMap    paragraphs;
+  StringMap      timelineDisplayName;
 
   QString followers;
   QString followees;

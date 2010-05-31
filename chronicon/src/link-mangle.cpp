@@ -59,6 +59,7 @@ LinkMangle::HttpAnchor (QString & anchor, QString ref)
 void
 LinkMangle::TwitAtAnchor (QString & anchor, QString ref)
 {
+  static QRegExp punctuation ("[`~!@#$%^&*()_-+={[}}|\\:;\"'<,>.?/]+");
   if (ref.length() == 1) {
     anchor = ref;
     return;
