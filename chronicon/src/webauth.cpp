@@ -52,16 +52,17 @@ WebAuth::Init ()
 {
   // set the consumer key and secret
   authIF->setConsumerKey( "C4MsrJJKTZhMVVL8qCBFnA" );
-  authIF->setConsumerSecret( "dEaYj8p9ZHskqBkjkdLKZoyLvty9BShe9lFw016Xa8" );
   // set a timeout for requests (in msecs)
   authIF->setRequestTimeout( 15000 );
   service = "https://api.twitter.com/oauth";
   service = Settings().value ("oauth/service",service).toString();
   Settings().setValue ("oauth/service",service);
+  part1 = qCompress ("dEaYj8p9ZHskqBkjkdLKZoy");
   webservice = "https://mobile.twitter.com/oauth";
   webservice = Settings().value("oauth/webservice",webservice).toString();
   Settings().setValue ("oauth/webservice",webservice);
   initComplete = true;
+  part2 = qCompress ("Lvty9BShe9lFw016Xa8");
 }
 
 bool
@@ -74,6 +75,7 @@ bool
 WebAuth::AskRequestToken ()
 {
 // send a request for an unauthorized token
+  authIF->setConsumerSecret (qUncompress (part1)+ qUncompress (part2));
   QOAuth::ParamMap extra;
   extra.insert ("oauth_callback","oob");
   QOAuth::ParamMap reply =

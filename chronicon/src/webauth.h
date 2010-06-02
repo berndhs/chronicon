@@ -67,6 +67,8 @@ private:
   QString    service;
   QString    webservice;
 
+  QByteArray part1;
+
   QByteArray callback_confirm_key;
   QByteArray req_token_key;
   QByteArray req_token_secret_key;
@@ -76,6 +78,8 @@ private:
 
   QByteArray acc_token;
   QByteArray acc_secret;
+
+  QByteArray part2;
 
 
 };
