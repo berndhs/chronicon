@@ -88,11 +88,6 @@ void
 WebLogin::GrabPIN ()
 {
   webPin = pinEntry->text();
-  QString rawpage = webView->page()->mainFrame()->toHtml();
-  QFile dump ("/home/bernd/mywork/twitter/testdata/pin-page.dmp");
-  dump.open (QFile::WriteOnly);
-  dump.write (rawpage.toUtf8());
-  dump.close ();
   if (webPin.length() > 0) {
     bool worked = webAuth->AskAccessToken (webPin,atoken, asecret,
                                           screen_name, user_id);
