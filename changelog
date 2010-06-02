@@ -30,4 +30,14 @@ version 0.1.4:
 - add link to own posts list from headline
 - suspend polling when viewing special timelines, like search results
 - remove non-word characters from links for # and @
+- provide a script to fix the build problem for qca-ossl with old versions of
+  openssl (fix_whirlpool.sh). This probably turns off support for the
+  whirlpool hash, so IF you use whirlpool hash, AND you use openssl-0.9.8m or
+  earlier, AND you find something using whirlpool hash is not authenticated,
+  this is why. You can then try steps including, but not limited to these:
+   - use a combination of qca-ossl/openssl that doesn't have this build
+     problem
+   - get whoever uses whirlpool hash in their authentication scheme to use
+     something else
+
 

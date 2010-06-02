@@ -15,6 +15,7 @@ usage () {
    echo "--help            Show this help message and quit"
    echo "--prefix=PREFIX   Install into PREFIX [${PREFIX}]"
    echo "--nonotify        do not use libnotify"
+   echo "--yesnotify       use libnotify [default]"
    echo
 }
 
@@ -50,9 +51,13 @@ case $ac_option in
   --nonotify)
    USE_NOTIFY=no
    ;;
+  --yesnotify)
+   USE_NOTIFY=yes
+   ;;
   *)
    echo "Bad option " $ac_option " " $ac_optarg
    usage
+   exit 1
    shift
    ;;
   esac
