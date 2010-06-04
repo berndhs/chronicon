@@ -1,4 +1,7 @@
-version 0.1.2 adds:
+Chronicon Change Log
+====================
+
+== version 0.1.2 adds:
 
 - more timeline distplays, such as:
   - mentions
@@ -10,7 +13,7 @@ version 0.1.2 adds:
 
 - some bug fixes
 
-version 0.1.3:
+== version 0.1.3:
 
 - add search option to timeline switch display
 - need qjson library for search (no xml results available)
@@ -23,7 +26,7 @@ version 0.1.3:
   - response from twitpic is used to make a status update 
     for twitter (or whatever service), user gets to edit the upate
 
-version 0.1.4:
+== version 0.1.4:
 
 - add links to see followers summary and followees summary.
 - add convenient way to get back to user's home timeline
@@ -35,9 +38,13 @@ version 0.1.4:
   whirlpool hash, so IF you use whirlpool hash, AND you use openssl-0.9.8m or
   earlier, AND you find something using whirlpool hash is not authenticated,
   this is why. You can then try steps including, but not limited to these:
-   - use a combination of qca-ossl/openssl that doesn't have this build
+   * use a combination of qca-ossl/openssl that doesn't have this build
      problem
-   - get whoever uses whirlpool hash in their authentication scheme to use
+   * get whoever uses whirlpool hash in their authentication scheme to use
      something else
+
+- weridifies the ouath a little more, following the proposal of the twitter
+  people to make things as obscure as possible
+
 
 

@@ -24,7 +24,7 @@
 # ****************************************************************/
 #
 
-TARGETS = chronicon/chronicon
+TARGETS = bin/chronicon
 PRO_FILE = chrontop.pro
 DEBUG_SUBS = chronicon
 NODEBUG_SUBS = qoauth

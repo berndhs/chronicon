@@ -25,7 +25,7 @@
 
 TEMPLATE = app
 
-TARGET = chronicon
+TARGET = ../bin/chronicon
 
 
 CONFIG += qt

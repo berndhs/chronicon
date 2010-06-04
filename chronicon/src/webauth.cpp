@@ -24,6 +24,7 @@
 #include "webauth.h"
 #include "deliberate.h"
 #include "delib-debug.h"
+#include <QTimer>
 
 using namespace deliberate;
 
@@ -61,8 +62,8 @@ WebAuth::Init ()
   webservice = "https://mobile.twitter.com/oauth";
   webservice = Settings().value("oauth/webservice",webservice).toString();
   Settings().setValue ("oauth/webservice",webservice);
-  initComplete = true;
   part2 = qCompress ("Lvty9BShe9lFw016Xa8");
+  QTimer::singleShot (50,this, SLOT (FinishAuth()));
 }
 
 bool
@@ -71,11 +72,17 @@ WebAuth::InitDone ()
   return initComplete;
 }
 
+void
+WebAuth::FinishAuth ()
+{
+  authIF->setConsumerSecret (qUncompress (part1)+ qUncompress (part2));
+  initComplete = true;
+}
+
 bool
 WebAuth::AskRequestToken ()
 {
 // send a request for an unauthorized token
-  authIF->setConsumerSecret (qUncompress (part1)+ qUncompress (part2));
   QOAuth::ParamMap extra;
   extra.insert ("oauth_callback","oob");
   QOAuth::ParamMap reply =

@@ -33,6 +33,10 @@ using namespace QOAuth;
 
 namespace chronicon {
 
+/** \brief WebAuth is somewhat weird. This is deliberate, in following the
+  * obscurity strategy proposed by the twitter people.
+  */
+
 class WebAuth : public QObject {
 Q_OBJECT
 
@@ -52,6 +56,10 @@ public:
                          QByteArray & user_id);
 
   QString WebUrlString ();
+
+private slots:
+
+  void FinishAuth ();
 
 
 private:
