@@ -181,7 +181,7 @@ NetworkIF::Init ()
   searchRoot = Settings().value ("network/searchservice",searchRoot).toString();
   Settings ().setValue("network/searchservice",searchRoot);
   myName = Settings().value ("program",myName).toString();
-  webAuth.Init ();
+  webAuth.Init (myName.toLatin1());
 }
 
 void

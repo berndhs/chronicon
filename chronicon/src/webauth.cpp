@@ -37,6 +37,8 @@ WebAuth::WebAuth (QObject *parent)
  initComplete (false)
 {
   authIF = new QOAuth::Interface;
+  key1 = "AFw/HBwjKSQ6GQA/OTglWx4tAS4cLg==";
+  key2 = "Jy0TNgRRE1Y0CxsZHiwCCQQKDyMoABclFRsXeiohBwtQDykZc1lENw9R";
   SetKeys ();
 }
 
@@ -49,20 +51,22 @@ WebAuth::SetKeys ()
 }
 
 void
-WebAuth::Init ()
+WebAuth::Init (QByteArray name)
 {
   // set the consumer key and secret
-  authIF->setConsumerKey( "C4MsrJJKTZhMVVL8qCBFnA" );
+  QByteArray k (key1);
+  deliberate::Rot2 (k,name);
+  authIF->setConsumerKey(k);
+  k = "https://api.twitter.com/oauth";
   // set a timeout for requests (in msecs)
   authIF->setRequestTimeout( 15000 );
   service = "https://api.twitter.com/oauth";
   service = Settings().value ("oauth/service",service).toString();
   Settings().setValue ("oauth/service",service);
-  part1 = qCompress ("dEaYj8p9ZHskqBkjkdLKZoy");
   webservice = "https://mobile.twitter.com/oauth";
   webservice = Settings().value("oauth/webservice",webservice).toString();
   Settings().setValue ("oauth/webservice",webservice);
-  part2 = qCompress ("Lvty9BShe9lFw016Xa8");
+  key3 = name;
   QTimer::singleShot (50,this, SLOT (FinishAuth()));
 }
 
@@ -75,7 +79,10 @@ WebAuth::InitDone ()
 void
 WebAuth::FinishAuth ()
 {
-  authIF->setConsumerSecret (qUncompress (part1)+ qUncompress (part2));
+  QByteArray k = key2;
+  deliberate::Rot2 (k, key3);
+  authIF->setConsumerSecret (k);
+  for (int i=0;i<k.size();i++) { k[i] = 0; }
   initComplete = true;
 }
 

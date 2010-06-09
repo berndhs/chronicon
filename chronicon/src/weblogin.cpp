@@ -70,9 +70,6 @@ WebLogin::Start ()
   }
   show ();
   pinEntry->setText ("");
-  if (!webAuth->InitDone()) {
-    webAuth->Init ();
-  }
   bool ok = webAuth->AskRequestToken ();
   if (ok) {
     webView->load (webAuth->WebUrlString());

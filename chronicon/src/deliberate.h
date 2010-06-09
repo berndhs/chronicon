@@ -37,6 +37,8 @@ bool IsMaemo ();
 
 bool IsFingerInterface ();
 
+void Rot1 (QByteArray & data, const QByteArray & key);
+void Rot2 (QByteArray & data, const QByteArray & key);
 }
 
 

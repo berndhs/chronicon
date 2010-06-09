@@ -61,5 +61,29 @@ IsFingerInterface ()
   return IsMaemo ();
 }
 
+void
+Rot1 (QByteArray &data, const QByteArray &key)
+{
+  int len (key.size());
+  for (int c = 0; c<data.size(); c++) {
+    int cc = data[c];
+    int k = c % len;
+    data[c] = (cc ^ key[k]);
+  }
+  data = data.toBase64();
+}
+
+void
+Rot2 (QByteArray &data, const QByteArray &key)
+{
+  data = QByteArray::fromBase64(data);
+  int len (key.size());
+  for (int c = 0; c<data.size(); c++) {
+    int cc = data[c];
+    int k = c % len;
+    data[c] = (cc ^ key[k]);
+  }
+}
+
 
 }
