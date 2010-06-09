@@ -56,6 +56,17 @@ ChronNetworkReply::~ChronNetworkReply ()
 void
 ChronNetworkReply::handleReturn ()
 {
+  #if 0
+  static int fakeError (0);
+  fakeError++;
+  qDebug () << " fake error counter " << fakeError;
+  if (fakeError > 3)  {
+    fakeError = 0;
+    qDebug () << " faking an error";
+    handleError (QNetworkReply::NetworkError(9999));
+    return;
+  }
+  #endif
 qDebug () << " ____ start ChronNetworkReply reply at " << netMgr->Elapsed() << "for  " << kind << " from " << url;
 qDebug () << " for timeline " << kind << " ARK " << arKind;
 qDebug () << " reply id " << repNumber;
@@ -110,10 +121,9 @@ ChronNetworkReply::handleError (QNetworkReply::NetworkError err)
     emit AuthVerifyError (this, err);
   } else {
   qDebug () << " emit NetErr " << err;
-QByteArray data;
-    data = reply->readAll();
-qDebug () << " reply data " << QString (data);
     emit networkError (arKind, err);
+  qDebug () << " emit BadReply " << this;
+    emit BadReply (this, err);
   }
 }
 

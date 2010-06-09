@@ -95,6 +95,7 @@ public slots:
 
   void handleReply (ChronNetworkReply *reply);
   void handleReply (BitlyNetworkReply *reply);
+  void handleBadReply (ChronNetworkReply *reply, int err);
   void networkError (QNetworkReply::NetworkError err);
   void networkErrorInt (ApiRequestKind ark, int err);
   void twitterAuthBad (ChronNetworkReply * reply, int err);

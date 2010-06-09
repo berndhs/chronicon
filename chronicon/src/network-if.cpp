@@ -206,14 +206,30 @@ NetworkIF::TestBasicAuth (QString us, QString pa)
 }
 
 void
+NetworkIF::handleBadReply (ChronNetworkReply * reply, int err)
+{
+  qDebug () << " bad reply for " << reply << " error " << err;
+  QNetworkReply *netReply = reply->NetReply();
+  TimelineKind kind (reply->Kind());
+  StatusBlock  block;
+  block.SetValue ("text",tr("Twitter Site Reports Error"));
+  block.SetValue ("screen_name",tr("nobody"));
+  block.SetValue ("id","zzzzzz");
+  block.SetValue ("created_at",QDateTime::currentDateTime().toUTC().
+                     toString ("ddd MMM dd HH:mm:ss +0000 yyyy"));
+  emit NewStatusItem (block, kind);
+  emit ReplyComplete (kind, false);
+qDebug () << " did emit for bad block " << block;
+  CleanupReply (netReply, reply);
+}
+
+void
 NetworkIF::handleReply (ChronNetworkReply * reply)
 {
   if (reply) {
     QNetworkReply * netReply = reply->NetReply();
     TimelineKind kind (reply->Kind());
-qDebug () << " net reply is for kind " << kind;
     ApiRequestKind ark (reply->ARKind());
-qDebug () << " net reply ark is " << ark;
 
     QDomDocument doc;
     switch (ark) {
@@ -474,7 +490,7 @@ NetworkIF::bitlyAuthProvide (QNetworkReply *reply, QAuthenticator *au)
 {
   if (au) {
     QString bitly_user = Settings().value ("network/bitly_user",
-                               QString("anonymous")).toString();
+                               QString("nobody")).toString();
     QString bitly_key  = Settings().value ("network/bitly_key",
                                QString()).toString();
     au->setUser (bitly_user);
@@ -547,11 +563,23 @@ NetworkIF::ParseTwitterDoc (QDomDocument & doc, TimelineKind kind)
 {
   QDomElement root = doc.documentElement();
   QDomElement child;
+  bool atLeastOne (false);
   for (child = root.firstChildElement(); !child.isNull(); 
        child = child.nextSiblingElement()) {
     if (child.tagName() == "status") {
        ParseStatus (child, kind);
+       atLeastOne = true;
     }
+  }
+
+  if (!atLeastOne) {
+    StatusBlock block;
+    block.SetValue ("text",tr("Timeline Empty"));
+    block.SetValue ("screen_name",tr("nobody"));
+    block.SetValue ("id","zzzzzz");
+    block.SetValue ("created_at",QDateTime::currentDateTime().toUTC().
+                     toString ("ddd MMM dd HH:mm:ss +0000 yyyy"));
+    emit NewStatusItem (block, kind);
   }
 }
 
@@ -604,14 +632,24 @@ NetworkIF::ParseSearchResult (QNetworkReply * reply)
     if ((QMetaType::Type) parts.type() == QMetaType::QVariantMap) {
       QVariantMap partsMap = parts.toMap();
       QVariantMap::const_iterator mit;
-      for (mit = partsMap.begin(); mit != partsMap.end(); mit++) {
-         if (mit.key() == "results") {
-           ParseSearchResultList (mit.value());
-         } else {
-         qDebug () << "map entry [" << mit.key() << " => " << mit.value() << "]";
-         }
+      if (partsMap.isEmpty()) {
+        good = false;
+      } else {
+        for (mit = partsMap.begin(); mit != partsMap.end(); mit++) {
+          if (mit.key() == "results") {
+            ParseSearchResultList (mit.value());
+          }
+        }
       }
     }
+  }
+  if (!good) {
+    block.SetValue ("text",tr("Search Result Bad"));
+    block.SetValue ("screen_name",tr("nobody"));
+    block.SetValue ("id","zzzzzz");
+    block.SetValue ("created_at",QDateTime::currentDateTime().toUTC().
+                     toString ("ddd MMM dd HH:mm:ss +0000 yyyy"));
+    emit NewStatusItem (block, R_SearchResults);
   }
   emit SearchComplete ();
 }
@@ -658,11 +696,21 @@ NetworkIF::ParseSearchResultList (const QVariant & resList)
   }
   const QVariantList & res = resList.toList();
   QVariantList::const_iterator lit;
-  for (lit = res.begin(); lit != res.end(); lit++) {
-    if ((QMetaType::Type)lit->type() == QMetaType::QVariantMap) {
-      StatusBlock  block;
-      block.SetSearchContent (lit->toMap());
-      emit NewStatusItem (block, R_SearchResults);
+  if (res.isEmpty()) {
+    StatusBlock  emptyBlock;
+    emptyBlock.SetValue ("text",tr("Search Result Empty"));
+    emptyBlock.SetValue ("screen_name",tr("nobody"));
+    emptyBlock.SetValue ("id","zzzzzz");
+    emptyBlock.SetValue ("created_at",QDateTime::currentDateTime ().toUTC ().
+                     toString ("ddd MMM dd HH:mm:ss +0000 yyyy"));
+    emit NewStatusItem (emptyBlock, R_SearchResults);
+  } else {
+    for (lit = res.begin(); lit != res.end(); lit++) {
+      if ((QMetaType::Type)lit->type() == QMetaType::QVariantMap) {
+        StatusBlock  block;
+        block.SetSearchContent (lit->toMap());
+        emit NewStatusItem (block, R_SearchResults);
+      }
     }
   }
 }
@@ -706,7 +754,7 @@ NetworkIF::AskBitly (QUuid tag, QString http)
         ("http://api.bit.ly/v3/shorten");
   QUrl url (request);
   url.addQueryItem ("login",Settings().value ("network/bitly_user",
-                             QString("anonymous")).toString());
+                             QString("nobody")).toString());
   url.addQueryItem ("apiKey",Settings().value ("network/bitly_key",
                              QString()).toString());
   url.addQueryItem ("format","xml");
@@ -1262,6 +1310,8 @@ NetworkIF::ExpectReply (QNetworkReply *reply, ChronNetworkReply * chReply)
          chReply, SLOT(handleError(QNetworkReply::NetworkError)));
   connect (chReply, SIGNAL (networkError (ApiRequestKind, int)),
            this, SLOT (networkErrorInt (ApiRequestKind, int)));
+  connect (chReply, SIGNAL (BadReply (ChronNetworkReply * , int)),
+           this, SLOT (handleBadReply (ChronNetworkReply *, int)));
 }
 
 void

@@ -218,6 +218,8 @@ TimelineView::CustomLink (const QUrl & url)
   }
 }
 
+/** \brief Catch a status item and add it to the list of paragraphs.
+ */
 
 void
 TimelineView::CatchStatusItem (StatusBlock block, TimelineKind kind)
@@ -248,7 +250,7 @@ TimelineView::AddCurrent (StatusBlock block, TimelineKind kind)
 {
   QString id = block.Id();
   if (!block.HasUserValue("screen_name")) {
-     block.SetUserValue ("screen_name","anonymous");
+     block.SetUserValue ("screen_name","nobody");
   }
   if (doNotify && notifyDelay > 0) {
      PopupNotify (id,block);

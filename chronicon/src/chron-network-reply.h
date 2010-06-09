@@ -78,6 +78,7 @@ signals:
   void AuthVerifyGood  (ChronNetworkReply *chReply);
   void Timeout (ChronNetworkReply * chReply);
   void networkError (ApiRequestKind ark, int err);
+  void BadReply     (ChronNetworkReply * chReply, int err);
 
 private:
 

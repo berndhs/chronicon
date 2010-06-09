@@ -107,6 +107,9 @@ void
 StatusBlock::SetValue (const QString & key, const QString & value)
 {
   statusValues.SetValue (key, value);
+  if (key == "id") {
+    ident = value;
+  }
 }
 
 void
