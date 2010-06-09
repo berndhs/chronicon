@@ -43,8 +43,11 @@ Chronicon Change Log
    * get whoever uses whirlpool hash in their authentication scheme to use
      something else
 
-- weridifies the ouath a little more, following the proposal of the twitter
+- wierdifies the ouath a little more, following the proposal of the twitter
   people to make things as obscure as possible
+
+- do some error reporting when twitter responses are negative, and tell the
+  user when search results are empty
 
 
 
