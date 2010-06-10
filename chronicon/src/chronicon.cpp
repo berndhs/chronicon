@@ -174,6 +174,7 @@ Chronicon::SetupMenus ()
   startMenu.addAction (tr("Login"), &network, SLOT (login()));
   startMenu.addAction (tr("Auto Login"), this, SLOT (AutoLogin()));
   startMenu.addAction (tr("Configure"), this, SLOT (Configure()));
+  startMenu.addAction (tr("Flush Data"), &theView, SLOT (FlushTimelines()));
   startMenu.addAction (tr("Restart"), this, SLOT (ReStart()));
   startMenu.addAction (tr("Quit"), this, SLOT (quit()));
 

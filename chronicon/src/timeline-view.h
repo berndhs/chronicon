@@ -59,6 +59,7 @@ public slots:
 
   void CatchStatusItem (StatusBlock block, TimelineKind kind);
   void CatchUserInfo (UserBlock block);
+  void FlushTimelines ();
 
 /** \brief Chronicon has internal links, the syntax is
  *                chronicon://status/item#statusid

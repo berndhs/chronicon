@@ -169,6 +169,16 @@ TimelineView::ClearList (TimelineKind kind)
   Show ();
 }
 
+void
+TimelineView::FlushTimelines ()
+{
+  TimelineMap::iterator it;
+  for (it = paragraphs.begin (); it != paragraphs.end(); it++) {
+    it->second.clear ();
+  }
+  Show ();
+}
+
 
 /** \brief Chronicon has internal links, the syntax is
  *                chronicon://status/item#statusid
