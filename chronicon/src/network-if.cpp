@@ -212,7 +212,7 @@ NetworkIF::handleBadReply (ChronNetworkReply * reply, int err)
   QNetworkReply *netReply = reply->NetReply();
   TimelineKind kind (reply->Kind());
   StatusBlock  block;
-  block.SetValue ("text",tr("Twitter Site Reports Error"));
+  block.SetValue ("text",tr("Server Reports Error"));
   block.SetValue ("screen_name",tr("nobody"));
   block.SetValue ("id","zzzzzz");
   block.SetValue ("created_at",QDateTime::currentDateTime().toUTC().
@@ -220,6 +220,11 @@ NetworkIF::handleBadReply (ChronNetworkReply * reply, int err)
   emit NewStatusItem (block, kind);
   emit ReplyComplete (kind, false);
 qDebug () << " did emit for bad block " << block;
+  QByteArray data ("none");
+  if (netReply) {
+    data = netReply->readAll();
+  }
+qDebug () << "data for bad request " << data;
   CleanupReply (netReply, reply);
 }
 

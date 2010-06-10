@@ -161,7 +161,7 @@ ItemDialog::Exec  (QString id, StatusBlock  block, QString itemHtml)
 void
 ItemDialog::PlainText (QString & plain, const StatusBlock & block)
 {
-  plain = tr("Twitter Message from ");
+  plain = tr("Status Message from ");
   plain.append (block.UserValue ("name"));
   plain.append (tr(" a.k.a "));
   plain.append (block.UserValue ("screen_name"));
@@ -224,7 +224,7 @@ ItemDialog::GetMore ()
 void
 ItemDialog::Mailto ()
 {
-  QString subject = tr ("Twitter Message from ");
+  QString subject = tr ("Status Message from ");
   subject.append (itemBlock.UserValue("screen_name"));
   QString plainText;
   PlainText (plainText, itemBlock);
