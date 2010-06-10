@@ -37,8 +37,8 @@ WebAuth::WebAuth (QObject *parent)
  initComplete (false)
 {
   authIF = new QOAuth::Interface;
-  key1 = "AFw/HBwjKSQ6GQA/OTglWx4tAS4cLg==";
-  key2 = "Jy0TNgRRE1Y0CxsZHiwCCQQKDyMoABclFRsXeiohBwtQDykZc1lENw9R";
+  key1 = "DS8CFikiJxgIKQdAGT48OQ45LQwqLg==";
+  key2 = "CQMoIgVaBTwlMx8qGBYIOQoqOl8nVwgCDQYXLB8+DD4TUgtfMzEYNg==";
   SetKeys ();
 }
 
