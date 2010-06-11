@@ -48,6 +48,8 @@ Chronicon Change Log
 
 - do some error reporting when twitter responses are negative, and tell the
   user when search results are empty
+- add a menu item to flush all timeline content in the client. This is useful
+  to clear old error messages, and to clear own updates that have been deleted
 
 
 
