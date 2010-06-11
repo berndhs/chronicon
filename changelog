@@ -51,5 +51,10 @@ Chronicon Change Log
 - add a menu item to flush all timeline content in the client. This is useful
   to clear old error messages, and to clear own updates that have been deleted
 
+- that's all for chronicon-0.1, continued in 0.2
 
+
+== version 0.2.1:
+
+- version 0.2.1 is the release version of 0.1.4
 
