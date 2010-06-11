@@ -2,7 +2,9 @@
 *.o
 moc_*
 ui_*
+*.gz
 chronicon/tmp/*
 doxydoc/html
 testdata/
+reference/
 
