@@ -1,0 +1,10 @@
+[Desktop Entry]
+Exec=chronicon
+Name=Chronicon - Twitter and StatusNet Client
+Icon=chronicon
+Type=Application
+Categories=Network;InstantMessaging;
+Comment=Chronicon is a desktop (or mobile) client for Web based microblogging services
+GenericName=Twitter Client
+Terminal=false
+StartupNotify=false
