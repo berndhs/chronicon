@@ -16,6 +16,7 @@ usage () {
    echo "--prefix=PREFIX   Install into PREFIX [${PREFIX}]"
    echo "--nonotify        do not use libnotify"
    echo "--yesnotify       use libnotify [default]"
+   echo "--build buildarg  is ignored"
    echo
 }
 
@@ -57,7 +58,6 @@ case $ac_option in
   *)
    echo "Bad option " $ac_option " " $ac_optarg
    usage
-   exit 1
    shift
    ;;
   esac
