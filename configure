@@ -14,15 +14,15 @@ usage () {
    echo "Options:"
    echo "--help            Show this help message and quit"
    echo "--prefix=PREFIX   Install into PREFIX [${PREFIX}]"
-   echo "--nonotify        do not use libnotify"
-   echo "--yesnotify       use libnotify [default]"
+   echo "--nonotify        do not use libnotify [default]"
+   echo "--yesnotify       use libnotify "
    echo "--build buildarg  is ignored"
    echo
 }
 
 COPYRIGHT=" Copyright (C) 2010 Bernd Stramm"
 PREFIX=/usr
-USE_NOTIFY=yes
+USE_NOTIFY=no
 OPTIONS_FILE=chronicon/options.pri
 # see if they said anything about prefix
 while test $# != 0
