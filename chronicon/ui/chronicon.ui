@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
+ <author>Bernd Stramm &lt;bernd.stramm@gmail.com&gt;</author>
  <class>ChroniconWindow</class>
  <widget class="QMainWindow" name="ChroniconWindow">
   <property name="geometry">
@@ -212,7 +213,7 @@
      <x>0</x>
      <y>0</y>
      <width>376</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -272,6 +273,7 @@
    </property>
   </action>
  </widget>
+ <layoutdefault spacing="0" margin="0"/>
  <customwidgets>
   <customwidget>
    <class>QWebView</class>
