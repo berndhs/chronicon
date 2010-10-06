@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NAME=chronicon
-VERSION=0.2.3
+VERSION=0.2.4
 PACKDIR=${HOME}/packaging/chronicon
 
 makearchive.sh ${NAME}-${VERSION} master
