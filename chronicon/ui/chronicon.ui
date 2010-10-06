@@ -41,26 +41,21 @@
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QLabel" name="twitterLabel">
+       <widget class="QPushButton" name="typeButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
+          <horstretch>5</horstretch>
+          <verstretch>1</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
          <size>
-          <width>133</width>
+          <width>40</width>
           <height>0</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
         <property name="text">
-         <string>What's Happening?</string>
+         <string>Type</string>
         </property>
        </widget>
       </item>
@@ -82,7 +77,7 @@
          <string>load...</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -109,25 +104,6 @@
     </item>
     <item row="1" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QPushButton" name="typeButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-          <horstretch>5</horstretch>
-          <verstretch>1</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>60</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Type</string>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QPushButton" name="cancelButton">
         <property name="sizePolicy">
@@ -168,7 +144,7 @@
       </item>
      </layout>
     </item>
-    <item row="2" column="0">
+    <item row="4" column="0">
      <widget class="chronicon::ChronTextEdit" name="ownMessage">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -190,7 +166,7 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
+    <item row="5" column="0">
      <widget class="QWebView" name="messageView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -213,7 +189,7 @@
      <x>0</x>
      <y>0</y>
      <width>376</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

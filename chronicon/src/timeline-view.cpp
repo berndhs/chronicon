@@ -441,13 +441,18 @@ TimelineView::AddHeadline (QString & html, TimelineKind kind)
   QString headlinePattern;
   QString date = QDateTime::currentDateTime().toString(titleDateForm);
   if (kind == R_Public) {
-    headlinePattern = tr(("<h3 style=\"%2\">As of %1 %3"
+    headlinePattern = tr((
+               "<h3 style=\"%2\">"
+               "<span style=\"font-size:75\%\">What's Happening - </span>"
+               "As of %1 %3"
                "</h3>"));
     html.append (headlinePattern.arg(date)
                               .arg(titleStyle)
                               .arg (tr("Public Timeline")));
   } else {
-    headlinePattern = tr(("<h3 style=\"%2\"><i>%7</i>: as of %1 user %6 "
+    headlinePattern = tr(("<h3 style=\"%2\">"
+               "<span style=\"font-size:75\%\">What's Happening - </span>"
+               "<i>%7</i>: as of %1 user %6 "
                "sent "
                "<a href=\"chronicon://lookup/own\">%5 updates</a>"
                " following "

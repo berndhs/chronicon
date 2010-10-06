@@ -254,6 +254,7 @@ Chronicon::Start ()
     QString lastuser = Settings().value("network/lastuser",QString("")).toString();
     network.SetBasicAuth (lastuser);
   }
+  SmallEdit ();
   show ();
   pollRemain = 0;
   QTimer::singleShot (500, this, SLOT (Poll()));
@@ -570,6 +571,8 @@ Chronicon::DebugCheck ()
 void
 Chronicon::BigEdit ()
 {
+  sendButton->show ();
+  cancelButton->show ();
   QSizePolicy editPoli = ownMessage->sizePolicy ();
   QSizePolicy viewPoli = messageView->sizePolicy ();
   editPoli.setVerticalStretch (viewPoli.verticalStretch());
@@ -579,6 +582,8 @@ Chronicon::BigEdit ()
 void
 Chronicon::SmallEdit ()
 {
+  sendButton->hide ();
+  cancelButton->hide ();
   QSizePolicy editPoli = ownMessage->sizePolicy();
   editPoli.setVerticalStretch (normalEditVertical);
   ownMessage->setSizePolicy (editPoli);
