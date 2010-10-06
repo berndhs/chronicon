@@ -337,6 +337,7 @@ Chronicon::startMessage ()
 {
   inReplyTo = "";
   BigEdit ();
+  ownMessage->setFocus ();
 }
 
 void
@@ -350,6 +351,7 @@ Chronicon::startMessage (QString msg, QString oldId)
   ownMessage->setText (msg);
   ownMessage->moveCursor (QTextCursor::Start);
   BigEdit();
+  ownMessage->setFocus ();
 }
 
 
