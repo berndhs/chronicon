@@ -36,31 +36,7 @@
 
 const char chronicon::ChroniconName[] = "Chronicon";
 
-namespace deliberate {
 
-void
-SetStyle (QSettings &zett)
-{
-  QStringList avail = QStyleFactory::keys();
-  QString     normal("oxygen");
-  normal = zett.value ("style/windowstyle",normal).toString();
-  if (normal == "gtk+") {
-    qDebug () << "Windows style " << normal << " is broken, not supported";
-    return;
-  }
-  if (avail.contains (normal, Qt::CaseInsensitive)) {
-    QApplication::setStyle (normal);
-    zett.setValue ("style/windowstyle",normal);
-  } else {
-    QStyle * pSt = QApplication::style();
-    if (pSt) {
-      QString defaultname = pSt->objectName();
-      zett.setValue ("style/windowstyle",defaultname);
-    }
-  }
-}
-
-} // namespace
 
 int
 main (int argc, char * argv[])
@@ -70,15 +46,14 @@ main (int argc, char * argv[])
   QCoreApplication::setOrganizationDomain ("bernd-stramm.com");
   deliberate::ProgramVersion pv (chronicon::ChroniconName);
   QCoreApplication::setApplicationVersion (pv.Version());
-  QSettings  settings;
-  deliberate::SetSettings (settings);
-  settings.setValue ("program",pv.MyName());
 #if USE_NOTIFY
   notify_init (chronicon::ChroniconName);
 #endif
 
-  deliberate::SetStyle (settings);
   QApplication App (argc, argv);
+  QSettings  settings;
+  deliberate::SetSettings (settings);
+  settings.setValue ("program",pv.MyName());
   deliberate::CmdOptions  opts ("Chronicon");
   opts.AddSoloOption ("debug","D","show Debug log window");
   opts.AddIntOption ("maxitems","M","maximum length of timeline shown");
